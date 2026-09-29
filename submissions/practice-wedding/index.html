@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>청첩장모임 — 지수 & 민호</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+:root{
+  --paper:#FAF6F0; --card:#FFFFFF; --ink:#2B2622; --sub:#6F655B; --line:#E8DFD3; --soft:#F3ECE2;
+  --bride:#B8506A; --bride-bg:#F8E7EC; --groom:#3F6C8C; --groom-bg:#E4EEF5; --both:#6B7B3A; --both-bg:#EDF0DD;
+  --ok:#2F7D4F; --ok-bg:#E3F2E8; --no:#B4443A; --no-bg:#F8E4E1; --warn:#C2410C; --warn-bg:#FDEBDD;
+  --r:12px; --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Pretendard,-apple-system,"Apple SD Gothic Neo",sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;font-size:15px}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+a{color:inherit;text-decoration:none}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+.side{position:sticky;top:0;height:100vh;padding:var(--s5) var(--s4);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:var(--s2)}
+.brand{font-size:18px;font-weight:700;letter-spacing:-.02em;margin-bottom:var(--s1)}
+.brand small{display:block;font-size:12px;font-weight:500;color:var(--sub);letter-spacing:0}
+.nav a{display:flex;align-items:center;gap:var(--s3);padding:10px var(--s3);border-radius:var(--r);color:var(--sub);font-weight:500}
+.nav a[aria-current=page]{background:var(--ink);color:#fff}
+.nav a:hover:not([aria-current=page]){background:var(--soft)}
+.nav svg{width:20px;height:20px;flex:none}
+.side .who{margin-top:auto;font-size:13px;color:var(--sub);border-top:1px solid var(--line);padding-top:var(--s4)}
+.side .who a{text-decoration:underline;text-underline-offset:3px}
+main{padding:var(--s6) var(--s6) 96px;max-width:1040px;width:100%}
+h1{font-size:26px;letter-spacing:-.03em;line-height:1.25;margin-bottom:var(--s1)}
+h2{font-size:17px;letter-spacing:-.02em;margin-bottom:var(--s3)}
+.lead{color:var(--sub);margin-bottom:var(--s5)}
+.section{margin-bottom:var(--s6)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s4)}
+.grid{display:grid;gap:var(--s3)}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}
+.row{display:flex;align-items:center;gap:var(--s3)}
+.between{justify-content:space-between}
+.wrap{flex-wrap:wrap}
+.muted{color:var(--sub);font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:600;background:var(--soft);color:var(--sub);white-space:nowrap}
+.chip.bride{background:var(--bride-bg);color:var(--bride)}.chip.groom{background:var(--groom-bg);color:var(--groom)}.chip.both{background:var(--both-bg);color:var(--both)}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}.chip.no{background:var(--no-bg);color:var(--no)}.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:44px;padding:0 var(--s4);border-radius:var(--r);font-weight:600;background:var(--ink);color:#fff}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.small{min-height:36px;padding:0 var(--s3);font-size:13px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:focus-visible,.nav a:focus-visible,.tab:focus-visible,.pick:focus-visible{outline:2px solid var(--groom);outline-offset:2px}
+.stat{display:flex;flex-direction:column;gap:2px}.stat b{font-size:28px;letter-spacing:-.03em}
+.alert{display:flex;gap:var(--s3);align-items:flex-start;background:var(--warn-bg);color:#7A2E08;border:1px solid #F3C9A6;border-radius:var(--r);padding:var(--s3) var(--s4);margin-bottom:var(--s3)}
+.mtg{display:grid;grid-template-columns:4px 1fr auto;gap:var(--s3);padding:var(--s4);background:var(--card);border:1px solid var(--line);border-radius:var(--r);align-items:center}
+.mtg .bar{align-self:stretch;border-radius:4px;background:var(--both)}
+.mtg .bar.bride{background:var(--bride)}.mtg .bar.groom{background:var(--groom)}
+.mtg h3{font-size:16px;letter-spacing:-.02em}
+.list{display:grid;gap:var(--s2)}
+.tabs{display:flex;gap:var(--s2);margin-bottom:var(--s4);overflow-x:auto}
+.tab{padding:8px var(--s4);border-radius:999px;border:1px solid var(--line);background:var(--card);font-weight:600;font-size:14px;white-space:nowrap;color:var(--sub)}
+.tab[aria-selected=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tab i{font-style:normal;margin-left:6px;opacity:.7}
+table.mx{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+.mx th,.mx td{padding:10px var(--s3);border-bottom:1px solid var(--line);text-align:center}
+.mx th:first-child,.mx td:first-child{text-align:left}
+.mx thead th{font-size:13px;color:var(--sub);font-weight:600;vertical-align:bottom}
+.mx th.best,.mx td.best{background:var(--ok-bg)}
+.scroll{overflow-x:auto}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.cal .h{background:var(--soft);padding:var(--s2);text-align:center;font-size:12px;color:var(--sub);font-weight:600}
+.cal .d{background:var(--card);min-height:96px;padding:6px;display:flex;flex-direction:column;gap:4px}
+.cal .d.off{background:var(--paper)}
+.cal .d .n{font-size:12px;color:var(--sub)}
+.cal .d.today .n{color:#fff;background:var(--ink);border-radius:999px;width:22px;height:22px;display:grid;place-items:center}
+.cal .d.clash{background:var(--warn-bg)}
+.ev{font-size:11px;font-weight:600;padding:2px 6px;border-radius:6px;background:var(--both-bg);color:var(--both);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev.bride{background:var(--bride-bg);color:var(--bride)}.ev.groom{background:var(--groom-bg);color:var(--groom)}
+.people{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--s3)}
+.pick{display:flex;align-items:center;gap:var(--s3);padding:var(--s3);border:1.5px solid var(--line);border-radius:var(--r);background:var(--card);text-align:left;width:100%}
+.pick[aria-pressed=true]{border-color:var(--ink);background:var(--soft)}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;background:var(--soft);color:var(--sub);flex:none}
+.av.bride{background:var(--bride-bg);color:var(--bride)}.av.groom{background:var(--groom-bg);color:var(--groom)}.av.both{background:var(--both-bg);color:var(--both)}
+label.f{display:grid;gap:6px;font-weight:600;font-size:13px;margin-bottom:var(--s3)}
+input,select{font:inherit;padding:10px var(--s3);border:1px solid var(--line);border-radius:var(--r);background:#fff;min-height:44px;width:100%}
+.cands{display:grid;gap:var(--s2)}
+.steps{display:flex;gap:var(--s2);margin-bottom:var(--s5)}
+.steps span{flex:1;height:4px;border-radius:2px;background:var(--line)}.steps span.on{background:var(--ink)}
+.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-weight:600;z-index:9;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.empty{text-align:center;padding:var(--s6) var(--s4);color:var(--sub);border:1.5px dashed var(--line);border-radius:var(--r)}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+.reply{display:flex;gap:var(--s2)}
+.reply button{flex:1;min-height:44px;border-radius:var(--r);border:1.5px solid var(--line);background:#fff;font-weight:600}
+.reply button.ok[aria-pressed=true]{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.reply button.no[aria-pressed=true]{background:var(--no-bg);border-color:var(--no);color:var(--no)}
+.tabbar{display:none}
+body.guest .side,body.guest .tabbar{display:none}
+body.guest .app{grid-template-columns:1fr}
+body.guest main{margin:0 auto;padding-bottom:var(--s6)}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}.side{display:none}
+  main{padding:var(--s5) var(--s4) 104px}
+  .g2,.g3{grid-template-columns:1fr}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:5}
+  .tabbar a{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:600;color:var(--sub);padding:6px 0;min-height:44px}
+  .tabbar a[aria-current=page]{color:var(--ink)}.tabbar svg{width:22px;height:22px}
+  .cal .d{min-height:64px;padding:4px}.ev{font-size:10px;padding:1px 4px}
+  .mtg{grid-template-columns:4px 1fr}.mtg>.go{grid-column:2}
+  h1{font-size:22px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">청첩장모임<small>지수 ♥ 민호 · 12/19 (D-81)</small></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="who">초대받은 지인 화면 미리보기<br><a href="#/guest">민지 님으로 보기 →</a></div>
+  </aside>
+  <main id="view" tabindex="-1"></main>
+</div>
+<nav class="tabbar" id="tabbar"></nav>
+
+<script>
+/* ---------- 데이터 ---------- */
+const TODAY='2026-09-29', WEDDING='2026-12-19';
+const SIDE={bride:'신부 쪽',groom:'신랑 쪽',both:'양가'};
+const PEOPLE=[
+ {id:1,name:'김민지',side:'bride',rel:'대학',groups:['대학 동기','동아리'],phone:'010-2345-1101'},
+ {id:2,name:'이서연',side:'bride',rel:'대학',groups:['대학 동기'],phone:'010-2345-1102'},
+ {id:3,name:'박하은',side:'bride',rel:'대학',groups:['대학 동기','동네'],phone:'010-2345-1103'},
+ {id:4,name:'최유나',side:'bride',rel:'대학',groups:['대학 동기'],phone:'010-2345-1104'},
+ {id:5,name:'정소라',side:'bride',rel:'대학',groups:['대학 동기','동아리'],phone:'010-2345-1105'},
+ {id:6,name:'한지우',side:'bride',rel:'동네',groups:['동네'],phone:'010-2345-1106'},
+ {id:7,name:'오세림',side:'bride',rel:'동네',groups:['동네'],phone:'010-2345-1107'},
+ {id:8,name:'윤다인',side:'bride',rel:'대학',groups:['동아리'],phone:'010-2345-1108'},
+ {id:9,name:'강도윤',side:'groom',rel:'직장',groups:['직장 팀','고등학교'],phone:'010-3456-2201'},
+ {id:10,name:'송재현',side:'groom',rel:'직장',groups:['직장 팀'],phone:'010-3456-2202'},
+ {id:11,name:'임태오',side:'groom',rel:'직장',groups:['직장 팀'],phone:'010-3456-2203'},
+ {id:12,name:'조은성',side:'groom',rel:'직장',groups:['직장 팀'],phone:'010-3456-2204'},
+ {id:13,name:'배준호',side:'groom',rel:'고등학교',groups:['고등학교'],phone:'010-3456-2205'},
+ {id:14,name:'신동혁',side:'groom',rel:'고등학교',groups:['고등학교'],phone:'010-3456-2206'},
+ {id:15,name:'권민석',side:'groom',rel:'고등학교',groups:['고등학교','군대'],phone:'010-3456-2207'},
+ {id:16,name:'남기훈',side:'groom',rel:'군대',groups:['군대'],phone:'010-3456-2208'},
+ {id:17,name:'박부장님',side:'groom',rel:'직장',groups:['상사'],phone:'010-3456-2209'},
+ {id:18,name:'김팀장님',side:'bride',rel:'직장',groups:['상사'],phone:'010-2345-1109'},
+ {id:19,name:'신랑 부모님',side:'both',rel:'가족',groups:['양가'],phone:'010-4567-3301'},
+ {id:20,name:'신부 부모님',side:'both',rel:'가족',groups:['양가'],phone:'010-4567-3302'},
+];
+const P=id=>PEOPLE.find(p=>p.id===id);
+const R=(a)=>Object.fromEntries(a.map(([id,...v])=>[id,v]));
+let MEETINGS=[
+ {id:1,title:'대학 동기 모임',kind:'그룹',side:'bride',members:[1,2,3,4,5],place:'합정 이탈리안',
+  cands:[{d:'2026-10-10',t:'점심'},{d:'2026-10-17',t:'저녁'},{d:'2026-10-24',t:'점심'}],
+  replies:{1:['ok','ok','no'],2:['no','ok','ok'],3:['ok','no','ok']},deadline:'2026-10-03',confirmed:null},
+ {id:2,title:'직장 팀 동료',kind:'그룹',side:'groom',members:[9,10,11,12],place:'판교 한식당',
+  cands:[{d:'2026-10-11',t:'점심'},{d:'2026-10-18',t:'점심'}],
+  replies:{9:['ok','no'],10:['ok','ok'],11:['ok','no'],12:['ok','ok']},deadline:'2026-10-05',confirmed:null},
+ {id:3,title:'동네 친구 모임',kind:'그룹',side:'bride',members:[3,6,7],place:'연남동 브런치',
+  cands:[{d:'2026-10-17',t:'점심'}],replies:{3:['ok'],6:['ok'],7:['ok']},deadline:'2026-09-26',confirmed:0},
+ {id:4,title:'고등학교 친구 모임',kind:'그룹',side:'groom',members:[13,14,15,9],place:'강남 고깃집',
+  cands:[{d:'2026-10-17',t:'저녁'}],replies:{13:['ok'],14:['ok'],15:['ok'],9:['ok']},deadline:'2026-09-25',confirmed:0},
+ {id:5,title:'박부장님 1:1',kind:'1:1',side:'groom',members:[17],place:'회사 근처 한정식',
+  cands:[{d:'2026-10-13',t:'점심'},{d:'2026-10-14',t:'점심'},{d:'2026-10-15',t:'점심'}],
+  replies:{},deadline:'2026-10-06',confirmed:null},
+ {id:6,title:'양가 상견례 겸 식사',kind:'양가',side:'both',members:[19,20],place:'서초 한정식',
+  cands:[{d:'2026-10-25',t:'저녁'}],replies:{19:['ok'],20:['ok']},deadline:'2026-09-30',confirmed:0},
+ {id:7,title:'대학 선배 모임',kind:'그룹',side:'bride',members:[8,5],place:'성수 카페',
+  cands:[{d:'2026-09-20',t:'점심'}],replies:{8:['ok'],5:['ok']},deadline:'2026-09-15',confirmed:0},
+ {id:8,title:'회사 동기 모임',kind:'그룹',side:'groom',members:[10,11],place:'선릉 곱창집',
+  cands:[{d:'2026-09-27',t:'저녁'}],replies:{10:['ok'],11:['ok']},deadline:'2026-09-22',confirmed:0},
+];
+/* 초대받은 지인(민지) 시점: 여러 커플의 요청 */
+let GUEST=[
+ {id:'g1',couple:'지수 ♥ 민호',title:'대학 동기 모임',deadline:'2026-10-03',cands:[{d:'2026-10-10',t:'점심'},{d:'2026-10-17',t:'저녁'},{d:'2026-10-24',t:'점심'}],ans:['ok','ok','no']},
+ {id:'g2',couple:'현우 ♥ 나연',title:'동아리 모임',deadline:'2026-10-02',cands:[{d:'2026-10-10',t:'저녁'},{d:'2026-10-17',t:'저녁'}],ans:[null,null]},
+ {id:'g3',couple:'준영 ♥ 하나',title:'고등학교 동창',deadline:'2026-10-08',cands:[{d:'2026-10-24',t:'점심'},{d:'2026-11-01',t:'점심'}],ans:[null,null]},
+];
+
+/* ---------- 도우미 ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dt=s=>new Date(s+'T00:00:00');
+const WD=['일','월','화','수','목','금','토'];
+const fmt=s=>{const d=dt(s);return `${d.getMonth()+1}/${d.getDate()}(${WD[d.getDay()]})`};
+const dday=s=>Math.round((dt(s)-dt(TODAY))/864e5);
+const ddayTxt=s=>{const n=dday(s);return n===0?'오늘':n>0?`D-${n}`:`D+${-n}`};
+const initial=n=>n.replace(/님$/,'').slice(0,1);
+const ICON={
+ home:'<path d="M3 11l9-8 9 8v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/>',
+ cal:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ plus:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+ users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0M16 4.5a3.5 3.5 0 010 7M18 14.5a6.5 6.5 0 013.5 5.5"/>',
+};
+const svg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
+const NAV=[['#/','home','홈'],['#/calendar','cal','전체 일정'],['#/meetings','list','모임'],['#/new','plus','편성'],['#/people','users','지인']];
+
+/* ---------- 상태 파생 ---------- */
+function status(m){
+  if(m.confirmed!==null){return dday(m.cands[m.confirmed].d)<0?'done':'confirmed'}
+  const replied=m.members.filter(id=>m.replies[id]).length;
+  return replied===m.members.length?'ready':'waiting';
+}
+const ST={waiting:['회신 대기',''],ready:['확정 대기','warn'],confirmed:['확정','ok'],done:['다녀옴','']};
+const confirmedList=()=>MEETINGS.filter(m=>m.confirmed!==null).map(m=>({m,c:m.cands[m.confirmed]}));
+function clashes(){
+  const by={};confirmedList().forEach(({m,c})=>{(by[c.d]=by[c.d]||[]).push(m)});
+  return Object.entries(by).filter(([d,a])=>a.length>1&&dday(d)>=0).map(([d,a])=>({d,a}));
+}
+function counts(m){
+  return m.cands.map((_,i)=>m.members.filter(id=>m.replies[id]&&m.replies[id][i]==='ok').length);
+}
+function bestIdx(m){const c=counts(m),mx=Math.max(...c);return mx>0?c.indexOf(mx):-1}
+
+/* ---------- 뷰 ---------- */
+function mtgCard(m){
+  const [sl,sc]=ST[status(m)];const replied=m.members.filter(id=>m.replies[id]).length;
+  const c=m.confirmed!==null?m.cands[m.confirmed]:null;
+  return `<a class="mtg" href="#/meeting/${m.id}"><span class="bar ${m.side}"></span>
+   <div><div class="row wrap" style="gap:8px"><h3>${esc(m.title)}</h3><span class="chip ${m.side}">${SIDE[m.side]}</span>${m.kind!=='그룹'?`<span class="chip">${m.kind}</span>`:''}</div>
+   <div class="muted">${c?`${fmt(c.d)} ${c.t} · ${esc(m.place)}`:`후보 ${m.cands.length}개 · 회신 ${replied}/${m.members.length} · 마감 ${fmt(m.deadline)} (${ddayTxt(m.deadline)})`}</div></div>
+   <div class="go"><span class="chip ${sc}">${sl}</span></div></a>`;
+}
+function vHome(){
+  const cl=clashes(),by=s=>MEETINGS.filter(m=>status(m)===s);
+  const next=confirmedList().filter(x=>dday(x.c.d)>=0).sort((a,b)=>dt(a.c.d)-dt(b.c.d))[0];
+  const urgent=by('waiting').concat(by('ready')).sort((a,b)=>dt(a.deadline)-dt(b.deadline)).slice(0,3);
+  return `<h1>안녕하세요, 지수 · 민호 님</h1><p class="lead">결혼식까지 ${dday(WEDDING)}일. 이번 시즌 청첩장모임 ${MEETINGS.length}건을 한 곳에서 봅니다.</p>
+  ${cl.map(x=>`<div class="alert" role="alert"><b>⚠</b><div><b>${fmt(x.d)}에 모임 ${x.a.length}건이 겹쳐요.</b><br>${x.a.map(m=>esc(m.title)).join(' · ')} — <a href="#/calendar" style="text-decoration:underline">일정에서 확인</a></div></div>`).join('')}
+  <div class="grid g3 section">
+   <div class="card stat"><span class="muted">회신 기다리는 모임</span><b>${by('waiting').length}</b></div>
+   <div class="card stat"><span class="muted">확정 대기 (전원 회신)</span><b style="color:var(--warn)">${by('ready').length}</b></div>
+   <div class="card stat"><span class="muted">확정된 모임</span><b style="color:var(--ok)">${by('confirmed').length}</b></div>
+  </div>
+  ${next?`<div class="section"><h2>다음 모임</h2><div class="card row between wrap"><div><b style="font-size:18px">${esc(next.m.title)}</b><div class="muted">${fmt(next.c.d)} ${next.c.t} · ${esc(next.m.place)}</div></div><span class="chip ok">${ddayTxt(next.c.d)}</span></div></div>`:''}
+  <div class="section"><div class="row between"><h2>지금 챙길 것</h2><a class="muted" href="#/meetings">전체 보기</a></div><div class="list">${urgent.map(mtgCard).join('')}</div></div>
+  <div class="section"><h2>바로 가기</h2><div class="row wrap"><a class="btn" href="#/new">새 모임 편성</a><a class="btn ghost" href="#/people">지인 풀 관리</a><a class="btn ghost" href="#/guest">지인이 받는 화면 보기</a></div></div>`;
+}
+let tabSel='waiting';
+function vMeetings(){
+  const tabs=[['waiting','회신 대기'],['ready','확정 대기'],['confirmed','확정'],['done','다녀옴']];
+  const list=MEETINGS.filter(m=>status(m)===tabSel);
+  const msg={waiting:['회신을 기다리는 모임이 없어요','모든 모임이 회신을 받았어요.'],ready:['확정할 모임이 없어요','전원이 회신하면 여기에 나타나요.'],confirmed:['확정된 모임이 아직 없어요','후보 날짜를 정해 확정해 보세요.'],done:['다녀온 모임이 아직 없어요','']}[tabSel];
+  return `<div class="row between wrap"><div><h1>모임</h1><p class="lead">진행 상태별로 모아봤어요.</p></div><a class="btn" href="#/new">+ 새 모임</a></div>
+  <div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button class="tab" role="tab" aria-selected="${k===tabSel}" data-tab="${k}">${l}<i>${MEETINGS.filter(m=>status(m)===k).length}</i></button>`).join('')}</div>
+  <div class="list">${list.length?list.map(mtgCard).join(''):`<div class="empty"><b>${msg[0]}</b>${msg[1]}</div>`}</div>`;
+}
+function vMeeting(id){
+  const m=MEETINGS.find(x=>x.id==id);if(!m)return `<div class="empty"><b>모임을 찾을 수 없어요</b><a class="btn ghost" href="#/meetings">목록으로</a></div>`;
+  const st=status(m),cnt=counts(m),best=bestIdx(m),pend=m.members.filter(i=>!m.replies[i]);
+  const cell=(v)=>v==='ok'?'<span class="chip ok">가능</span>':v==='no'?'<span class="chip no">불가</span>':'<span class="chip">미회신</span>';
+  const cf=m.confirmed!==null?m.cands[m.confirmed]:null;
+  const share=cf?`[청첩장모임 확정] ${m.title}\n${fmt(cf.d)} ${cf.t} · ${m.place}\n지수 ♥ 민호`:'';
+  return `<a class="muted" href="#/meetings">← 모임 목록</a>
+  <div class="row between wrap" style="margin-top:8px"><div><h1>${esc(m.title)}</h1><div class="row wrap" style="gap:8px"><span class="chip ${m.side}">${SIDE[m.side]}</span><span class="chip ${ST[st][1]}">${ST[st][0]}</span><span class="muted">${esc(m.place)}</span></div></div></div>
+  ${cf?`<div class="card section" style="margin-top:16px;border-color:var(--ok)"><div class="row between wrap"><div><span class="chip ok">확정</span><div style="font-size:22px;font-weight:700;margin-top:8px">${fmt(cf.d)} ${cf.t}</div><div class="muted">${esc(m.place)} · ${m.members.length}명 전원에게 공유됨</div></div><button class="btn ghost small" data-copy="${esc(share)}">공유 문구 복사</button></div></div>`:
+  `<div class="alert" style="margin-top:16px;${pend.length?'':'background:var(--ok-bg);border-color:#BFE0CB;color:#1E5A37'}"><b>${pend.length?'⏳':'✓'}</b><div>${pend.length?`<b>${esc(pend.map(i=>P(i).name).join(', '))}</b> 님 회신을 기다리는 중 · 마감 ${fmt(m.deadline)} (${ddayTxt(m.deadline)})`:'전원이 회신했어요. 아래에서 날짜를 확정하세요.'}</div></div>`}
+  <div class="section"><h2>후보 날짜별 회신</h2><div class="card scroll" style="padding:0"><table class="mx"><thead><tr><th>구성원</th>${m.cands.map((c,i)=>`<th class="${i===best&&!cf?'best':''}">${fmt(c.d)}<br>${c.t}</th>`).join('')}</tr></thead>
+   <tbody>${m.members.map(pid=>`<tr><td><b>${esc(P(pid).name)}</b> <span class="muted">${P(pid).rel}</span></td>${m.cands.map((_,i)=>`<td class="${i===best&&!cf?'best':''}">${cell((m.replies[pid]||[])[i])}</td>`).join('')}</tr>`).join('')}
+   <tr><td><b>가능 인원</b></td>${cnt.map((n,i)=>`<td class="${i===best&&!cf?'best':''}"><b>${n}/${m.members.length}</b></td>`).join('')}</tr>
+   ${cf?'':`<tr><td></td>${m.cands.map((_,i)=>`<td class="${i===best?'best':''}"><button class="btn small ${i===best?'':'ghost'}" data-confirm="${m.id}:${i}">확정</button></td>`).join('')}</tr>`}
+   </tbody></table></div>
+   ${!cf&&pend.length?`<p class="muted" style="margin-top:12px">마감(${fmt(m.deadline)})이 지나도 회신이 없으면, 회신한 분들 기준으로 확정하거나 마감을 연장할 수 있어요.</p><div class="row" style="margin-top:8px"><button class="btn ghost small" data-remind="${m.id}">미회신자에게 재촉 보내기</button><button class="btn ghost small" data-extend="${m.id}">마감 3일 연장</button></div>`:''}</div>`;
+}
+let draft={sel:new Set(),title:'',side:'bride',cands:[{d:'2026-10-24',t:'점심'},{d:'2026-10-25',t:'점심'}],deadline:'2026-10-10',step:1,filter:'전체'};
+function vNew(){
+  const d=draft;const groups=['전체',...new Set(PEOPLE.flatMap(p=>p.groups))];
+  const kind=d.sel.size===1?'1:1':[...d.sel].some(i=>P(i).side==='both')?'양가':'그룹';
+  const steps=`<div class="steps" aria-label="${d.step}/3 단계">${[1,2,3].map(i=>`<span class="${i<=d.step?'on':''}"></span>`).join('')}</div>`;
+  if(d.step===1){
+    const list=PEOPLE.filter(p=>d.filter==='전체'||p.groups.includes(d.filter));
+    return `<h1>모임 편성</h1><p class="lead">1/3 · 함께 만날 사람을 고르세요. 한 명만 고르면 1:1 만남이 돼요.</p>${steps}
+    <div class="tabs">${groups.map(g=>`<button class="tab" aria-selected="${g===d.filter}" data-filter="${g}">${g}</button>`).join('')}</div>
+    <div class="people">${list.map(p=>`<button class="pick" aria-pressed="${d.sel.has(p.id)}" data-pick="${p.id}"><span class="av ${p.side}">${initial(p.name)}</span><span><b>${esc(p.name)}</b><br><span class="muted">${p.rel} · ${p.groups.join(', ')}</span></span></button>`).join('')}</div>
+    <div class="row between" style="margin-top:24px"><span class="muted">${d.sel.size}명 선택 · ${d.sel.size?kind:''}</span><button class="btn" data-step="2" ${d.sel.size?'':'disabled'}>다음</button></div>`;
+  }
+  if(d.step===2){
+    return `<h1>모임 편성</h1><p class="lead">2/3 · 날짜 후보와 회신 마감을 정하세요.</p>${steps}
+    <label class="f">모임 이름<input id="title" value="${esc(d.title)}" placeholder="예: 대학 동기 모임"></label>
+    <label class="f">누구 쪽 모임인가요?<select id="side">${Object.entries(SIDE).map(([k,v])=>`<option value="${k}" ${d.side===k?'selected':''}>${v}</option>`).join('')}</select></label>
+    <div class="section"><h2>날짜 후보</h2><div class="cands">${d.cands.map((c,i)=>{const cl=confirmedList().find(x=>x.c.d===c.d);return `<div class="row"><input type="date" value="${c.d}" data-cd="${i}" style="flex:2"><select data-ct="${i}" style="flex:1">${['점심','저녁'].map(t=>`<option ${c.t===t?'selected':''}>${t}</option>`).join('')}</select><button class="btn ghost small" data-rm="${i}" aria-label="후보 삭제">✕</button></div>${cl?`<div class="muted" style="color:var(--warn)">⚠ 이 날은 이미 “${esc(cl.m.title)}”이 확정돼 있어요.</div>`:''}`}).join('')}</div>
+     <button class="btn ghost small" style="margin-top:12px" data-addc>+ 후보 추가</button></div>
+    <label class="f">회신 마감<input type="date" id="dl" value="${d.deadline}"></label>
+    <div class="row between" style="margin-top:24px"><button class="btn ghost" data-step="1">이전</button><button class="btn" data-step="3">다음</button></div>`;
+  }
+  return `<h1>모임 편성</h1><p class="lead">3/3 · 확인 후 후보를 보내요.</p>${steps}
+   <div class="card"><b style="font-size:18px">${esc(d.title||'(이름 없음)')}</b> <span class="chip ${d.side}">${SIDE[d.side]}</span> <span class="chip">${kind}</span>
+   <p class="muted" style="margin:8px 0">참석자: ${[...d.sel].map(i=>P(i).name).join(', ')}</p>
+   <p class="muted">후보: ${d.cands.map(c=>fmt(c.d)+' '+c.t).join(' / ')}</p><p class="muted">회신 마감: ${fmt(d.deadline)} (${ddayTxt(d.deadline)})</p></div>
+   <div class="row between" style="margin-top:24px"><button class="btn ghost" data-step="2">이전</button><button class="btn" data-send>후보 보내기</button></div>`;
+}
+let pFilter='전체',showForm=false;
+function vPeople(){
+  const groups=['전체',...new Set(PEOPLE.flatMap(p=>p.groups))];
+  const list=PEOPLE.filter(p=>pFilter==='전체'||p.groups.includes(pFilter));
+  return `<div class="row between wrap"><div><h1>지인 풀</h1><p class="lead">${PEOPLE.length}명 등록 · 한 사람이 여러 그룹에 속할 수 있어요.</p></div><button class="btn" data-form>${showForm?'닫기':'+ 지인 등록'}</button></div>
+  ${showForm?`<form class="card section" id="pf"><div class="grid g2"><label class="f">이름<input name="name" required></label><label class="f">연락처<input name="phone" placeholder="010-0000-0000"></label>
+   <label class="f">관계<select name="rel">${['대학','직장','고등학교','동네','가족','군대','기타'].map(r=>`<option>${r}</option>`).join('')}</select></label>
+   <label class="f">누구 쪽<select name="side">${Object.entries(SIDE).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></label></div>
+   <label class="f">그룹 (쉼표로 여러 개)<input name="groups" placeholder="대학 동기, 동아리"></label><button class="btn">등록</button></form>`:''}
+  <div class="tabs">${groups.map(g=>`<button class="tab" aria-selected="${g===pFilter}" data-pf="${g}">${g}</button>`).join('')}</div>
+  <div class="people">${list.map(p=>`<div class="card row"><span class="av ${p.side}">${initial(p.name)}</span><div><b>${esc(p.name)}</b> <span class="chip ${p.side}">${SIDE[p.side]}</span><div class="muted">${p.rel} · ${esc(p.phone)}</div><div class="row wrap" style="gap:4px;margin-top:4px">${p.groups.map(g=>`<span class="chip">${esc(g)}</span>`).join('')}</div></div></div>`).join('')}</div>`;
+}
+let calMonth='2026-10';
+function vCalendar(){
+  const [y,mo]=calMonth.split('-').map(Number);const first=new Date(y,mo-1,1),last=new Date(y,mo,0).getDate();
+  const ev={};confirmedList().forEach(x=>{(ev[x.c.d]=ev[x.c.d]||[]).push(x)});
+  const pad=n=>String(n).padStart(2,'0');
+  let cells=WD.map(w=>`<div class="h">${w}</div>`).join('');
+  for(let i=0;i<first.getDay();i++)cells+='<div class="d off"></div>';
+  for(let d=1;d<=last;d++){const key=`${y}-${pad(mo)}-${pad(d)}`,e=ev[key]||[];
+    cells+=`<div class="d ${key===TODAY?'today':''} ${e.length>1?'clash':''}"><span class="n">${d}</span>${e.map(x=>`<a class="ev ${x.m.side}" href="#/meeting/${x.m.id}" title="${esc(x.m.title)} · ${x.c.t}">${esc(x.m.title)}</a>`).join('')}${e.length>1?'<span class="chip warn" style="font-size:10px;padding:0 6px">겹침</span>':''}</div>`}
+  const cl=clashes(),wait=MEETINGS.filter(m=>status(m)!=='confirmed'&&status(m)!=='done');
+  return `<h1>전체 일정</h1><p class="lead">신랑·신부 쪽 확정 모임을 한 화면에서 봅니다.</p>
+  ${cl.map(x=>`<div class="alert" role="alert"><b>⚠</b><div><b>${fmt(x.d)} 겹침</b> — ${x.a.map(m=>esc(m.title)).join(' · ')}</div></div>`).join('')}
+  <div class="row between" style="margin-bottom:12px"><div class="row"><button class="btn ghost small" data-cm="-1" aria-label="이전 달">‹</button><h2 style="margin:0">${y}년 ${mo}월</h2><button class="btn ghost small" data-cm="1" aria-label="다음 달">›</button></div>
+   <div class="row wrap" style="gap:8px"><span class="chip bride">신부</span><span class="chip groom">신랑</span><span class="chip both">양가</span></div></div>
+  <div class="cal">${cells}</div>
+  <div class="section" style="margin-top:24px"><h2>아직 확정 전 (${wait.length})</h2><div class="list">${wait.map(mtgCard).join('')||'<div class="empty"><b>모두 확정됐어요</b></div>'}</div></div>`;
+}
+function vGuest(){
+  const yes={};GUEST.forEach(g=>g.cands.forEach((c,i)=>{if(g.ans[i]==='ok')(yes[c.d]=yes[c.d]||[]).push(g.couple)}));
+  const dup=Object.entries(yes).filter(([,a])=>a.length>1);
+  return `<a class="muted" href="#/">← 신랑·신부 화면으로</a><h1 style="margin-top:8px">민지 님, 청첩장모임 요청 ${GUEST.length}건</h1><p class="lead">여러 커플이 보낸 후보 날짜에 한 번에 답해 주세요. (지인 시점 미리보기)</p>
+  ${dup.map(([d,a])=>`<div class="alert" role="alert"><b>⚠</b><div><b>${fmt(d)}</b>에 “가능”을 ${a.length}곳에 표시했어요: ${a.join(', ')}.<br>한 곳만 남기면 좋아요.</div></div>`).join('')}
+  <div class="list" style="gap:16px">${GUEST.map(g=>`<div class="card"><div class="row between wrap"><div><b style="font-size:16px">${esc(g.couple)}</b> <span class="muted">· ${esc(g.title)}</span></div><span class="chip warn">마감 ${fmt(g.deadline)} (${ddayTxt(g.deadline)})</span></div>
+   <div class="grid" style="margin-top:12px">${g.cands.map((c,i)=>`<div class="row between wrap"><b>${fmt(c.d)} ${c.t}</b><div class="reply" style="min-width:200px"><button class="ok" aria-pressed="${g.ans[i]==='ok'}" data-ans="${g.id}:${i}:ok">가능</button><button class="no" aria-pressed="${g.ans[i]==='no'}" data-ans="${g.id}:${i}:no">불가</button></div></div>`).join('')}</div>
+   <p class="muted" style="margin-top:12px">${g.ans.every(Boolean)?'✓ 답변을 보냈어요. 마감 전까지 바꿀 수 있어요.':'모든 후보에 답해 주세요.'}</p></div>`).join('')}</div>`;
+}
+
+/* ---------- 라우터 ---------- */
+function toast(t){const e=document.createElement('div');e.className='toast';e.textContent=t;e.setAttribute('role','status');document.body.appendChild(e);setTimeout(()=>e.remove(),2200)}
+function render(){
+  const h=location.hash||'#/',[,r,a]=h.match(/^#\/([^/]*)\/?(.*)$/)||[];
+  const html=r===''?vHome():r==='meetings'?vMeetings():r==='meeting'?vMeeting(a):r==='new'?vNew():r==='people'?vPeople():r==='calendar'?vCalendar():r==='guest'?vGuest():vHome();
+  $('#view').innerHTML=html;
+  const cur=r==='meeting'?'#/meetings':r===''||r==='guest'?'#/':'#/'+r;
+  const nav=NAV.map(([href,ic,l])=>`<a href="${href}" ${href===cur?'aria-current="page"':''}>${svg(ic)}<span>${l}</span></a>`).join('');
+  $('#nav').innerHTML=nav;$('#tabbar').innerHTML=nav;window.scrollTo(0,0);
+  document.body.classList.toggle('guest',r==='guest');
+}
+addEventListener('hashchange',render);
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;const D=t.dataset;
+  if(D.tab){tabSel=D.tab;return render()}
+  if(D.confirm){const [id,i]=D.confirm.split(':').map(Number);const m=MEETINGS.find(x=>x.id===id);
+    m.confirmed=i;const cl=confirmedList().filter(x=>x.c.d===m.cands[i].d&&x.m.id!==id);
+    toast(cl.length?`확정! 단, 같은 날 “${cl[0].m.title}”과 겹쳐요`:'확정했어요. 구성원 전원에게 공유돼요');return render()}
+  if(D.copy){navigator.clipboard&&navigator.clipboard.writeText(D.copy).catch(()=>{});return toast('공유 문구를 복사했어요')}
+  if(D.remind)return toast('미회신자에게 재촉 메시지를 보냈어요');
+  if(D.extend){const m=MEETINGS.find(x=>x.id==D.extend);const d=dt(m.deadline);d.setDate(d.getDate()+3);m.deadline=d.toISOString().slice(0,10);toast('마감을 3일 연장했어요');return render()}
+  if(D.filter){draft.filter=D.filter;return render()}
+  if(D.pick){const id=+D.pick;draft.sel.has(id)?draft.sel.delete(id):draft.sel.add(id);return render()}
+  if(D.step){saveDraft();draft.step=+D.step;return render()}
+  if(D.addc){saveDraft();draft.cands.push({d:'2026-11-07',t:'점심'});return render()}
+  if(D.rm!==undefined){saveDraft();draft.cands.splice(+D.rm,1);return render()}
+  if('send' in D){
+    const id=Math.max(...MEETINGS.map(m=>m.id))+1;const sel=[...draft.sel];
+    MEETINGS.unshift({id,title:draft.title||'새 모임',kind:sel.length===1?'1:1':'그룹',side:draft.side,members:sel,place:'장소 미정',cands:draft.cands.slice(),replies:{},deadline:draft.deadline,confirmed:null});
+    draft={sel:new Set(),title:'',side:'bride',cands:[{d:'2026-10-24',t:'점심'},{d:'2026-10-25',t:'점심'}],deadline:'2026-10-10',step:1,filter:'전체'};
+    tabSel='waiting';toast('후보를 보냈어요');location.hash='#/meeting/'+id;return}
+  if(D.pf){pFilter=D.pf;return render()}
+  if('form' in D){showForm=!showForm;return render()}
+  if(D.cm){const [y,m]=calMonth.split('-').map(Number);const d=new Date(y,m-1+ +D.cm,1);calMonth=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;return render()}
+  if(D.ans){const [id,i,v]=D.ans.split(':');const g=GUEST.find(x=>x.id===id);g.ans[+i]=g.ans[+i]===v?null:v;return render()}
+});
+function saveDraft(){const t=$('#title');if(!t)return;draft.title=t.value;draft.side=$('#side').value;draft.deadline=$('#dl').value;
+  document.querySelectorAll('[data-cd]').forEach(el=>draft.cands[+el.dataset.cd].d=el.value);document.querySelectorAll('[data-ct]').forEach(el=>draft.cands[+el.dataset.ct].t=el.value)}
+document.addEventListener('submit',e=>{
+  if(e.target.id!=='pf')return;e.preventDefault();const f=new FormData(e.target);
+  PEOPLE.push({id:PEOPLE.length+1,name:f.get('name'),side:f.get('side'),rel:f.get('rel'),phone:f.get('phone')||'-',groups:f.get('groups').split(',').map(s=>s.trim()).filter(Boolean)});
+  showForm=false;toast('지인을 등록했어요');render();
+});
+render();
+</script>
+</body>
+</html>

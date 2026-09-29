@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>아이콘</title>
+<style>
+:root{color-scheme:light only;
+  --bg:#F7F8FA;--card:#FFFFFF;--line:#E5E7EB;--ink:#1F2937;--sub:#6B7280;--soft:#EEF0F3;
+  --acc:#2F6BFF;--acc-soft:#EEF3FF;--ok:#166534;--ok-soft:#DCFCE7}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--ink);font:14px/1.5 "Pretendard",-apple-system,"Apple SD Gothic Neo",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+.wrap{max-width:1200px;margin:0 auto;padding:20px 24px 72px}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:-.01em}
+.plain{color:var(--sub);margin:0 0 20px}
+h2{font-size:17px;margin:0 0 12px}
+h2 small{font-weight:500;color:var(--sub);font-size:13px;margin-left:8px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);padding:8px 16px;border-radius:18px;background:var(--ink);color:#fff;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.toast.show{opacity:1}
+svg{display:block;flex:none}
+
+.layout{display:grid;grid-template-columns:132px minmax(0,1fr);gap:24px;align-items:start}
+.strip{position:sticky;top:12px;display:flex;flex-direction:column;gap:10px;width:132px}
+.strip .ax{display:flex;align-items:center;gap:8px;height:40px;padding:0 10px;background:var(--card);border:1px solid var(--line);border-radius:12px;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden}
+.strip .ax b{flex:none;width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;font-size:13px;display:inline-flex;align-items:center;justify-content:center}
+.save{font:inherit;font-weight:700;font-size:14px;height:40px;width:132px;padding:0;border-radius:10px;border:0;background:var(--acc);color:#fff;cursor:pointer}
+.save:disabled{opacity:.5;cursor:default}
+.save:focus-visible,.opt:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.strip .saved{font-size:12px;font-weight:600;color:var(--ok);text-align:center;min-height:18px}
+.strip .count{font-size:12px;font-weight:600;color:var(--acc);background:var(--acc-soft);border-radius:14px;padding:4px 10px;text-align:center}
+
+.group{margin-bottom:36px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card.wide{grid-column:1/-1}
+.head{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}
+.big{flex:none;min-width:56px;max-width:190px;height:56px;padding:0 12px;border-radius:12px;background:var(--soft);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden}
+.big span{overflow:hidden;text-overflow:ellipsis}
+.big.nolabel{padding:0}
+.big.tall{height:72px;min-width:72px}
+.head h3{font-size:15px;margin:0 0 2px}
+.place{font-size:12px;color:var(--sub);margin:0}
+.place b{color:var(--ink);font-weight:600}
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.opt{position:relative;font:inherit;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:44px;padding:12px 6px 10px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
+.opt:active{background:var(--soft)}
+.opt span{font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.opt.on{border:2px solid var(--acc);padding:11px 5px 9px;background:var(--acc-soft)}
+.opt.on span{color:var(--acc);font-weight:700}
+.opt.reco::after{content:"추천";position:absolute;top:-8px;right:6px;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;background:var(--ok);color:#fff}
+.demo{margin:0 0 12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 8px;border-radius:12px;font-size:12px;font-weight:700}
+.chip.ok{background:var(--ink);color:#fff}
+.chip.pend{background:var(--soft);color:var(--sub)}
+.bars{display:flex;flex-wrap:wrap;gap:16px;margin:0 0 16px}
+.tabbar{width:390px;max-width:100%;height:56px;border:1px solid var(--line);border-radius:12px;background:#fff;display:grid;grid-template-columns:repeat(4,1fr);align-items:center}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--sub);font-weight:600}
+.tab.on{color:var(--acc)}
+.segbar{width:390px;max-width:100%;display:flex;gap:6px;padding:6px 20px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.seg{flex:1;height:44px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-size:17px;color:var(--sub);white-space:nowrap}
+.seg.on{border-color:var(--acc);background:var(--acc-soft);color:var(--acc);font-weight:700}
+.tabopts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 16px}
+.tabopts .sub{margin:0 0 6px;font-size:13px;font-weight:700}
+.tabopts .sub small{font-weight:500;color:var(--sub);margin-left:6px}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fb{margin-top:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;gap:10px;align-items:flex-start}
+textarea{flex:1;font:inherit;font-size:14px;line-height:1.5;padding:10px 12px;border:1px solid var(--line);border-radius:10px;resize:vertical;color:var(--ink);background:#fff;min-height:72px}
+textarea::placeholder{color:#9CA3AF}
+.fb .save{width:100px}
+@media (max-width:900px){.layout{grid-template-columns:1fr}.strip{position:static;flex-direction:row;flex-wrap:wrap;width:auto;align-items:center}.tabopts{grid-template-columns:repeat(2,1fr)}.fb{flex-direction:column}.fb .save{width:100%}}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}.spin{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>아이콘</h1>
+<p class="plain">화면에 쓸 작은 그림이에요. 같은 뜻엔 같은 그림 하나만 씁니다.</p>
+
+<div class="layout">
+  <div class="strip">
+    <div class="ax"><b>1</b><span>아이콘</span></div>
+    <button class="save" id="accept-all">전체 추천대로</button>
+    <div class="saved" id="saved"></div>
+    <div class="count" id="count">바꾼 아이콘 0개</div>
+  </div>
+  <div id="groups"></div>
+</div>
+
+<div class="layout" style="margin-top:8px">
+  <div></div>
+  <div class="fb">
+    <textarea id="text" placeholder="더 하고 싶은 말 (없어도 돼요)"></textarea>
+    <button class="save" id="save-text">저장</button>
+  </div>
+</div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const ICONS={"alarm-clock": "<circle cx=\"12\" cy=\"13\" r=\"8\"/><path d=\"M12 9v4l2 2\"/><path d=\"M5 3 2 6\"/><path d=\"m22 6-3-3\"/><path d=\"M6.38 18.7 4 21\"/><path d=\"M17.64 18.67 20 21\"/>", "arrow-left": "<path d=\"m12 19-7-7 7-7\"/><path d=\"M19 12H5\"/>", "arrow-left-right": "<path d=\"M8 3 4 7l4 4\"/><path d=\"M4 7h16\"/><path d=\"m16 21 4-4-4-4\"/><path d=\"M20 17H4\"/>", "arrow-right": "<path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/>", "backpack": "<path d=\"M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z\"/><path d=\"M8 10h8\"/><path d=\"M8 18h8\"/><path d=\"M8 22v-6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6\"/><path d=\"M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2\"/>", "badge-check": "<path d=\"M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z\"/><path d=\"m9 12 2 2 4-4\"/>", "bed": "<path d=\"M2 4v16\"/><path d=\"M2 8h18a2 2 0 0 1 2 2v10\"/><path d=\"M2 17h20\"/><path d=\"M6 8v9\"/>", "bed-double": "<path d=\"M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8\"/><path d=\"M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4\"/><path d=\"M12 4v6\"/><path d=\"M2 18h20\"/>", "bell": "<path d=\"M10.268 21a2 2 0 0 0 3.464 0\"/><path d=\"M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326\"/>", "bell-ring": "<path d=\"M10.268 21a2 2 0 0 0 3.464 0\"/><path d=\"M22 8c0-2.3-.8-4.3-2-6\"/><path d=\"M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326\"/><path d=\"M4 2C2.8 3.7 2 5.7 2 8\"/>", "bus": "<path d=\"M8 6v6\"/><path d=\"M15 6v6\"/><path d=\"M2 12h19.6\"/><path d=\"M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3\"/><circle cx=\"7\" cy=\"18\" r=\"2\"/><path d=\"M9 18h5\"/><circle cx=\"16\" cy=\"18\" r=\"2\"/>", "calendar": "<path d=\"M8 2v4\"/><path d=\"M16 2v4\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M3 10h18\"/>", "calendar-days": "<path d=\"M8 2v4\"/><path d=\"M16 2v4\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M3 10h18\"/><path d=\"M8 14h.01\"/><path d=\"M12 14h.01\"/><path d=\"M16 14h.01\"/><path d=\"M8 18h.01\"/><path d=\"M12 18h.01\"/><path d=\"M16 18h.01\"/>", "calendar-range": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M16 2v4\"/><path d=\"M3 10h18\"/><path d=\"M8 2v4\"/><path d=\"M17 14h-6\"/><path d=\"M13 18H7\"/><path d=\"M7 14h.01\"/><path d=\"M17 18h.01\"/>", "car": "<path d=\"M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2\"/><circle cx=\"7\" cy=\"17\" r=\"2\"/><path d=\"M9 17h6\"/><circle cx=\"17\" cy=\"17\" r=\"2\"/>", "car-front": "<path d=\"m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8\"/><path d=\"M7 14h.01\"/><path d=\"M17 14h.01\"/><rect width=\"18\" height=\"8\" x=\"3\" y=\"10\" rx=\"2\"/><path d=\"M5 18v2\"/><path d=\"M19 18v2\"/>", "check": "<path d=\"M20 6 9 17l-5-5\"/>", "check-check": "<path d=\"M18 6 7 17l-5-5\"/><path d=\"m22 10-7.5 7.5L13 16\"/>", "chevron-down": "<path d=\"m6 9 6 6 6-6\"/>", "chevron-left": "<path d=\"m15 18-6-6 6-6\"/>", "chevron-right": "<path d=\"m9 18 6-6-6-6\"/>", "circle": "<circle cx=\"12\" cy=\"12\" r=\"10\"/>", "circle-alert": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\"/><line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\"/>", "circle-check": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m9 12 2 2 4-4\"/>", "circle-check-big": "<path d=\"M21.801 10A10 10 0 1 1 17 3.335\"/><path d=\"m9 11 3 3L22 4\"/>", "circle-chevron-left": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m14 16-4-4 4-4\"/>", "circle-chevron-right": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m10 8 4 4-4 4\"/>", "circle-dashed": "<path d=\"M10.1 2.182a10 10 0 0 1 3.8 0\"/><path d=\"M13.9 21.818a10 10 0 0 1-3.8 0\"/><path d=\"M17.609 3.721a10 10 0 0 1 2.69 2.7\"/><path d=\"M2.182 13.9a10 10 0 0 1 0-3.8\"/><path d=\"M20.279 17.609a10 10 0 0 1-2.7 2.69\"/><path d=\"M21.818 10.1a10 10 0 0 1 0 3.8\"/><path d=\"M3.721 6.391a10 10 0 0 1 2.7-2.69\"/><path d=\"M6.391 20.279a10 10 0 0 1-2.69-2.7\"/>", "circle-dot-dashed": "<path d=\"M10.1 2.18a9.93 9.93 0 0 1 3.8 0\"/><path d=\"M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7\"/><path d=\"M21.82 10.1a9.93 9.93 0 0 1 0 3.8\"/><path d=\"M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69\"/><path d=\"M13.9 21.82a9.94 9.94 0 0 1-3.8 0\"/><path d=\"M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7\"/><path d=\"M2.18 13.9a9.93 9.93 0 0 1 0-3.8\"/><path d=\"M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/>", "circle-minus": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M8 12h8\"/>", "circle-plus": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M8 12h8\"/><path d=\"M12 8v8\"/>", "circle-question-mark": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\"/><path d=\"M12 17h.01\"/>", "circle-user": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/><path d=\"M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662\"/>", "circle-x": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m15 9-6 6\"/><path d=\"m9 9 6 6\"/>", "clipboard-check": "<rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\" ry=\"1\"/><path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\"/><path d=\"m9 14 2 2 4-4\"/>", "clipboard-list": "<rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\" ry=\"1\"/><path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\"/><path d=\"M12 11h4\"/><path d=\"M12 16h4\"/><path d=\"M8 11h.01\"/><path d=\"M8 16h.01\"/>", "clock": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/>", "clock-3": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6h4\"/>", "cloud-off": "<path d=\"M10.94 5.274A7 7 0 0 1 15.71 10h1.79a4.5 4.5 0 0 1 4.222 6.057\"/><path d=\"M18.796 18.81A4.5 4.5 0 0 1 17.5 19H9A7 7 0 0 1 5.79 5.78\"/><path d=\"m2 2 20 20\"/>", "compass": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z\"/>", "contact-round": "<path d=\"M16 2v2\"/><path d=\"M17.915 22a6 6 0 0 0-12 0\"/><path d=\"M8 2v2\"/><circle cx=\"12\" cy=\"12\" r=\"4\"/><rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/>", "copy": "<rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\"/><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"/>", "crosshair": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"22\" x2=\"18\" y1=\"12\" y2=\"12\"/><line x1=\"6\" x2=\"2\" y1=\"12\" y2=\"12\"/><line x1=\"12\" x2=\"12\" y1=\"6\" y2=\"2\"/><line x1=\"12\" x2=\"12\" y1=\"22\" y2=\"18\"/>", "ellipsis": "<circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"19\" cy=\"12\" r=\"1\"/><circle cx=\"5\" cy=\"12\" r=\"1\"/>", "ellipsis-vertical": "<circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"12\" cy=\"5\" r=\"1\"/><circle cx=\"12\" cy=\"19\" r=\"1\"/>", "eye": "<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>", "file-text": "<path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\"/><path d=\"M14 2v5a1 1 0 0 0 1 1h5\"/><path d=\"M10 9H8\"/><path d=\"M16 13H8\"/><path d=\"M16 17H8\"/>", "flag": "<path d=\"M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528\"/>", "glasses": "<circle cx=\"6\" cy=\"15\" r=\"4\"/><circle cx=\"18\" cy=\"15\" r=\"4\"/><path d=\"M14 15a2 2 0 0 0-2-2 2 2 0 0 0-2 2\"/><path d=\"M2.5 13 5 7c.7-1.3 1.4-2 3-2\"/><path d=\"M21.5 13 19 7c-.7-1.3-1.5-2-3-2\"/>", "grip": "<circle cx=\"12\" cy=\"5\" r=\"1\"/><circle cx=\"19\" cy=\"5\" r=\"1\"/><circle cx=\"5\" cy=\"5\" r=\"1\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"19\" cy=\"12\" r=\"1\"/><circle cx=\"5\" cy=\"12\" r=\"1\"/><circle cx=\"12\" cy=\"19\" r=\"1\"/><circle cx=\"19\" cy=\"19\" r=\"1\"/><circle cx=\"5\" cy=\"19\" r=\"1\"/>", "grip-horizontal": "<circle cx=\"12\" cy=\"9\" r=\"1\"/><circle cx=\"19\" cy=\"9\" r=\"1\"/><circle cx=\"5\" cy=\"9\" r=\"1\"/><circle cx=\"12\" cy=\"15\" r=\"1\"/><circle cx=\"19\" cy=\"15\" r=\"1\"/><circle cx=\"5\" cy=\"15\" r=\"1\"/>", "grip-vertical": "<circle cx=\"9\" cy=\"12\" r=\"1\"/><circle cx=\"9\" cy=\"5\" r=\"1\"/><circle cx=\"9\" cy=\"19\" r=\"1\"/><circle cx=\"15\" cy=\"12\" r=\"1\"/><circle cx=\"15\" cy=\"5\" r=\"1\"/><circle cx=\"15\" cy=\"19\" r=\"1\"/>", "hotel": "<path d=\"M10 22v-6.57\"/><path d=\"M12 11h.01\"/><path d=\"M12 7h.01\"/><path d=\"M14 15.43V22\"/><path d=\"M15 16a5 5 0 0 0-6 0\"/><path d=\"M16 11h.01\"/><path d=\"M16 7h.01\"/><path d=\"M8 11h.01\"/><path d=\"M8 7h.01\"/><rect x=\"4\" y=\"2\" width=\"16\" height=\"20\" rx=\"2\"/>", "hourglass": "<path d=\"M5 22h14\"/><path d=\"M5 2h14\"/><path d=\"M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22\"/><path d=\"M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2\"/>", "inbox": "<polyline points=\"22 12 16 12 14 15 10 15 8 12 2 12\"/><path d=\"M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z\"/>", "link": "<path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"/><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"/>", "link-2": "<path d=\"M9 17H7A5 5 0 0 1 7 7h2\"/><path d=\"M15 7h2a5 5 0 1 1 0 10h-2\"/><line x1=\"8\" x2=\"16\" y1=\"12\" y2=\"12\"/>", "list-checks": "<path d=\"M13 5h8\"/><path d=\"M13 12h8\"/><path d=\"M13 19h8\"/><path d=\"m3 17 2 2 4-4\"/><path d=\"m3 7 2 2 4-4\"/>", "list-todo": "<path d=\"M13 5h8\"/><path d=\"M13 12h8\"/><path d=\"M13 19h8\"/><path d=\"m3 17 2 2 4-4\"/><rect x=\"3\" y=\"4\" width=\"6\" height=\"6\" rx=\"1\"/>", "loader": "<path d=\"M12 2v4\"/><path d=\"m16.2 7.8 2.9-2.9\"/><path d=\"M18 12h4\"/><path d=\"m16.2 16.2 2.9 2.9\"/><path d=\"M12 18v4\"/><path d=\"m4.9 19.1 2.9-2.9\"/><path d=\"M2 12h4\"/><path d=\"m4.9 4.9 2.9 2.9\"/>", "loader-circle": "<path d=\"M21 12a9 9 0 1 1-6.219-8.56\"/>", "locate": "<line x1=\"2\" x2=\"5\" y1=\"12\" y2=\"12\"/><line x1=\"19\" x2=\"22\" y1=\"12\" y2=\"12\"/><line x1=\"12\" x2=\"12\" y1=\"2\" y2=\"5\"/><line x1=\"12\" x2=\"12\" y1=\"19\" y2=\"22\"/><circle cx=\"12\" cy=\"12\" r=\"7\"/>", "locate-fixed": "<line x1=\"2\" x2=\"5\" y1=\"12\" y2=\"12\"/><line x1=\"19\" x2=\"22\" y1=\"12\" y2=\"12\"/><line x1=\"12\" x2=\"12\" y1=\"2\" y2=\"5\"/><line x1=\"12\" x2=\"12\" y1=\"19\" y2=\"22\"/><circle cx=\"12\" cy=\"12\" r=\"7\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>", "luggage": "<path d=\"M6 20a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2\"/><path d=\"M8 18V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v14\"/><path d=\"M10 20h4\"/><circle cx=\"16\" cy=\"20\" r=\"2\"/><circle cx=\"8\" cy=\"20\" r=\"2\"/>", "mail-plus": "<path d=\"M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h8\"/><path d=\"m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7\"/><path d=\"M19 16v6\"/><path d=\"M16 19h6\"/>", "map": "<path d=\"M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z\"/><path d=\"M15 5.764v15\"/><path d=\"M9 3.236v15\"/>", "map-pin": "<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/>", "map-pinned": "<path d=\"M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0\"/><circle cx=\"12\" cy=\"8\" r=\"2\"/><path d=\"M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712\"/>", "megaphone": "<path d=\"M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z\"/><path d=\"M6 14a12 12 0 0 0 2.4 7.2 2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14\"/><path d=\"M8 6v8\"/>", "menu": "<path d=\"M4 5h16\"/><path d=\"M4 12h16\"/><path d=\"M4 19h16\"/>", "message-circle": "<path d=\"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719\"/>", "message-circle-question-mark": "<path d=\"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719\"/><path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\"/><path d=\"M12 17h.01\"/>", "message-square": "<path d=\"M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z\"/>", "message-square-share": "<path d=\"M12 3H4a2 2 0 0 0-2 2v16.286a.71.71 0 0 0 1.212.502l2.202-2.202A2 2 0 0 1 6.828 19H20a2 2 0 0 0 2-2v-4\"/><path d=\"M16 3h6v6\"/><path d=\"m16 9 6-6\"/>", "milestone": "<path d=\"M12 13v8\"/><path d=\"M12 3v3\"/><path d=\"M4 6a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h13a2 2 0 0 0 1.152-.365l3.424-2.317a1 1 0 0 0 0-1.635l-3.424-2.318A2 2 0 0 0 17 6z\"/>", "mountain": "<path d=\"m8 3 4 8 5-5 5 15H2L8 3z\"/>", "navigation": "<polygon points=\"3 11 22 2 13 21 11 13 3 11\"/>", "newspaper": "<path d=\"M15 18h-5\"/><path d=\"M18 14h-8\"/><path d=\"M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2\"/><rect width=\"8\" height=\"4\" x=\"10\" y=\"6\" rx=\"1\"/>", "notebook-pen": "<path d=\"M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4\"/><path d=\"M2 6h4\"/><path d=\"M2 10h4\"/><path d=\"M2 14h4\"/><path d=\"M2 18h4\"/><path d=\"M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z\"/>", "octagon-alert": "<path d=\"M12 16h.01\"/><path d=\"M12 8v4\"/><path d=\"M15.312 2a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586l-4.688-4.688A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2z\"/>", "package": "<path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\"/><path d=\"M12 22V12\"/><polyline points=\"3.29 7 12 12 20.71 7\"/><path d=\"m7.5 4.27 9 5.15\"/>", "pin": "<path d=\"M12 17v5\"/><path d=\"M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z\"/>", "plane": "<path d=\"M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z\"/>", "plane-landing": "<path d=\"M2 22h20\"/><path d=\"M3.77 10.77 2 9l2-4.5 1.1.55c.55.28.9.84.9 1.45s.35 1.17.9 1.45L8 8.5l3-6 1.05.53a2 2 0 0 1 1.09 1.52l.72 5.4a2 2 0 0 0 1.09 1.52l4.4 2.2c.42.22.78.55 1.01.96l.6 1.03c.49.88-.06 1.98-1.06 2.1l-1.18.15c-.47.06-.95-.02-1.37-.24L4.29 11.15a2 2 0 0 1-.52-.38Z\"/>", "plane-takeoff": "<path d=\"M2 22h20\"/><path d=\"M6.36 17.4 4 17l-2-4 1.1-.55a2 2 0 0 1 1.8 0l.17.1a2 2 0 0 0 1.8 0L8 12 5 6l.9-.45a2 2 0 0 1 2.09.2l4.02 3a2 2 0 0 0 2.1.2l4.19-2.06a2.41 2.41 0 0 1 1.73-.17L21 7a1.4 1.4 0 0 1 .87 1.99l-.38.76c-.23.46-.6.84-1.07 1.08L7.58 17.2a2 2 0 0 1-1.22.18Z\"/>", "plus": "<path d=\"M5 12h14\"/><path d=\"M12 5v14\"/>", "refresh-cw": "<path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/><path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\"/><path d=\"M8 16H3v5\"/>", "repeat": "<path d=\"m17 2 4 4-4 4\"/><path d=\"M3 11v-1a4 4 0 0 1 4-4h14\"/><path d=\"m7 22-4-4 4-4\"/><path d=\"M21 13v1a4 4 0 0 1-4 4H3\"/>", "rotate-ccw": "<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"/><path d=\"M3 3v5h5\"/>", "rotate-cw": "<path d=\"M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/>", "route": "<circle cx=\"6\" cy=\"19\" r=\"3\"/><path d=\"M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15\"/><circle cx=\"18\" cy=\"5\" r=\"3\"/>", "save": "<path d=\"M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z\"/><path d=\"M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7\"/><path d=\"M7 3v4a1 1 0 0 0 1 1h7\"/>", "scan-eye": "<path d=\"M3 7V5a2 2 0 0 1 2-2h2\"/><path d=\"M17 3h2a2 2 0 0 1 2 2v2\"/><path d=\"M21 17v2a2 2 0 0 1-2 2h-2\"/><path d=\"M7 21H5a2 2 0 0 1-2-2v-2\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/><path d=\"M18.944 12.33a1 1 0 0 0 0-.66 7.5 7.5 0 0 0-13.888 0 1 1 0 0 0 0 .66 7.5 7.5 0 0 0 13.888 0\"/>", "send": "<path d=\"M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z\"/><path d=\"m21.854 2.147-10.94 10.939\"/>", "settings-2": "<path d=\"M14 17H5\"/><path d=\"M19 7h-9\"/><circle cx=\"17\" cy=\"17\" r=\"3\"/><circle cx=\"7\" cy=\"7\" r=\"3\"/>", "share": "<path d=\"M12 2v13\"/><path d=\"m16 6-4-4-4 4\"/><path d=\"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8\"/>", "sliders-horizontal": "<path d=\"M10 5H3\"/><path d=\"M12 19H3\"/><path d=\"M14 3v4\"/><path d=\"M16 17v4\"/><path d=\"M21 12h-9\"/><path d=\"M21 19h-5\"/><path d=\"M21 5h-7\"/><path d=\"M8 10v4\"/><path d=\"M8 12H3\"/>", "square": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/>", "square-check": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><path d=\"m9 12 2 2 4-4\"/>", "square-check-big": "<path d=\"M21 10.656V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.344\"/><path d=\"m9 11 3 3L22 4\"/>", "square-dashed": "<path d=\"M5 3a2 2 0 0 0-2 2\"/><path d=\"M19 3a2 2 0 0 1 2 2\"/><path d=\"M21 19a2 2 0 0 1-2 2\"/><path d=\"M5 21a2 2 0 0 1-2-2\"/><path d=\"M9 3h1\"/><path d=\"M9 21h1\"/><path d=\"M14 3h1\"/><path d=\"M14 21h1\"/><path d=\"M3 9v1\"/><path d=\"M21 9v1\"/><path d=\"M3 14v1\"/><path d=\"M21 14v1\"/>", "square-plus": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><path d=\"M8 12h8\"/><path d=\"M12 8v8\"/>", "stamp": "<path d=\"M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-6 0c0 2 1 2 1 3.5V13\"/><path d=\"M20 15.5a2.5 2.5 0 0 0-2.5-2.5h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1z\"/><path d=\"M5 22h14\"/>", "sticky-note": "<path d=\"M21 9a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z\"/><path d=\"M15 3v5a1 1 0 0 0 1 1h5\"/>", "ticket": "<path d=\"M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z\"/><path d=\"M13 5v2\"/><path d=\"M13 17v2\"/><path d=\"M13 11v2\"/>", "trash": "<path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\"/><path d=\"M3 6h18\"/><path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"/>", "trash-2": "<path d=\"M10 11v6\"/><path d=\"M14 11v6\"/><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\"/><path d=\"M3 6h18\"/><path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"/>", "tree-palm": "<path d=\"M13 8c0-2.76-2.46-5-5.5-5S2 5.24 2 8h2l1-1 1 1h4\"/><path d=\"M13 7.14A5.82 5.82 0 0 1 16.5 6c3.04 0 5.5 2.24 5.5 5h-3l-1-1-1 1h-3\"/><path d=\"M5.89 9.71c-2.15 2.15-2.3 5.47-.35 7.43l4.24-4.25.7-.7.71-.71 2.12-2.12c-1.95-1.96-5.27-1.8-7.42.35\"/><path d=\"M11 15.5c.5 2.5-.17 4.5-1 6.5h4c2-5.5-.5-12-1-14\"/>", "triangle-alert": "<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/>", "unplug": "<path d=\"m19 5 3-3\"/><path d=\"m2 22 3-3\"/><path d=\"M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z\"/><path d=\"M7.5 13.5 10 11\"/><path d=\"M10.5 16.5 13 14\"/><path d=\"m12 6 6 6 2.3-2.3a2.4 2.4 0 0 0 0-3.4l-2.6-2.6a2.4 2.4 0 0 0-3.4 0Z\"/>", "user": "<path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/>", "user-cog": "<path d=\"M10 15H6a4 4 0 0 0-4 4v2\"/><path d=\"m14.305 16.53.923-.382\"/><path d=\"m15.228 13.852-.923-.383\"/><path d=\"m16.852 12.228-.383-.923\"/><path d=\"m16.852 17.772-.383.924\"/><path d=\"m19.148 12.228.383-.923\"/><path d=\"m19.53 18.696-.382-.924\"/><path d=\"m20.772 13.852.924-.383\"/><path d=\"m20.772 16.148.924.383\"/><circle cx=\"18\" cy=\"15\" r=\"3\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/>", "user-plus": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><line x1=\"19\" x2=\"19\" y1=\"8\" y2=\"14\"/><line x1=\"22\" x2=\"16\" y1=\"11\" y2=\"11\"/>", "user-round": "<circle cx=\"12\" cy=\"8\" r=\"5\"/><path d=\"M20 21a8 8 0 0 0-16 0\"/>", "user-round-plus": "<path d=\"M2 21a8 8 0 0 1 13.292-6\"/><circle cx=\"10\" cy=\"8\" r=\"5\"/><path d=\"M19 16v6\"/><path d=\"M22 19h-6\"/>", "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><path d=\"M16 3.128a4 4 0 0 1 0 7.744\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/>", "users-round": "<path d=\"M18 21a8 8 0 0 0-16 0\"/><circle cx=\"10\" cy=\"8\" r=\"5\"/><path d=\"M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3\"/>", "waypoints": "<path d=\"m10.586 5.414-5.172 5.172\"/><path d=\"m18.586 13.414-5.172 5.172\"/><path d=\"M6 12h12\"/><circle cx=\"12\" cy=\"20\" r=\"2\"/><circle cx=\"12\" cy=\"4\" r=\"2\"/><circle cx=\"20\" cy=\"12\" r=\"2\"/><circle cx=\"4\" cy=\"12\" r=\"2\"/>", "wifi-off": "<path d=\"M12 20h.01\"/><path d=\"M8.5 16.429a5 5 0 0 1 7 0\"/><path d=\"M5 12.859a10 10 0 0 1 5.17-2.69\"/><path d=\"M19 12.859a10 10 0 0 0-2.007-1.523\"/><path d=\"M2 8.82a15 15 0 0 1 4.177-2.643\"/><path d=\"M22 8.82a15 15 0 0 0-11.288-3.764\"/><path d=\"m2 2 20 20\"/>", "x": "<path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/>"};
+const SPEC=[{"id": "nav", "title": "이동·앱바", "rows": [{"m": "뒤로", "reco": "chevron-left", "alts": ["arrow-left", "circle-chevron-left"], "app": "24", "web": "", "place": "앱바 (②③④⑨)", "label": false, "ex": "", "show": ""}, {"m": "닫기", "reco": "x", "alts": ["circle-x", "chevron-down"], "app": "24", "web": "24", "place": "바텀시트·다이얼로그·가족 화면 미리보기 띠", "label": false, "ex": "", "show": ""}, {"m": "더보기", "reco": "ellipsis-vertical", "alts": ["ellipsis", "menu"], "app": "20", "web": "", "place": "일정 항목 행 (③)·할 일 행 (⑦)", "label": false, "ex": "", "show": ""}, {"m": "열기", "reco": "chevron-right", "alts": ["arrow-right", "circle-chevron-right"], "app": "20", "web": "24", "place": "여행 카드 (①)·흐름 항목 (⑤)·소식 행 \"해당 일정으로\" (⑧)·설정 행 (⑨)", "label": false, "ex": "", "show": ""}, {"m": "가족 화면 미리보기", "reco": "eye", "alts": ["scan-eye", "glasses"], "app": "24", "web": "", "place": "일정 편집 앱바 우측 \"가족 화면\" (③)", "label": true, "ex": "가족 화면", "show": ""}, {"m": "오늘로 이동", "reco": "locate-fixed", "alts": ["locate", "crosshair"], "app": "20", "web": "24", "place": "여행 흐름 상단 (⑤)", "label": true, "ex": "오늘로", "show": ""}]}, {"id": "tab", "title": "탭·세그먼트", "rows": [{"m": "일정·날짜", "reco": "calendar", "alts": ["calendar-days", "calendar-range"], "app": "24", "web": "", "place": "앱 탭바 \"일정\"·여행 만들기 기간 칸 (②, 20)", "label": true, "ex": "일정", "show": "tab"}, {"m": "할 일", "reco": "list-checks", "alts": ["list-todo", "clipboard-check"], "app": "24", "web": "", "place": "앱 탭바 \"할 일\" (⑦)", "label": true, "ex": "할 일", "show": "tab"}, {"m": "소식", "reco": "bell", "alts": ["newspaper", "megaphone"], "app": "24", "web": "24", "place": "앱 탭바 \"소식\"·웹 세그먼트 \"소식\" (⑧)", "label": true, "ex": "소식", "show": "tab seg"}, {"m": "가족", "reco": "users", "alts": ["users-round", "contact-round"], "app": "24", "web": "", "place": "앱 탭바 \"가족\" (⑨)", "label": true, "ex": "가족", "show": "tab"}, {"m": "흐름", "reco": "route", "alts": ["waypoints", "milestone"], "app": "", "web": "24", "place": "웹 세그먼트 \"흐름\" (⑤)", "label": true, "ex": "흐름", "show": "seg"}, {"m": "내 준비", "reco": "backpack", "alts": ["clipboard-list", "package"], "app": "", "web": "24", "place": "웹 세그먼트 \"내 준비\" (⑥)", "label": true, "ex": "내 준비", "show": "seg"}]}, {"id": "act", "title": "편집 액션", "rows": [{"m": "추가", "reco": "plus", "alts": ["circle-plus", "square-plus"], "app": "20", "web": "24", "place": "\"새 여행 만들기\" (①)·\"항목 추가\" (③)·\"할 일 추가\" (⑦)·\"항목 추가\" (⑥)", "label": true, "ex": "항목 추가", "show": ""}, {"m": "저장·확인", "reco": "check", "alts": ["circle-check-big", "save"], "app": "20", "web": "24", "place": "하단 CTA \"저장\" (④)·\"확인했어요\" (⑧)", "label": true, "ex": "저장", "show": ""}, {"m": "삭제", "reco": "trash-2", "alts": ["trash", "circle-minus"], "app": "20", "web": "", "place": "항목 편집 (④)·일정 행 더보기 시트 (③)", "label": true, "ex": "삭제", "show": ""}, {"m": "순서 바꾸기 손잡이", "reco": "grip-vertical", "alts": ["grip-horizontal", "grip"], "app": "20", "web": "", "place": "일정 항목 행 왼쪽 (③)", "label": false, "ex": "", "show": ""}, {"m": "구성원 초대", "reco": "user-plus", "alts": ["user-round-plus", "mail-plus"], "app": "20", "web": "", "place": "\"구성원 초대\" (⑨)·\"함께 가는 가족\" 추가 (②)", "label": true, "ex": "구성원 초대", "show": ""}, {"m": "역할 바꾸기", "reco": "arrow-left-right", "alts": ["repeat", "user-cog"], "app": "20", "web": "", "place": "구성원 행 역할 칩 (⑨)", "label": true, "ex": "역할 바꾸기", "show": ""}, {"m": "알림 빈도", "reco": "sliders-horizontal", "alts": ["bell-ring", "settings-2"], "app": "20", "web": "", "place": "가족·역할 설정 행 (⑨)", "label": true, "ex": "알림 빈도", "show": ""}]}, {"id": "sheet", "title": "시트 액션", "rows": [{"m": "지도로 보기", "reco": "map", "alts": ["map-pinned", "navigation"], "app": "", "web": "24", "place": "항목 상세 시트 (⑤)", "label": true, "ex": "지도로 보기", "show": ""}, {"m": "물어보기", "reco": "message-circle", "alts": ["message-square", "message-circle-question-mark"], "app": "", "web": "24", "place": "항목 상세 시트 \"지수에게 물어보기\" (⑤)", "label": true, "ex": "지수에게 물어보기", "show": ""}, {"m": "초대 링크 복사", "reco": "link", "alts": ["copy", "link-2"], "app": "20", "web": "", "place": "초대 링크 시트 (②⑨)", "label": true, "ex": "링크 복사", "show": ""}, {"m": "카톡으로 보내기", "reco": "send", "alts": ["share", "message-square-share"], "app": "20", "web": "", "place": "초대 링크 시트 (②⑨)", "label": true, "ex": "카톡으로 보내기", "show": ""}]}, {"id": "status", "title": "일정 상태", "rows": [{"m": "확정", "reco": "circle-check", "alts": ["badge-check", "stamp"], "app": "16", "web": "20", "place": "배지 \"확정\" (③⑤⑧)·행 액션 \"확정으로\" (③)", "label": true, "ex": "확정", "show": ""}, {"m": "정하는 중", "reco": "circle-dashed", "alts": ["circle-dot-dashed", "circle-question-mark"], "app": "16", "web": "20", "place": "배지 \"정하는 중\" (③)·\"아직 후보예요\" 토글 (④)·\"아직 정하는 중\" (⑤)", "label": true, "ex": "정하는 중", "show": ""}]}, {"id": "kind", "title": "항목 종류·정보", "rows": [{"m": "이동 (비행)", "reco": "plane", "alts": ["plane-takeoff", "plane-landing"], "app": "20", "web": "24", "place": "항목 종류 (③④⑤)", "label": true, "ex": "김포→제주 09:30", "show": ""}, {"m": "이동 (차량)", "reco": "car", "alts": ["car-front", "bus"], "app": "20", "web": "24", "place": "항목 종류 (③④⑤)", "label": true, "ex": "렌터카", "show": ""}, {"m": "숙박", "reco": "bed", "alts": ["bed-double", "hotel"], "app": "20", "web": "24", "place": "항목 종류 (③④⑤)", "label": true, "ex": "해비치", "show": ""}, {"m": "활동", "reco": "compass", "alts": ["ticket", "mountain"], "app": "20", "web": "24", "place": "항목 종류 (③④⑤)", "label": true, "ex": "성산일출봉", "show": ""}, {"m": "장소", "reco": "map-pin", "alts": ["pin", "flag"], "app": "16", "web": "20", "place": "항목 장소 줄 (④⑤)·목적지 칸 (②)·집합 장소 (⑥)", "label": true, "ex": "김포공항 3번 게이트", "show": ""}, {"m": "시간·기한", "reco": "clock", "alts": ["clock-3", "alarm-clock"], "app": "16", "web": "20", "place": "항목 시간 줄 (④⑤)·할 일 기한 (⑦)", "label": true, "ex": "08:00", "show": ""}, {"m": "메모", "reco": "sticky-note", "alts": ["notebook-pen", "file-text"], "app": "16", "web": "", "place": "항목 편집 메모 칸 (④)", "label": true, "ex": "메모", "show": ""}]}, {"id": "todo", "title": "할 일", "rows": [{"m": "완료", "reco": "square-check", "alts": ["square-check-big", "check-check"], "app": "20", "web": "24", "place": "할 일·준비물 체크 (⑥⑦)", "label": true, "ex": "상비약", "show": ""}, {"m": "미완료", "reco": "square", "alts": ["circle", "square-dashed"], "app": "20", "web": "24", "place": "할 일·준비물 체크 (⑥⑦)", "label": true, "ex": "신분증", "show": ""}, {"m": "담당자", "reco": "user", "alts": ["user-round", "circle-user"], "app": "16", "web": "20", "place": "할 일 행 담당자 칩 (⑦)·\"담당자 바꾸기\" (⑥)", "label": true, "ex": "민재", "show": ""}]}, {"id": "state", "title": "화면 상태", "rows": [{"m": "빈 상태", "reco": "luggage", "alts": ["inbox", "tree-palm"], "app": "48", "web": "48", "place": "빈 상태 (①③⑥⑦⑧, 예외 크기·장식)", "label": true, "ex": "첫 여행을 만들어 보세요", "show": ""}, {"m": "로딩", "reco": "loader-circle", "alts": ["loader", "hourglass"], "app": "20", "web": "24", "place": "버튼 로딩 스피너 (목록은 스켈레톤)", "label": false, "ex": "", "show": ""}, {"m": "다시 시도", "reco": "rotate-cw", "alts": ["refresh-cw", "rotate-ccw"], "app": "20", "web": "24", "place": "실패 상태 \"다시 시도\" 버튼", "label": true, "ex": "다시 시도", "show": ""}, {"m": "오류", "reco": "circle-alert", "alts": ["triangle-alert", "octagon-alert"], "app": "20", "web": "24", "place": "실패 문구 옆", "label": true, "ex": "불러오지 못했어요", "show": ""}, {"m": "오프라인", "reco": "wifi-off", "alts": ["cloud-off", "unplug"], "app": "16", "web": "20", "place": "오프라인 배너", "label": true, "ex": "오프라인이에요", "show": ""}]}];
+const STROKE={16:1.5,20:1.75,24:2,48:1.5};
+const $=(s,r=document)=>r.querySelector(s);
+const LS_KEY='probe-icons';
+const DOC_PATH='feedback/icons';
+let db=null,toastT;
+const RECO={},ROW={};
+SPEC.forEach(g=>g.rows.forEach(r=>{RECO[r.m]=r.reco;ROW[r.m]=r;}));
+const state={choices:{...RECO},text:''};
+
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function svg(name,size,cls){
+  const sw=STROKE[size]||2;
+  return `<svg class="${cls||''}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]||''}</svg>`;
+}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400);}
+const changed=()=>Object.keys(state.choices).filter(m=>state.choices[m]!==RECO[m]);
+const cur=m=>state.choices[m];
+const shownSize=r=>Number(r.app||r.web);
+const spinCls=m=>m==='로딩'?'spin':'';
+const shows=(r,k)=>(r.show||'').split(' ').includes(k);
+
+function bigHTML(r){
+  const icon=svg(cur(r.m),shownSize(r),spinCls(r.m));
+  return r.label&&r.ex?icon+`<span>${esc(r.ex)}</span>`:icon;
+}
+function sizeText(r){return `앱 <b>${r.app||'—'}</b> · 웹 <b>${r.web||'—'}</b> · 라벨 ${r.label?'함께':'없음'}`;}
+function optsHTML(r){
+  const sz=Math.min(shownSize(r),24);
+  return [r.reco,...r.alts].map(n=>`<button class="opt${n===cur(r.m)?' on':''}${n===r.reco?' reco':''}" data-m="${esc(r.m)}" data-name="${n}" aria-pressed="${n===cur(r.m)}">${svg(n,sz)}<span>${n}</span></button>`).join('');
+}
+function demoHTML(m){
+  if(m==='확정')return `<span class="chip ok">${svg(cur(m),16)}확정</span>`;
+  if(m==='정하는 중')return `<span class="chip pend">${svg(cur(m),16)}정하는 중</span>`;
+  return '';
+}
+function cardHTML(r){
+  const demo=demoHTML(r.m);
+  return `<article class="card" data-m="${esc(r.m)}">
+    <div class="head"><div class="big${r.label&&r.ex?'':' nolabel'}${shownSize(r)>24?' tall':''}" data-big>${bigHTML(r)}</div>
+      <div><h3>${esc(r.m)}</h3><p class="place">${esc(r.place)} · ${sizeText(r)}</p></div></div>
+    ${demo?`<div class="demo" data-demo>${demo}</div>`:''}
+    <div class="opts">${optsHTML(r)}</div>
+  </article>`;
+}
+function tabbarHTML(g){
+  return `<div class="tabbar" data-tabbar>${g.rows.filter(r=>shows(r,'tab')).map((r,i)=>`<div class="tab${i===0?' on':''}">${svg(cur(r.m),24)}<span>${esc(r.ex)}</span></div>`).join('')}</div>`;
+}
+function segbarHTML(g){
+  return `<div class="segbar" data-segbar>${g.rows.filter(r=>shows(r,'seg')).sort((a,b)=>['흐름','내 준비','소식'].indexOf(a.m)-['흐름','내 준비','소식'].indexOf(b.m)).map((r,i)=>`<div class="seg${i===0?' on':''}">${svg(cur(r.m),24)}<span>${esc(r.ex)}</span></div>`).join('')}</div>`;
+}
+function tabCardHTML(g){
+  return `<article class="card wide" data-tabcard>
+    <div class="bars">${tabbarHTML(g)}${segbarHTML(g)}</div>
+    <div class="tabopts">${g.rows.map(r=>`<div data-m="${esc(r.m)}"><p class="sub">${esc(r.m)}<small>${esc(r.place)}</small></p><div class="opts">${optsHTML(r)}</div></div>`).join('')}</div>
+  </article>`;
+}
+function renderAll(){
+  $('#groups').innerHTML=SPEC.map(g=>`<section class="group" data-group="${g.id}"><h2>${esc(g.title)}<small>${g.rows.length}개</small></h2>
+    <div class="grid">${g.id==='tab'?tabCardHTML(g):g.rows.map(cardHTML).join('')}</div></section>`).join('');
+  updateCount();
+}
+function renderRow(m){
+  const r=ROW[m];
+  document.querySelectorAll('.opt').forEach(b=>{if(b.dataset.m===m){const on=b.dataset.name===cur(m);b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);}});
+  const card=[...document.querySelectorAll('.card[data-m]')].find(c=>c.dataset.m===m);
+  if(card){$('[data-big]',card).innerHTML=bigHTML(r);const d=$('[data-demo]',card);if(d)d.innerHTML=demoHTML(m);}
+  const g=SPEC.find(x=>x.id==='tab');
+  if(shows(r,'tab')){const tb=$('[data-tabbar]');if(tb)tb.outerHTML=tabbarHTML(g);}
+  if(shows(r,'seg')){const sb=$('[data-segbar]');if(sb)sb.outerHTML=segbarHTML(g);}
+}
+function updateCount(){$('#count').textContent=`바꾼 아이콘 ${changed().length}개`;}
+
+function buildDoc(){return{unit:'icons',n:1,label:'아이콘',choices:{...state.choices},changed:changed(),text:state.text.trim(),updatedAt:new Date().toISOString()};}
+async function persist(doc){
+  if(db){await db.doc(DOC_PATH).set(doc);return;}
+  try{localStorage.setItem(LS_KEY,JSON.stringify(doc));}catch(_){throw{code:'local_unavailable'};}
+}
+function errMsg(e){
+  switch(e&&e.code){
+    case 'not_granted':return '저장 권한이 없어요 — 페이지를 다시 열어 주세요';
+    case 'revoked':return '접근이 끊겼어요 — 페이지를 다시 열어 주세요';
+    case 'quota_exceeded':return '저장 공간이 가득 찼어요';
+    case 'resource_exhausted':return '잠시 뒤 다시 눌러 주세요';
+    case 'invalid_argument':return '저장 내용에 문제가 있어요';
+    case 'local_unavailable':return '이 브라우저에 저장하지 못했어요';
+    default:return '저장 실패, 다시 눌러 주세요';
+  }
+}
+async function save(msg){
+  try{await persist(buildDoc());$('#saved').textContent='저장됨 ✓';updateCount();toast(msg||'저장됨 ✓');return true;}
+  catch(e){console.warn('feedback save failed',e&&e.code,e);toast(errMsg(e));return false;}
+}
+
+$('#groups').addEventListener('click',e=>{
+  const b=e.target.closest('.opt');if(!b)return;
+  const m=b.dataset.m,n=b.dataset.name;if(!ROW[m]||cur(m)===n)return;
+  state.choices[m]=n;renderRow(m);updateCount();save(n===RECO[m]?'추천대로 ✓':`${m} → ${n}`);
+});
+$('#accept-all').addEventListener('click',async()=>{
+  const btn=$('#accept-all');btn.disabled=true;btn.textContent='저장 중…';
+  state.choices={...RECO};renderAll();await save('저장됨 ✓ 전체 추천대로');
+  btn.disabled=false;btn.textContent='전체 추천대로';
+});
+$('#text').addEventListener('input',e=>{state.text=e.target.value;});
+$('#save-text').addEventListener('click',async()=>{const btn=$('#save-text');btn.disabled=true;btn.textContent='저장 중…';await save();btn.disabled=false;btn.textContent='저장';});
+
+function applyLoaded(d){
+  if(!d)return;
+  if(d.choices)Object.keys(RECO).forEach(m=>{const n=d.choices[m];if(n&&[ROW[m].reco,...ROW[m].alts].includes(n))state.choices[m]=n;});
+  state.text=d.text||'';$('#text').value=state.text;
+  $('#saved').textContent='저장됨 ✓';renderAll();
+}
+async function initFeedback(){
+  try{db=(typeof claude!=='undefined'&&claude&&typeof claude.use==='function')?await claude.use("db"):null;}catch(e){console.warn('db unavailable',e&&e.code,e);db=null;}
+  if(db){
+    try{const snap=await db.collection('feedback').get();const hit=snap.docs.find(x=>x.id==='icons');if(hit)applyLoaded(hit.data());}
+    catch(e){console.warn('feedback load failed',e&&e.code,e);toast('저장된 의견을 불러오지 못했어요');}
+  }else{
+    toast('이 환경에서는 브라우저에만 저장돼요');
+    let d=null;try{d=JSON.parse(localStorage.getItem(LS_KEY)||'null');}catch(_){}
+    applyLoaded(d);
+  }
+}
+renderAll();
+initFeedback();
+</script>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<title>취향 시안 모양·간격</title>
+<style>
+:root{--frame-w:390px}
+*{box-sizing:border-box}
+body{margin:0;background:#F3F4F6;color:#1F2937;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;padding:0 16px 56px}
+.wrap{max-width:1400px;margin:0 auto}
+header{padding:20px 0 4px}
+h1{font-size:22px;margin:0 0 2px}
+.sub{color:#6B7280;margin:0 0 10px}
+.hright{display:flex;gap:12px;align-items:center;color:#6B7280;font-size:13px}
+.warn{background:#FFF7ED;border:1px solid #FED7AA;color:#9A3412;padding:8px 12px;border-radius:10px;font-size:13px;margin-top:8px}
+
+section.axis{margin-top:26px;padding-top:22px;border-top:1px solid #E5E7EB}
+.stage{display:grid;grid-template-columns:132px minmax(0,1fr);gap:0 20px;align-items:start}
+.strip{position:sticky;top:12px;width:132px;background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:10px}
+.s-sc{font-size:12px;color:#6B7280;margin-bottom:4px}
+.s-num{font-weight:700;font-size:14px;line-height:1.3}
+.s-state{margin-top:10px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#F3F4F6;color:#9CA3AF}
+.s-state.done{background:#2F6BFF;color:#fff}
+section.axis h2{margin:0;font-size:18px}
+section.axis h2 small{font-weight:400;font-size:13px;color:#6B7280;margin-left:8px}
+.plain{margin:2px 0 0;color:#4B5563}
+.rec{margin:8px 0 14px;font-size:14px}
+.rec b{color:#2F6BFF}
+.row3{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start}
+figure.variant{margin:0;cursor:pointer;position:relative;border-radius:52px;padding:5px;border:3px solid transparent;transition:border-color .15s;user-select:none}
+figure.variant:hover{border-color:#C7D2FE}
+figure.variant.on{border-color:#2F6BFF}
+figure.variant:focus-visible{outline:3px solid #2F6BFF;outline-offset:2px}
+figure.variant .phone{pointer-events:none}
+figcaption{text-align:center;margin-top:8px;font-size:14px;line-height:1.35;color:#1F2937}
+figcaption b{display:inline-flex;width:24px;height:24px;border-radius:50%;background:#1F2937;color:#fff;align-items:center;justify-content:center;font-size:13px;margin-right:6px}
+figure.variant.on figcaption b{background:#2F6BFF}
+figcaption .sel{display:block;color:#2F6BFF;font-weight:700;font-size:13px}
+figcaption .xnote{display:block;color:#9CA3AF;font-size:12px;margin-top:2px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);padding:9px 16px;border-radius:18px;background:#1F2937;color:#fff;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.toast.show{opacity:1}
+
+/* ---------- phone — flow 투어 템플릿 그대로 (상태바 44 / 상단 바 56 / 본문 / 하단 CTA 52 / 탭바 56 / 홈 34), 값은 전부 시안 토큰 변수 ---------- */
+.phone{width:390px;height:844px;background:var(--bg);border-radius:44px;border:1px solid #D1D5DB;box-shadow:0 12px 32px rgba(0,0,0,.08);position:relative;overflow:hidden;display:flex;flex-direction:column;color:var(--ink);font-family:var(--ff);font-size:var(--fs);line-height:1.4;text-align:left}
+.sb{height:44px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font:600 13px -apple-system,BlinkMacSystemFont,system-ui,sans-serif}
+.sb span{letter-spacing:1px;font-size:11px;color:var(--mute)}
+.topbar{height:56px;flex:none;display:grid;grid-template-columns:56px 1fr 96px;align-items:center;background:var(--bg);border-bottom:1px solid var(--line);padding:0 8px}
+.tb-l{font-size:28px;text-align:center;line-height:1;padding:6px 0}
+.tb-t{font-family:var(--hf);font-size:var(--h2);font-weight:var(--h2w);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-r{font-size:14px;font-weight:600;padding:8px 6px;text-align:right;white-space:nowrap}
+.body{flex:1;overflow:hidden;position:relative;padding-top:var(--gm)}
+.bottom{flex:none;background:var(--bg);border-top:1px solid var(--line)}
+.ctabar{padding:12px var(--scr)}
+.btn{font:inherit}
+.btn.pri{width:100%;height:52px;border-radius:var(--rb);background:var(--acc);color:#fff;border:0;font-family:var(--ff);font-size:16px;font-weight:700}
+.tabbar{height:56px;display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mute);position:relative}
+.tab.on{color:var(--acc);font-weight:700}
+.tab.on::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--acc)}
+.home{height:34px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px}
+.home::after{content:"";width:134px;height:5px;border-radius:3px;background:var(--ink)}
+.area{position:relative}
+.area::before{content:attr(data-label);position:absolute;top:6px;left:6px;z-index:6;width:22px;height:22px;border-radius:50%;background:rgba(17,24,39,.78);box-shadow:0 0 0 1.5px rgba(255,255,255,.9);color:#fff;font:700 12px/22px -apple-system,system-ui,sans-serif;text-align:center;pointer-events:none}
+
+/* ③ 일정 편집 */
+.dchips{display:flex;gap:var(--gs);padding:0 var(--scr) var(--gm)}
+.dchip{flex:1;height:var(--chip);border-radius:var(--rb);background:var(--sf);border:var(--bw) solid var(--line);box-shadow:var(--sh);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;line-height:1.2;color:var(--mute)}
+.dchip b{font-size:16px;color:var(--ink)}
+.dchip.on{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.dchip.on b{color:var(--bg)}
+.dayhd{display:flex;align-items:baseline;gap:8px;padding:4px var(--scr) var(--gm) 34px}
+.dayhd h4{margin:0;font-family:var(--hf);font-size:var(--h1);font-weight:var(--h1w);line-height:1.2;letter-spacing:-.01em}
+.dayhd small{color:var(--mute);font-size:var(--cap)}
+.list{margin:0 var(--scr);background:var(--sf);border:var(--bw) solid var(--line);border-radius:var(--rc);box-shadow:var(--sh)}
+.row{min-height:var(--row);display:flex;align-items:center;gap:8px;padding:0 var(--pad);border-top:1px solid var(--line);position:relative}
+.row:first-child{border-top:0}
+.rt{width:42px;font-size:var(--cap);color:var(--mute);flex:none;font-variant-numeric:tabular-nums}
+.rm{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.rm b{font-size:var(--fs);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rm small{font-size:calc(var(--cap) - 1px);color:var(--mute)}
+.bd{font-size:11px;padding:3px 8px;border-radius:var(--rd);flex:none;font-weight:600;white-space:nowrap}
+.bd.ok{background:var(--ink);color:var(--bg)}
+.bd.cd{background:transparent;color:var(--mute);border:1px dashed var(--mute)}
+.mini{height:30px;padding:0 10px;border:1px solid var(--ink);color:var(--ink);background:transparent;border-radius:var(--rb);font-family:var(--ff);font-size:12px;font-weight:700;flex:none}
+.secttl{display:flex;align-items:baseline;gap:6px;padding:var(--gm) var(--scr) 6px;font-size:13px;font-weight:600;color:var(--mute)}
+.secttl:first-child{padding-top:0}
+.secttl b{color:var(--ink)}
+.secttl .fold{margin-left:auto;font-weight:600;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+/* 확정 표시 — A 배지 + 후보 흐리게 / B 왼쪽 색 띠 / C 섹션 분리 */
+.conf-A .row.cand .rm,.conf-A .row.cand .rt{opacity:.5}
+.conf-B .row::before{content:"";position:absolute;left:0;top:8px;bottom:8px}
+.conf-B .row.ok::before{border-left:4px solid var(--acc)}
+.conf-B .row.cand::before{border-left:3px dashed var(--mute)}
+
+/* ⑤ 여행 흐름 (보는 사람 웹) — 글자 크기는 --w* 토큰 */
+.addr{height:36px;flex:none;background:#E5E7EB;display:flex;align-items:center;justify-content:center;font:13px -apple-system,system-ui,sans-serif;color:#4B5563}
+.wh{flex:none;background:var(--bg);border-bottom:1px solid var(--line)}
+.wh .topbar{border-bottom:0}
+.web .tb-t{font-size:var(--wtt)}
+.web .body{padding-top:12px}
+.segs{display:flex;padding:0 var(--scr) 12px;gap:6px}
+.seg{flex:1;height:44px;display:flex;align-items:center;justify-content:center;border-radius:var(--rb);background:var(--sf);font-size:var(--wseg);color:var(--mute);border:var(--bw) solid var(--line)}
+.seg.on{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:700}
+.day{background:var(--sf);border:var(--bw) solid var(--line);border-radius:var(--rc);box-shadow:var(--sh);margin:0 var(--scr) 12px}
+.dh{padding:8px var(--pad) 8px 34px;font-family:var(--hf);font-size:var(--wdh);font-weight:700;line-height:1.25;border-bottom:1px solid var(--line)}
+.wrow{min-height:var(--wrow);display:flex;align-items:center;padding:6px var(--pad);font-size:var(--wfs);font-weight:700;line-height:1.3;border-top:1px solid var(--line)}
+.dh + .wrow{border-top:0}
+.wrow.cd{min-height:calc(var(--wrow) - 12px);font-size:var(--wcd);font-weight:400;color:var(--mute)}
+.web .btn.pri{font-size:var(--wcta)}
+
+@media (max-width:1400px){figure.variant .phone{zoom:.82}}
+@media (max-width:1100px){.stage{grid-template-columns:1fr}.strip{position:static;width:100%;display:flex;align-items:center;gap:12px;margin-bottom:12px}.s-state{margin:0 0 0 auto;width:150px}}
+@media (max-width:430px){figure.variant .phone{zoom:.86}}
+@media (prefers-reduced-motion:reduce){figure.variant,.toast{transition:none}}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>모양·간격</h1>
+  <p class="sub">③ 일정 편집 화면을 모서리·간격만 바꿔 나란히 놓았어요. 마음에 드는 화면을 누르세요.</p>
+  <div class="hright"><span id="count">의견 남긴 항목 0개</span></div>
+  <div class="warn" id="warn" hidden>이 환경에서는 브라우저에만 저장돼요</div>
+</header>
+<div id="axes">
+<section class="axis" data-axis="3" id="axis-3">
+  <div class="stage">
+    <aside class="strip"></aside>
+    <div>
+      <h2></h2>
+      <p class="plain"></p>
+      <p class="rec"></p>
+      <div class="row3"><figure class="variant" data-v="A" tabindex="0" role="button" aria-pressed="false"></figure><figure class="variant" data-v="B" tabindex="0" role="button" aria-pressed="false"></figure><figure class="variant" data-v="C" tabindex="0" role="button" aria-pressed="false"></figure></div>
+    </div>
+  </div>
+</section>
+<section class="axis" data-axis="2" id="axis-2">
+  <div class="stage">
+    <aside class="strip"></aside>
+    <div>
+      <h2></h2>
+      <p class="plain"></p>
+      <p class="rec"></p>
+      <div class="row3"><figure class="variant" data-v="A" tabindex="0" role="button" aria-pressed="false"></figure><figure class="variant" data-v="B" tabindex="0" role="button" aria-pressed="false"></figure><figure class="variant" data-v="C" tabindex="0" role="button" aria-pressed="false"></figure></div>
+    </div>
+  </div>
+</section>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- 시안 토큰 (taste-axes.md 값 그대로) ---------------- */
+/* style="…" 속성 안에 들어가므로 글꼴 이름은 작은따옴표 */
+const SANS="Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',Roboto,system-ui,sans-serif";
+const SERIF="'Noto Serif KR','AppleMyungjo','Nanum Myeongjo',serif";
+/* 축 1 밝기·색온도 */
+const T1={A:{bg:'#FFFFFF',sf:'#F5F5F7',ink:'#111827',mute:'#6B7280',line:'#E5E7EB'},
+          B:{bg:'#FDFBF7',sf:'#F5F0E8',ink:'#1F1B16',mute:'#6F665B',line:'#E7E0D4'},
+          C:{bg:'#0F1115',sf:'#181B22',ink:'#E6E8EC',mute:'#9AA3B2',line:'#2A2F3A',dark:1}};
+/* 축 4 강조색 */
+const T4={A:{acc:'#2563EB'},B:{acc:'#F97316'},C:{acc:'#111827'}};
+/* 축 3 형태 — rb 버튼 · rc 카드 · rd 배지 · bw 테두리 · sh 그림자 */
+const T3={A:{rb:'4px',rc:'4px',rd:'3px',bw:'1px',sh:'none'},
+          B:{rb:'8px',rc:'12px',rd:'999px',bw:'1px',sh:'0 1px 2px rgba(0,0,0,.06)'},
+          C:{rb:'999px',rc:'16px',rd:'999px',bw:'0px',sh:'0 4px 12px rgba(0,0,0,.08)'}};
+/* 축 2 정보 밀도 — gs/gm 기본 간격 · pad 카드 패딩 · row 목록 행 · fs 본문 · scr 화면 좌우 · chip 날짜 칩 높이 */
+const T2={A:{gs:'4px',gm:'8px',pad:'12px',row:'48px',fs:'14px',scr:'12px',chip:'44px'},
+          B:{gs:'8px',gm:'16px',pad:'16px',row:'56px',fs:'15px',scr:'20px',chip:'52px'},
+          C:{gs:'12px',gm:'24px',pad:'20px',row:'64px',fs:'16px',scr:'24px',chip:'60px'}};
+/* 축 5 타이포 */
+const T5={A:{ff:SANS,hf:SANS,h1:'24px',h1w:600,h2:'18px',h2w:600,cap:'13px'},
+          B:{ff:SANS,hf:SANS,h1:'32px',h1w:700,h2:'20px',h2w:600,cap:'12px'},
+          C:{ff:SANS,hf:SERIF,h1:'24px',h1w:700,h2:'18px',h2w:600,cap:'13px'}};
+/* 추가 축 7 부모 화면 글자 크기 (⑤ 웹) */
+const T7={A:{wfs:'15px',wdh:'16px',wcd:'14px',wtt:'17px',wseg:'15px',wrow:'48px',wcta:'16px'},
+          B:{wfs:'18px',wdh:'22px',wcd:'16px',wtt:'19px',wseg:'17px',wrow:'56px',wcta:'17px'},
+          C:{wfs:'20px',wdh:'26px',wcd:'18px',wtt:'21px',wseg:'19px',wrow:'64px',wcta:'18px'}};
+function tokens(p){
+  const t={...T1[p.c1],...T4[p.c4],...T3[p.c3],...T2[p.c2],...T5[p.c5],...T7[p.c7||'B']};
+  if(t.dark) t.sh='none'; /* 다크 + 그림자 → 그림자 대신 테두리 밝기 차이 (taste-axes 충돌 처리) */
+  delete t.dark;
+  return Object.entries(t).map(([k,v])=>`--${k}:${v}`).join(';');
+}
+
+/* ---------------- 대표 화면 ③ 일정 편집 · 21일 (투어 장면 7·9·10 템플릿·데이터) ---------------- */
+const A_=(n,inner,cls)=>`<div class="area ${cls||''}" data-label="${n}">${inner}</div>`;
+const sb=()=>`<div class="sb"><b>10:24</b><span>●●● ▴ ▮</span></div>`;
+const TABS=['일정','할 일','소식','가족'];
+const DAYS=[['20','금'],['21','토'],['22','일'],['23','월'],['24','화']];
+const ROWS=[
+  {t:'13:00',k:'활동',name:'점심 · 고기국수',ok:0},
+  {t:'오후',k:'활동',name:'성산일출봉',ok:0},
+  {t:'14:30',k:'활동',name:'섭지코지',ok:0},
+  {t:'밤',k:'숙박',name:'해비치 · 2박째',ok:1}];
+function srow(r,conf){
+  let right='';
+  if(conf==='A') right=r.ok?'<span class="bd ok">✓ 확정</span>':'<span class="bd cd">정하는 중</span>';
+  if(!r.ok) right+='<button class="mini" tabindex="-1">확정으로</button>';
+  return `<div class="row ${r.ok?'ok':'cand'}"><span class="rt">${r.t}</span><span class="rm"><b>${r.name}</b><small>${r.k}</small></span>${right}</div>`;
+}
+function editPhone(p){
+  const conf=p.c6||'A';
+  const nOk=ROWS.filter(r=>r.ok).length,nCd=ROWS.length-nOk;
+  const hd=`<div class="dayhd"><h4>21일 토요일</h4><small>확정 ${nOk} · 정하는 중 ${nCd}</small></div>`;
+  const rows=conf==='C'
+    ?`<div class="secttl">확정된 일정 <b>${nOk}</b></div><div class="list">${ROWS.filter(r=>r.ok).map(r=>srow(r,conf)).join('')}</div>`
+     +`<div class="secttl">아직 정하는 중 <b>${nCd}</b><span class="fold">접기</span></div><div class="list">${ROWS.filter(r=>!r.ok).map(r=>srow(r,conf)).join('')}</div>`
+    :`<div class="list">${ROWS.map(r=>srow(r,conf)).join('')}</div>`;
+  return `<div class="phone app conf-${conf}" style="${tokens(p)}">${sb()}
+  <div class="topbar area" data-label="①"><span class="tb-l">‹</span><span class="tb-t">제주 가족여행</span><span class="tb-r">가족 화면</span></div>
+  <div class="body">${A_('②',`<div class="dchips">${DAYS.map(([d,w])=>`<div class="dchip ${d==='21'?'on':''}"><b>${d}</b>${w}</div>`).join('')}</div>`)}${A_('③',hd+rows)}</div>
+  <div class="bottom"><div class="ctabar area" data-label="④"><button class="btn pri" tabindex="-1">+ 항목 추가</button></div><div class="tabbar area" data-label="⑤">${TABS.map(t=>`<div class="tab ${t==='일정'?'on':''}">${t}</div>`).join('')}</div><div class="home"></div></div></div>`;
+}
+
+/* ---------------- ⑤ 여행 흐름 (보는 사람 웹, 투어 장면 14 템플릿·데이터) ---------------- */
+const SEGS=['흐름','내 준비','소식'];
+const FLOW=[
+  {d:'20일 · 금',items:[{t:'김포→제주 비행기 09:30',ok:1},{t:'숙소 · 해비치',ok:1}]},
+  {d:'21일 · 토',items:[{t:'21일 오후 · 아직 정하는 중',ok:0},{t:'숙소 · 해비치',ok:1}]},
+  {d:'22일 · 일',items:[{t:'오전 · 쇠소깍 카약',ok:1},{t:'22일 저녁 · 아직 정하는 중',ok:0},{t:'숙소 · 해비치',ok:1}]},
+  {d:'23일 · 월',items:[{t:'아직 정하는 중',ok:0}]},
+  {d:'24일 · 화',items:[{t:'제주→김포 비행기 17:10',ok:1}]}];
+function webPhone(p){
+  const days=FLOW.map(d=>`<div class="day"><div class="dh">${d.d}</div>${d.items.map(i=>`<div class="wrow ${i.ok?'':'cd'}">${i.t}</div>`).join('')}</div>`).join('');
+  return `<div class="phone web" style="${tokens(p)}">${sb()}
+  <div class="addr area" data-label="①">family-trip.app/jeju-1120</div>
+  <div class="wh area" data-label="②"><div class="topbar"><span class="tb-l"></span><span class="tb-t">제주 가족여행</span><span class="tb-r"></span></div><div class="segs">${SEGS.map(s=>`<span class="seg ${s==='흐름'?'on':''}">${s}</span>`).join('')}</div></div>
+  <div class="body">${A_('③',days)}</div>
+  <div class="bottom"><div class="ctabar area" data-label="④"><button class="btn pri" tabindex="-1">오늘로 이동</button></div><div class="home"></div></div></div>`;
+}
+
+/* ---------------- 이 페이지의 축 ---------------- */
+/* 고정: 축 1 B · 축 4 A (색상 탭 추천값) · 축 5 A · 확정 표시 A */
+const AXES=[
+ {n:3,title:'형태',plain:'카드·버튼 모서리가 얼마나 둥근지, 그림자가 있는지',screen:'edit',rec:'B',
+  why:'일정을 손가락으로 끌어 옮기는 화면이라 칸 경계는 또렷하게, 가족 앱이라 너무 딱딱하지 않게',
+  v:{A:{name:'각지게 · 그림자 없음',p:{c1:'B',c4:'A',c3:'A',c2:'B',c5:'A',c6:'A'}},
+     B:{name:'살짝 둥글게 · 옅은 그림자',p:{c1:'B',c4:'A',c3:'B',c2:'B',c5:'A',c6:'A'}},
+     C:{name:'많이 둥글게 · 테두리 없음',p:{c1:'B',c4:'A',c3:'C',c2:'B',c5:'A',c6:'A'}}}},
+ {n:2,title:'정보 밀도',plain:'일정 한 줄의 높이와 칸 사이 간격',screen:'edit',rec:'B',
+  why:'계획자는 하루 일정을 한눈에 봐야 하지만 손가락으로 끌어 옮기니 행이 너무 촘촘하면 안 됨',
+  v:{A:{name:'촘촘하게 · 행 48 · 글자 14',p:{c1:'B',c4:'A',c3:'B',c2:'A',c5:'A',c6:'A'}},
+     B:{name:'보통 · 행 56 · 글자 15',p:{c1:'B',c4:'A',c3:'B',c2:'B',c5:'A',c6:'A'}},
+     C:{name:'넉넉하게 · 행 64 · 글자 16',p:{c1:'B',c4:'A',c3:'B',c2:'C',c5:'A',c6:'A'}}}}
+];
+
+/* ---------------- 렌더 ---------------- */
+const $=s=>document.querySelector(s);
+const FB={};
+const idOf=ax=>`axis-${ax.n}`;
+const axisOf=n=>AXES.find(a=>String(a.n)===String(n));
+function render(){
+  document.querySelectorAll('section.axis').forEach(sec=>{
+    const ax=axisOf(sec.dataset.axis);if(!ax)return;
+    const i=AXES.indexOf(ax);const saved=FB[idOf(ax)];const choice=saved&&saved.choice;
+    sec.querySelector('.strip').innerHTML=`<div><div class="s-sc">${i+1} / ${AXES.length}</div><div class="s-num">${ax.title}</div></div><div class="s-state ${choice?'done':''}">${choice?`저장됨 ✓ (${choice})`:'아직 안 골랐어요'}</div>`;
+    sec.querySelector('h2').innerHTML=`${ax.title}<small>이 축만 다르고 나머지는 같습니다</small>`;
+    sec.querySelector('.plain').textContent=ax.plain;
+    sec.querySelector('.rec').innerHTML=`추천: <b>${ax.rec}</b> — ${ax.why}`;
+    sec.querySelectorAll('figure.variant').forEach(f=>{
+      const L=f.dataset.v,v=ax.v[L],on=choice===L;
+      f.classList.toggle('on',on);f.setAttribute('aria-pressed',on?'true':'false');
+      f.innerHTML=`${ax.screen==='web'?webPhone(v.p):editPhone(v.p)}<figcaption><b>${L}</b>${v.name}${on?'<span class="sel">선택됨 ✓</span>':''}${ax.note?`<span class="xnote">${ax.note}</span>`:''}</figcaption>`;
+    });
+  });
+  const n=AXES.filter(ax=>FB[idOf(ax)]&&FB[idOf(ax)].choice).length;
+  $('#count').textContent=`의견 남긴 항목 ${n}개`;
+}
+function pick(f){const sec=f.closest('section.axis');if(sec)select(sec.dataset.axis,f.dataset.v);}
+$('#axes').addEventListener('click',e=>{const f=e.target.closest('figure.variant');if(f)pick(f);});
+$('#axes').addEventListener('keydown',e=>{const f=e.target.closest('figure.variant');if(f&&(e.key==='Enter'||e.key===' ')){e.preventDefault();pick(f);}});
+
+/* ---------------- 저장 (Artifact db → 없으면 localStorage) ---------------- */
+let db=null;const LS_KEY='taste-shape-feedback';
+function errMsg(e){const c=e&&e.code;if(c==='not_granted')return'저장 권한이 없어요 — 페이지를 다시 열어 주세요';if(c==='revoked')return'접근이 끊겼어요 — 페이지를 다시 열어 주세요';if(c==='quota_exceeded')return'저장 공간이 가득 찼어요';if(c==='resource_exhausted')return'잠시 뒤 다시 눌러 주세요';if(c==='invalid_argument')return'저장 내용에 문제가 있어요';if(c==='unavailable')return'연결이 안 돼요 — 잠시 뒤 다시 눌러 주세요';return'저장 실패, 다시 눌러 주세요';}
+function lsAll(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'{}');}catch(_){return{};}}
+async function persist(path,doc){
+  if(db){await db.doc(path).set(doc);return;}
+  const all=lsAll();all[path]=doc;
+  try{localStorage.setItem(LS_KEY,JSON.stringify(all));}catch(_){throw{code:'unavailable'};}
+}
+async function select(n,L){
+  const ax=axisOf(n);if(!ax)return;
+  const doc={unit:'axis',n:ax.n,label:ax.title,choice:L,reaction:'good',text:L===ax.rec?'추천대로':'직접 선택',marks:[],markNames:[],updatedAt:new Date().toISOString()};
+  const prev=FB[idOf(ax)];FB[idOf(ax)]=doc;render();
+  try{await persist('feedback/'+idOf(ax),doc);toast('저장됨 ✓');}
+  catch(e){console.warn('feedback save failed',e&&e.code,e);if(prev)FB[idOf(ax)]=prev;else delete FB[idOf(ax)];render();toast(errMsg(e));}
+}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2000);}
+
+(async function init(){
+  render();
+  try{db=(typeof claude!=='undefined'&&claude&&typeof claude.use==='function')?await claude.use("db"):null;}catch(e){db=null;}
+  const mine=id=>AXES.some(ax=>idOf(ax)===id);
+  if(db){
+    try{const snap=await db.collection("feedback").get();snap.docs.forEach(d=>{if(mine(d.id))FB[d.id]=d.data()||{};});}
+    catch(e){console.warn('feedback load failed',e&&e.code,e);toast('저장된 의견을 불러오지 못했어요');}
+  }else{
+    $('#warn').hidden=false;toast('이 환경에서는 브라우저에만 저장돼요');
+    Object.entries(lsAll()).forEach(([p,d])=>{const id=p.replace(/^feedback\//,'');if(mine(id))FB[id]=d;});
+  }
+  render();
+})();
+</script>

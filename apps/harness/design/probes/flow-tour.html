@@ -1,0 +1,902 @@
+<title>따라가 보기</title>
+<style>
+:root{--bg:#F7F8FA;--card:#FFFFFF;--line:#E5E7EB;--ink:#1F2937;--mute:#6B7280;--acc:#2F6BFF;--accp:#1F4FCC;--dan:#DC2626;--page:#F3F4F6;--frame-w:390px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;padding:0 16px 48px}
+.wrap{max-width:1280px;margin:0 auto}
+header{padding:20px 0 10px}
+h1{font-size:22px;margin:0 0 2px}
+.sub{color:var(--mute);margin:0 0 14px}
+.hrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.stabs{display:flex;flex-wrap:wrap;gap:6px}
+.stab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;font-size:14px;color:var(--ink)}
+.stab.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.hright{display:flex;gap:12px;align-items:center;color:var(--mute);font-size:13px}
+.btn-all{height:36px;padding:0 14px;border-radius:10px;border:1px solid var(--acc);background:#fff;color:var(--acc);font-weight:600;cursor:pointer;font-size:14px}
+.btn-all:disabled{opacity:.6;cursor:default}
+.warn{background:#FFF7ED;border:1px solid #FED7AA;color:#9A3412;padding:8px 12px;border-radius:10px;font-size:13px;margin-top:8px}
+
+.stage{display:grid;grid-template-columns:132px 510px minmax(0,1fr);gap:0 20px;align-items:start;margin-top:8px}
+.strip{position:sticky;top:12px;width:132px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}
+.s-sc{font-size:12px;color:var(--mute);margin-bottom:6px}
+.s-nav{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:8px}
+.s-nav button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:18px;cursor:pointer;color:var(--ink);line-height:1}
+.s-nav button:disabled{opacity:.3;cursor:default}
+.s-nav button.nudge{border-color:var(--acc);color:var(--acc);animation:pulse 1.4s infinite}
+.s-num{font-weight:700;font-size:14px}
+.dots{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.dot.cur{background:var(--ink)}
+.dot.good{background:var(--acc)}
+.dot.conf{background:#fff;border:2px solid var(--ink)}
+.dot.cur.good,.dot.cur.conf{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--ink)}
+.save{width:100%;height:40px;border-radius:10px;border:0;background:var(--acc);color:#fff;font-weight:700;font-size:14px;cursor:pointer}
+.save:disabled{background:var(--line);color:var(--mute);cursor:default}
+.s-end{margin-top:8px;font-size:12px;color:var(--acc);font-weight:600;text-align:center}
+
+.phonewrap{position:relative;padding-left:120px;width:510px}
+.bubble{position:absolute;right:calc(390px + 14px);transform:translateY(-50%);background:var(--acc);color:#fff;font-weight:700;font-size:13px;padding:7px 11px;border-radius:10px;white-space:nowrap;z-index:9}
+.bubble::after{content:"";position:absolute;right:-6px;top:50%;margin-top:-6px;border:6px solid transparent;border-right:0;border-left-color:var(--acc)}
+
+.panel{min-width:0}
+.ttl{margin:0 0 2px;font-size:18px}
+.story{margin:0 0 10px;color:var(--mute)}
+.box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.box h3{margin:0 0 6px;font-size:12px;color:var(--mute);font-weight:600;letter-spacing:.02em}
+.box p{margin:0}
+.box p.rv{margin-top:8px;font-size:12px;color:#6B7280}
+.labs{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}
+.labs li{display:flex;gap:6px;align-items:center}
+.nb{display:inline-flex;width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;align-items:center;justify-content:center;font-weight:700;flex:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:3px 10px;font-size:13px}
+.chip.first{border-color:var(--acc);color:var(--acc);background:#fff}
+.chip.bad{border-color:#FECACA;color:var(--dan);background:#fff}
+.segrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.sg{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 10px;font-size:13px;cursor:pointer;color:var(--ink)}
+.sg.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.sg.na{opacity:.4;cursor:default}
+.sg.na::after{content:" · 없어요";font-size:11px}
+.tog{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;cursor:pointer;user-select:none}
+.tog input{width:16px;height:16px;margin:0;accent-color:var(--acc)}
+.fbrow{display:flex;gap:8px}
+.fb{flex:1;height:40px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:14px;cursor:pointer;color:var(--ink)}
+.fb.on{border-color:var(--acc);background:#EEF3FF;color:var(--acc);font-weight:700}
+.fbmore{margin-top:10px}
+.mchip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 10px;font-size:13px;cursor:pointer;color:var(--ink)}
+.mchip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.rvchk{display:inline-flex;align-items:center;gap:6px;border:1px dashed #9CA3AF;border-radius:999px;padding:3px 10px;font-size:13px;cursor:pointer;user-select:none}
+.rvchk input{width:15px;height:15px;margin:0;accent-color:var(--ink)}
+textarea{width:100%;margin-top:8px;min-height:70px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:14px;resize:vertical;color:var(--ink);background:#fff}
+.saved{font-size:12px;color:var(--acc);margin-top:6px}
+.overall{max-width:1280px;margin:28px auto 0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.overall h3{margin:0 0 4px;font-size:15px}
+.ovrow{display:flex;gap:10px;align-items:center;margin-top:8px}
+.ovsave{height:40px;padding:0 18px;border-radius:10px;border:0;background:var(--acc);color:#fff;font-weight:700;font-size:14px;cursor:pointer}
+.ovsave:disabled{background:var(--line);color:var(--mute);cursor:default}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);padding:9px 16px;border-radius:18px;background:var(--ink);color:#fff;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.toast.show{opacity:1}
+
+/* ---------- phone ---------- */
+.phone{width:390px;height:844px;background:var(--bg);border-radius:44px;border:1px solid #D1D5DB;box-shadow:0 12px 32px rgba(0,0,0,.08);position:relative;overflow:hidden;display:flex;flex-direction:column;color:var(--ink);font-size:15px;line-height:1.4}
+.sb{height:44px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 28px;font-size:13px;font-weight:600}
+.sb span{letter-spacing:1px;font-size:11px;color:var(--mute)}
+.topbar{height:56px;flex:none;display:grid;grid-template-columns:56px 1fr 96px;align-items:center;background:#fff;border-bottom:1px solid var(--line);padding:0 8px}
+.tb-l{font-size:28px;text-align:center;line-height:1;color:var(--ink);padding:6px 0}
+.tb-t{font-weight:700;font-size:17px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-r{font-size:14px;color:var(--ink);font-weight:600;padding:8px 6px;border-radius:8px;text-align:right;white-space:nowrap}
+.body{flex:1;overflow:hidden;position:relative;padding-top:12px}
+.bottom{flex:none;background:#fff;border-top:1px solid var(--line)}
+.ctabar{padding:12px 20px}
+.btn{font:inherit;cursor:pointer}
+.btn.pri{width:100%;height:52px;border-radius:12px;background:var(--acc);color:#fff;border:0;font-size:16px;font-weight:700}
+.btn.pri.pressed{background:var(--accp)}
+.btn.pri.dis{background:#C7D2FE;color:#fff;cursor:default}
+.btn.sec{height:48px;border-radius:12px;background:#fff;border:1px solid var(--line);color:var(--ink);font-size:15px;padding:0 16px}
+.btn.sec.pressed{background:#EDF0F5}
+.btn.sm{height:36px;font-size:14px;padding:0 14px}
+.btn.gh{height:44px;border-radius:12px;background:transparent;border:0;color:var(--ink);font-weight:600;font-size:15px;text-decoration:underline;text-underline-offset:3px}
+.tabbar{height:56px;display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mute);position:relative}
+.tab.on{color:var(--acc);font-weight:700}
+.tab.on::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--acc)}
+.home{height:34px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px}
+.home::after{content:"";width:134px;height:5px;border-radius:3px;background:#111}
+.area{position:relative}
+.area::before{content:attr(data-label);position:absolute;top:6px;left:6px;z-index:6;width:22px;height:22px;border-radius:50%;background:rgba(31,41,55,.72);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:700;pointer-events:none}
+.pad{padding:0 20px 12px}
+.secttl{font-size:13px;color:var(--mute);font-weight:600;margin:8px 0 6px;padding-left:34px}
+.mute{color:var(--mute)}
+.none{margin:0 20px;color:var(--mute);font-size:14px;padding:12px 16px;background:#fff;border:1px solid var(--line);border-radius:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}
+.card.pressed{background:#EDF0F5}
+.dday{display:inline-block;background:var(--ink);color:#fff;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;margin-bottom:6px}
+.ct{display:block;font-size:19px;margin-bottom:2px}
+.unseen{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:14px;font-weight:600}
+.first{margin:150px 28px 0;text-align:center}
+.first b{display:block;font-size:22px;margin-bottom:8px}
+.first p{margin:0;color:var(--mute)}
+.list{margin:0 20px;background:#fff;border:1px solid var(--line);border-radius:12px}
+.row{min-height:56px;display:flex;align-items:center;gap:8px;padding:0 12px 0 14px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0;border-radius:12px 12px 0 0}
+.row:last-child{border-radius:0 0 12px 12px}
+.row:only-child{border-radius:12px}
+.row.pressed{background:#EDF0F5}
+.row.lift{box-shadow:0 8px 20px rgba(0,0,0,.18);transform:scale(1.02);background:#fff;border-radius:10px;position:relative;z-index:3}
+.row.fresh{box-shadow:inset 3px 0 0 var(--ink)}
+.rt{width:42px;font-size:13px;color:var(--mute);flex:none;font-variant-numeric:tabular-nums}
+.rm{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.rm b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rm small{font-size:12px;color:var(--mute)}
+.row.cand .rm b{color:#4B5563;font-weight:600}
+.bd{font-size:11px;padding:3px 8px;border-radius:999px;flex:none;font-weight:600}
+.bd.ok{background:var(--ink);color:#fff}
+.bd.cd{background:#fff;color:var(--mute);border:1px dashed #9CA3AF}
+.bd.role{background:#F3F4F6;color:#374151}
+.mini{height:30px;padding:0 10px;border:1px solid var(--ink);color:var(--ink);background:#fff;border-radius:8px;font-size:12px;font-weight:700;flex:none;font-family:inherit;cursor:pointer}
+.mini.pressed{background:var(--ink);color:#fff}
+.dchips{display:flex;gap:8px;padding:8px 20px 12px 20px;justify-content:space-between}
+.dchip{flex:1;height:52px;border-radius:12px;background:#fff;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:var(--mute)}
+.dchip b{font-size:16px;color:var(--ink)}
+.dchip.on{background:var(--ink);border-color:var(--ink);color:#D1D5DB}
+.dchip.on b{color:#fff}
+.field{margin:0 20px 10px}
+.field label,.f0 label{display:block;font-size:12px;color:var(--mute);margin-bottom:4px}
+.f0{margin:0 0 12px}
+.inp{height:48px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:0 14px;display:flex;align-items:center;font-size:15px}
+.inp.ph{color:#9CA3AF}
+.inp.err{border-color:var(--dan)}
+.inp.focus{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.inp.focus::after{content:"";width:2px;height:20px;background:var(--ink);margin-left:2px;animation:blink 1s steps(1) infinite}
+.inp.ta{height:76px;align-items:flex-start;padding-top:12px}
+.errline{color:var(--dan);font-size:12px;margin-top:4px}
+.segf{display:flex;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;height:44px}
+.segf span{flex:1;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--mute)}
+.segf span.on{background:var(--ink);color:#fff;font-weight:600}
+.togrow{margin:0 20px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px}
+.togrow small{display:block;font-size:12px;color:var(--mute);margin-top:2px}
+.sw{width:46px;height:26px;border-radius:13px;background:var(--line);position:relative;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.sw.on{background:var(--ink)}
+.sw.on::after{left:23px}
+.cchips{display:flex;flex-wrap:wrap;gap:8px;padding:0 20px}
+.cchip{height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;font-size:14px}
+.cchip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.cchip.ghost{color:var(--ink);border-style:dashed}
+.famempty{margin:0 20px 8px;border:1px dashed #9CA3AF;border-radius:12px;padding:14px 16px;color:var(--mute);font-size:14px;background:#fff}
+.prog{margin:0 20px 12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px 10px 34px}
+.prow{display:flex;align-items:center;gap:10px;height:32px}
+.prow b{width:40px;font-size:14px}
+.bar{flex:1;height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ink)}
+.prow small{width:52px;text-align:right;color:var(--mute);font-variant-numeric:tabular-nums}
+.chk{width:26px;height:26px;border-radius:8px;border:2px solid #9CA3AF;flex:none;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;background:#fff}
+.chk.on{background:var(--ink);border-color:var(--ink)}
+.chk.pressed{background:#EDF0F5}
+.done .rm b{text-decoration:line-through;color:var(--mute)}
+.radio{width:22px;height:22px;border-radius:50%;border:2px solid #9CA3AF;flex:none;position:relative;background:#fff}
+.radio.on{border-color:var(--ink)}
+.radio.on::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--ink)}
+.sk{height:14px;border-radius:7px;background:linear-gradient(90deg,#E5E7EB 25%,#F3F4F6 50%,#E5E7EB 75%);background-size:200% 100%;animation:sh 1.2s infinite;margin:16px 20px 0}
+.sk.tall{height:52px;border-radius:12px}
+.empty{margin:24px 20px;background:#fff;border:1px dashed var(--line);border-radius:12px;padding:28px 16px;text-align:center}
+.empty p{margin:0 0 12px;color:var(--mute)}
+.empty.bad{border-style:solid;border-color:#FECACA}
+.empty.bad p{color:var(--dan)}
+.ptoast{position:absolute;left:20px;right:20px;bottom:130px;background:#1F2937;color:#fff;padding:12px 16px;border-radius:12px;font-size:14px;text-align:center;z-index:8;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+.ptoast.bad{background:var(--dan)}
+.ptoast.low{bottom:60px}
+.dim{position:absolute;inset:0;background:rgba(0,0,0,.38);z-index:7}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:14px 20px 44px;z-index:8;box-shadow:0 -8px 24px rgba(0,0,0,.15)}
+.sheet::after{content:"";position:absolute;top:8px;left:50%;width:40px;height:4px;margin-left:-20px;border-radius:2px;background:var(--line)}
+.sheet h4{margin:14px 0 8px;font-size:20px}
+.sheet .kv{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:17px}
+.sheet .kv span:first-child{color:var(--mute)}
+.sheet .acts{display:flex;gap:8px;margin-top:12px}
+.sheet .acts .btn{flex:1}
+.sheet .acts.col{flex-direction:column}
+.sheet .acts.col .btn{flex:none;width:100%}
+.sheet p.note{color:var(--mute);font-size:14px;margin:8px 0 12px}
+.linkbox{height:48px;border:1px solid var(--line);border-radius:12px;background:var(--bg);display:flex;align-items:center;padding:0 14px;font-size:15px;font-variant-numeric:tabular-nums}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:rot .8s linear infinite;vertical-align:-3px;margin-right:6px}
+.spin.dark{border-color:#E5E7EB;border-top-color:var(--ink)}
+.hot{outline:2.5px solid var(--acc);outline-offset:3px;animation:pulse 1.4s infinite;cursor:pointer;border-radius:12px}
+.row.hot{outline-offset:-3px;border-radius:10px}
+.tb-r.hot,.tb-l.hot{outline-offset:0;border-radius:8px}
+.chk.hot,.mini.hot{outline-offset:2px;border-radius:8px}
+.tab.hot{outline-offset:-6px;border-radius:12px}
+.seg.hot{outline-offset:2px}
+.wrow.hot{outline-offset:-3px;border-radius:10px}
+.gaze{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:9}
+/* 보는 사람 웹 (⑤⑥⑧) — 본문 한 단계 크게 */
+.web .body,.wv{font-size:18px}
+.web .tb-t{font-size:19px}
+.addr{height:36px;flex:none;background:#E5E7EB;display:flex;align-items:center;justify-content:center;font-size:13px;color:#4B5563}
+.wh{flex:none;background:#fff;border-bottom:1px solid var(--line)}
+.wh .topbar{border-bottom:0}
+.wh.off .segs{opacity:.4}
+.segs{display:flex;padding:0 20px 12px;gap:6px}
+.segs.inbody{padding:0 20px 12px;background:transparent}
+.seg{flex:1;height:44px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:var(--bg);font-size:17px;color:var(--mute);border:1px solid var(--line)}
+.seg.on{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:700}
+.day{background:#fff;border:1px solid var(--line);border-radius:12px;margin:0 20px 12px}
+.dh{height:36px;display:flex;align-items:center;padding:0 16px 0 34px;font-size:15px;color:var(--mute);border-bottom:1px solid var(--line);font-weight:600}
+.wrow{min-height:56px;display:flex;align-items:center;padding:0 16px;font-size:20px;font-weight:700;border-top:1px solid var(--line);gap:10px}
+.dh + .wrow{border-top:0}
+.wrow.cd{font-size:16px;font-weight:400;color:var(--mute);min-height:44px}
+.wrow.pressed{background:#EDF0F5}
+.wrow.fresh{box-shadow:inset 3px 0 0 var(--ink)}
+.wrow:last-child{border-radius:0 0 12px 12px}
+.pvbar{margin:0 20px 10px;background:#E5E7EB;color:#4B5563;border-radius:10px;padding:8px 12px 8px 34px;font-size:13px}
+.inv{padding:8px 20px 4px 34px;font-size:22px;font-weight:700;line-height:1.35}
+.invs{padding:0 20px 20px 34px;font-size:17px;color:var(--mute)}
+.q{padding:4px 20px 10px 34px;font-size:20px;font-weight:700}
+.names{display:flex;flex-direction:column;gap:10px;padding:0 20px}
+.name{height:64px;border-radius:12px;background:#fff;border:1px solid var(--line);font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:inherit;cursor:pointer;color:var(--ink)}
+.name.pressed{background:#EDF0F5}
+.wsec{padding:6px 20px 6px 34px;font-size:15px;color:var(--mute);font-weight:600}
+.hlist{margin:0 20px 14px;background:#fff;border:1px solid var(--line);border-radius:12px}
+.wchk{min-height:64px;display:flex;align-items:center;gap:14px;padding:0 16px;font-size:20px;font-weight:700;border-top:1px solid var(--line)}
+.wchk:first-child{border-top:0}
+.wchk .chk{width:30px;height:30px;font-size:18px}
+.wchk.done span:last-child{text-decoration:line-through;color:var(--mute)}
+.wcard{background:#fff;border:1px solid var(--line);border-radius:12px;margin:0 20px 12px;padding:14px 16px;font-size:20px;font-weight:700}
+.wcard small{display:block;font-size:15px;color:var(--mute);font-weight:400;margin-top:2px}
+.nrow{min-height:64px;display:flex;flex-direction:column;justify-content:center;padding:8px 16px;border-top:1px solid var(--line);font-size:19px;font-weight:700}
+.nrow:first-child{border-top:0}
+.nrow small{font-size:15px;color:var(--mute);font-weight:400}
+.pill{display:inline-flex;align-items:center;gap:6px;margin:0 20px 12px 34px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:15px;color:var(--mute)}
+/* 카톡 대화방 (⑧ 알림) */
+.chatday{text-align:center;font-size:12px;color:var(--mute);margin:10px 0 12px}
+.msgfrom{margin:0 20px 6px 34px;font-size:13px;color:var(--mute);font-weight:600}
+.msgcard{margin:0 20px;max-width:290px;background:#fff;border:1px solid var(--line);border-radius:4px 16px 16px 16px;overflow:hidden}
+.msgcard .mt{padding:14px 16px;font-size:16px;font-weight:600;border-bottom:1px solid var(--line)}
+.msgcard .ms{padding:0 16px 12px;margin-top:-6px;font-size:13px;color:var(--mute);border-bottom:1px solid var(--line)}
+.msgcard .btn{width:100%;height:48px;border:0;background:#fff;color:var(--ink);font-weight:700;font-size:16px;border-radius:0}
+.msgtime{margin:6px 20px 0;font-size:11px;color:var(--mute)}
+
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(47,107,255,.55)}70%{box-shadow:0 0 0 12px rgba(47,107,255,0)}100%{box-shadow:0 0 0 0 rgba(47,107,255,0)}}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes rot{to{transform:rotate(360deg)}}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.hot,.s-nav button.nudge,.sk,.spin,.inp.focus::after{animation:none}.toast{transition:none}}
+@media (max-width:1100px){.stage{grid-template-columns:132px minmax(0,1fr)}.panel{grid-column:1 / -1}}
+@media (max-width:700px){.stage{grid-template-columns:1fr}.strip{position:static;width:100%}.phonewrap{width:100%;max-width:510px}}
+@media (max-width:560px){.phonewrap{padding-left:0}.bubble{right:auto;left:8px;transform:translateY(-135%)}}
+@media (max-width:430px){.phone{zoom:.86}}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>따라가 보기</h1>
+  <p class="sub">지수가 제주 여행을 만들고, 영호·미숙이 카톡 링크로 따라오는 장면을 하나씩 눌러 봅니다.</p>
+  <div class="hrow">
+    <div class="stabs" id="stabs"></div>
+    <div class="hright"><span id="count">의견 남긴 항목 0개</span><button class="btn-all" id="allgood">전체 괜찮아요 👍</button></div>
+  </div>
+  <div class="warn" id="warn" hidden>이 환경에서는 브라우저에만 저장돼요</div>
+</header>
+
+<div class="stage">
+  <aside class="strip" id="strip"></aside>
+  <div class="phonewrap" id="phonewrap">
+    <div class="bubble" id="bubble" hidden>여기 클릭 →</div>
+    <div id="phone"></div>
+  </div>
+  <section class="panel" id="panel"></section>
+</div>
+
+<section class="overall">
+  <h3>전체 의견</h3>
+  <textarea id="ovtext" placeholder="투어 전체를 보고 드는 생각을 적어 주세요"></textarea>
+  <div class="ovrow"><button class="ovsave" id="ovsave" disabled>전체 의견 저장</button><span class="saved" id="ovsaved"></span></div>
+</section>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- 공통 조각 ---------------- */
+const $=s=>document.querySelector(s);
+const A=(n,inner,cls)=>`<div class="area ${cls||''}" data-label="${n}">${inner}</div>`;
+const skel=(n,tall)=>Array.from({length:n},(_,i)=>`<div class="sk ${tall?'tall':''}" style="width:${tall?'auto':[62,48,70,40][i%4]+'%'}"></div>`).join('');
+const emptyBox=(msg,btn,bad)=>`<div class="empty ${bad?'bad':''}"><p>${msg}</p>${btn?`<button class="btn sec sm">${btn}</button>`:''}</div>`;
+const failBox=msg=>emptyBox(msg||'불러오지 못했어요','다시 시도',true);
+const sb=t=>`<div class="sb"><b>${t||'10:24'}</b><span>●●● ▴ ▮</span></div>`;
+const TABS=['일정','할 일','소식','가족'];
+const tabs=(on,hot)=>TABS.map(t=>`<div class="tab ${t===on?'on':''} ${t===hot?'hot':''}">${t}</div>`).join('');
+const DAYS=[['20','금'],['21','토'],['22','일'],['23','월'],['24','화']];
+const dchips=on=>`<div class="dchips">${DAYS.map(([d,w])=>`<div class="dchip ${d===on?'on':''}"><b>${d}</b>${w}</div>`).join('')}</div>`;
+const list=rows=>`<div class="list">${rows.join('')}</div>`;
+const trow=(name,who,done)=>`<div class="row ${done?'done':''}"><span class="chk ${done?'on':''}">${done?'✓':''}</span><span class="rm"><b>${name}</b><small>${who}</small></span></div>`;
+
+/* 계획자 앱 틀: 상태바 44 / 상단 바 56 / 본문 / 하단 CTA 52 / (루트만) 탭바 / 홈 인디케이터 34 */
+function app(o){
+  const L=o.L||{};
+  const left=o.back?'‹':(o.close?'×':'');
+  return `<div class="phone app">${sb(o.time)}
+  <div class="topbar area" data-label="①"><span class="tb-l ${o.backHot?'hot':''}">${left}</span><span class="tb-t">${o.title}</span><span class="tb-r ${o.rightHot?'hot':''}">${o.right||''}</span></div>
+  <div class="body ${o.bodyCls||''}">${o.body}</div>
+  <div class="bottom">${o.cta?`<div class="ctabar area" data-label="${L.cta||'④'}">${o.cta}</div>`:''}${o.tab?`<div class="tabbar area" data-label="${L.tab||'⑤'}">${tabs(o.tab,o.tabHot)}</div>`:''}<div class="home"></div></div>
+  ${o.sheet?`<div class="dim"></div><div class="sheet area" data-label="${L.sheet||'⑤'}">${o.sheet}</div>`:''}
+  ${o.toast?`<div class="ptoast ${o.toastBad?'bad':''} ${o.tab||o.cta?'':'low'}">${o.toast}</div>`:''}
+  <svg class="gaze"></svg></div>`;
+}
+/* 보는 사람 웹 틀: 상태바 44 / 회색 주소창 / 상단 바 56 + 상단 칸 3개 / 본문 / 하단 CTA 52 / 홈 인디케이터 34, 탭바 없음 */
+const SEGS=['흐름','내 준비','소식'];
+const segRow=(on,hot,cls)=>`<div class="segs ${cls||''}">${SEGS.map(s=>`<span class="seg ${s===on?'on':''} ${s===hot?'hot':''}">${s}</span>`).join('')}</div>`;
+function web(o){
+  const L=o.L||{};
+  return `<div class="phone web">${sb(o.time)}
+  <div class="addr area" data-label="①">family-trip.app/jeju-1120</div>
+  <div class="wh area ${o.segOff?'off':''}" data-label="②"><div class="topbar"><span class="tb-l"></span><span class="tb-t">제주 가족여행</span><span class="tb-r"></span></div>${segRow(o.seg,o.segHot)}</div>
+  <div class="body">${o.body}</div>
+  <div class="bottom">${o.cta?`<div class="ctabar area" data-label="${L.cta||'④'}">${o.cta}</div>`:''}<div class="home"></div></div>
+  ${o.sheet?`<div class="dim"></div><div class="sheet area" data-label="${L.sheet||'⑤'}">${o.sheet}</div>`:''}
+  ${o.toast?`<div class="ptoast ${o.toastBad?'bad':''} ${o.cta?'':'low'}">${o.toast}</div>`:''}
+  <svg class="gaze"></svg></div>`;
+}
+/* primary 버튼 — 화면당 1개, 하단 고정 */
+const pri=(t,st,hot)=>{const s=st||'';return `<button class="btn pri ${s==='눌렀을 때'?'pressed':''} ${s==='비어있음'?'dis':''} ${hot&&s!=='로딩'&&s!=='비어있음'?'hot':''}">${s==='로딩'?`<span class="spin"></span>${t.replace(/^\+ /,'')} 중…`:t}</button>`;};
+
+/* ---------------- ① 여행 홈 ---------------- */
+function homeFirst(o){
+  o=o||{};
+  return app({title:'여행',body:A('②',`<div class="first"><b>첫 여행을 만들어 보세요</b><p>일정·할 일·소식을 가족과 한곳에서 나눠요</p></div>`),cta:pri('새 여행 만들기',o.ctaState,o.hot),tab:'일정',L:{cta:'③',tab:'④'}});
+}
+function homeLoading(){
+  return app({title:'여행',right:'+ 새 여행',body:A('②',`<div class="pad" style="padding-top:22px"><div class="sk tall" style="height:150px;margin:0"></div></div>`)+A('③',`<div class="secttl">오늘 남은 할 일</div>${skel(2)}`),tab:'일정',L:{tab:'④'}});
+}
+function homeTrip(o){
+  const card=`<div class="pad" style="padding-top:22px"><div class="card ${o.hot?'hot':''} ${o.pressed?'pressed':''}"><span class="dday">D-52</span><b class="ct">제주 가족여행</b><div class="mute">11월 20일(금) ~ 24일(화) · 4박 5일</div><div class="mute">지수 · 영호 · 미숙 · 민재 · 하린</div>${o.unseen?'<div class="unseen">가족 4명 중 0명이 아직 안 봤어요</div>':''}</div></div>`;
+  const todo=o.todos?`<div class="secttl">오늘 남은 할 일 2개</div>`+list([trow('21일 일정 정하기','지수'),trow('하린 카시트 알아보기','지수')])
+    :`<div class="secttl">오늘 남은 할 일</div><p class="none">오늘 할 일이 없어요</p>`;
+  return app({title:'여행',right:'+ 새 여행',body:A('②',card)+A('③',todo),tab:'일정',L:{tab:'④'}});
+}
+
+/* ---------------- ② 여행 만들기 ---------------- */
+const FAM=['아버지 영호','어머니 미숙','동생 민재','하린'];
+function makeForm(o){
+  const s=o.state||'';
+  const filled=o.filled&&s!=='비어있음';
+  const body=A('②',`<div style="height:18px"></div>
+    <div class="field"><label>어디로</label><div class="inp ${filled?'':'ph'} ${o.destHot?'hot':''} ${o.destFocus?'focus':''} ${s==='실패'?'err':''}">${filled?'제주':(o.destFocus?'':'어디로 가세요?')}</div>${s==='실패'?'<div class="errline">만들지 못했어요 · 다시 눌러 주세요</div>':''}</div>
+    <div class="field"><label>언제</label><div class="inp ${o.filled?'':'ph'}">${o.filled?'11월 20일(금) ~ 24일(화) · 4박 5일':'날짜를 골라 주세요'}</div></div>`)
+   +A('③',`<div class="secttl">함께 가는 가족</div>${o.filled?`<div class="cchips">${FAM.map(n=>`<span class="cchip on">${n}</span>`).join('')}<span class="cchip ghost">+ 추가</span></div>`:`<div class="famempty">아직 아무도 없어요</div><div class="cchips"><span class="cchip ghost">+ 가족 추가</span></div>`}`);
+  return app({close:1,title:'새 여행',body,cta:pri('만들기',o.ctaState,o.ctaHot),sheet:o.sheet,toast:o.toast,toastBad:o.toastBad,L:{cta:'④',sheet:'⑤'}});
+}
+function inviteSheet(st,hot,err){
+  return `<h4>초대 링크가 만들어졌어요</h4><div class="linkbox">family-trip.app/jeju-1120</div><p class="note">영호·미숙·민재·하린은 앱 설치 없이 이 링크로 봐요</p>${err?'<div class="errline" style="margin:-4px 0 10px">카톡을 열지 못했어요 · 링크 복사를 눌러 주세요</div>':''}<div class="acts col">${pri('카톡으로 보내기',st,hot)}<button class="btn sec">링크 복사</button></div>`;
+}
+
+/* ---------------- ③ 일정 편집 ---------------- */
+const R={
+  lunch:{t:'13:00',k:'활동',name:'점심 · 고기국수',ok:0},
+  seopji:{t:'14:30',k:'활동',name:'섭지코지',ok:0},
+  sunrise:{t:'오후',k:'활동',name:'성산일출봉',ok:0},
+  stay21:{t:'밤',k:'숙박',name:'해비치 · 2박째',ok:1},
+  kayak:{t:'10:00',k:'활동',name:'쇠소깍 카약',ok:1},
+  pork:{t:'18:30',k:'활동',name:'흑돼지 식당 저녁',ok:0},
+  stay22:{t:'밤',k:'숙박',name:'해비치 · 3박째',ok:1}
+};
+function srow(r,o){
+  o=o||{};
+  const right=r.ok?'<span class="bd ok">확정</span>':`<span class="bd cd">정하는 중</span><button class="mini ${o.btnHot?'hot':''} ${o.btnPressed?'pressed':''}">${o.btnLoading?'<span class="spin dark"></span>':'확정으로'}</button>`;
+  return `<div class="row ${r.ok?'':'cand'} ${o.hot?'hot':''} ${o.pressed?'pressed':''} ${o.lift?'lift':''} ${o.fresh?'fresh':''}"><span class="rt">${r.t}</span><span class="rm"><b>${r.name}</b><small>${r.k}</small></span>${right}</div>`;
+}
+function editScreen(o){
+  const s=o.state||'기본';
+  let body;
+  if(s==='로딩') body=A('②',dchips(o.day))+A('③',skel(4,true));
+  else if(s==='비어있음') body=A('②',dchips(o.day))+A('③',emptyBox(`${o.day}일 일정이 아직 없어요`,'+ 항목 추가'));
+  else if(s==='실패') body=A('②',dchips(o.day))+A('③',failBox('일정을 불러오지 못했어요'));
+  else body=A('②',dchips(o.day))+A('③',list(o.rows));
+  return app({back:1,title:'제주 가족여행',right:'가족 화면',rightHot:o.rightHot,body,cta:pri('+ 항목 추가',o.ctaState,o.ctaHot),tab:'일정',tabHot:o.tabHot,toast:o.toast,toastBad:o.toastBad,L:{cta:'④',tab:'⑤'}});
+}
+
+/* ---------------- ④ 일정 항목 편집 ---------------- */
+function itemForm(s){
+  const empty=s==='비어있음';
+  const body=A('②',`<div style="height:18px"></div>
+   <div class="field"><label>종류</label><div class="segf"><span>이동</span><span>숙박</span><span class="on">활동</span></div></div>
+   <div class="field"><label>시간</label><div class="inp">21일 오후 · 시간 미정</div></div>
+   <div class="field"><label>장소</label><div class="inp ${empty?'ph':''} ${s==='실패'?'err':''}">${empty?'장소를 적어 주세요':'성산일출봉'}</div>${s==='실패'?'<div class="errline">저장하지 못했어요 · 다시 눌러 주세요</div>':''}</div>
+   <div class="field"><label>메모</label><div class="inp ta ph">예: 해 지기 전에 올라가기</div></div>`)
+   +A('③',`<div class="togrow"><span>아직 후보예요<small>켜 두면 가족 화면에는 "아직 정하는 중"으로만 보여요</small></span><span class="sw on"></span></div>`);
+  return app({close:1,title:'항목 추가',body,cta:pri('저장',s==='기본'||s==='성공'?'':s,s!=='성공'),toast:s==='성공'?'저장했어요 · "정하는 중"으로 들어갔어요':(s==='실패'?'저장하지 못했어요':''),toastBad:s==='실패',L:{cta:'④'}});
+}
+
+/* ---------------- ⑤ 여행 흐름 (보는 사람) — ③과 같은 데이터, 확정만 크게 ---------------- */
+function dayflow(after){
+  return [
+    {d:'20일 · 금',items:[{t:'김포→제주 비행기 09:30',ok:1},{t:'숙소 · 해비치',ok:1}]},
+    {d:'21일 · 토',items:[{t:'21일 오후 · 아직 정하는 중',ok:0},{t:'숙소 · 해비치',ok:1,key:'stay21'}]},
+    {d:'22일 · 일',items:[{t:'오전 · 쇠소깍 카약',ok:1},after?{t:'저녁 · 흑돼지 식당',ok:1,fresh:1}:{t:'22일 저녁 · 아직 정하는 중',ok:0},{t:'숙소 · 해비치',ok:1}]},
+    {d:'23일 · 월',items:[{t:'아직 정하는 중',ok:0}]},
+    {d:'24일 · 화',items:[{t:'제주→김포 비행기 17:10',ok:1}]}
+  ];
+}
+function flowDays(days,o){
+  o=o||{};
+  return days.map(d=>`<div class="day"><div class="dh">${d.d}</div>${d.items.map(i=>i.ok
+    ?`<div class="wrow ${i.key&&i.key===o.hot?'hot':''} ${i.key&&i.key===o.pressed?'pressed':''} ${i.fresh?'fresh':''}">${i.t}</div>`
+    :`<div class="wrow cd">${i.t}</div>`).join('')}</div>`).join('');
+}
+const wskel=()=>`<div class="day"><div class="dh">20일 · 금</div>${skel(2)}<div style="height:14px"></div></div><div class="day"><div class="dh">21일 · 토</div>${skel(2)}<div style="height:14px"></div></div>`;
+function webFlow(o){
+  const s=o.state||'기본';
+  let inner;
+  if(s==='로딩') inner=wskel();
+  else if(s==='비어있음') inner=emptyBox('아직 정해진 일정이 없어요<br><small>지수가 정하면 여기에 보여요</small>','지수에게 물어보기');
+  else if(s==='실패') inner=failBox('일정을 불러오지 못했어요');
+  else inner=(o.pill?`<div class="pill">✓ 오늘 소식 2가지 확인했어요</div>`:'')+flowDays(o.days||dayflow(0),{hot:o.hot,pressed:o.pressed});
+  return web({time:o.time,seg:'흐름',segHot:o.segHot,body:A('③',inner),cta:pri('오늘로 이동'),sheet:o.sheet,toast:o.toast,toastBad:o.toastBad,L:{cta:'④',sheet:'⑤'}});
+}
+function staySheet(st){
+  if(st==='로딩') return `<h4>21일 · 숙소 해비치</h4>${skel(3)}<div style="height:24px"></div>`;
+  return `<h4>21일 · 숙소 해비치</h4><div class="kv"><span>주소</span><span>서귀포시 표선면</span></div><div class="kv"><span>체크인</span><span>20일 15:00부터</span></div><div class="kv"><span>함께</span><span>지수 · 미숙 · 민재 · 하린</span></div><div class="acts"><button class="btn sec">지도로 보기</button><button class="btn sec ${st==='눌렀을 때'?'pressed':''} hot">지수에게 물어보기</button></div>`;
+}
+function askSheet(s){
+  const empty=s==='비어있음';
+  return `<h4>지수에게 물어보기</h4><div class="inp ta ${empty?'ph':''} ${s==='실패'?'err':''}" style="font-size:18px;height:88px">${empty?'궁금한 것을 짧게 적어 주세요':'해비치 조식은 포함이니?'}</div>${s==='실패'?'<div class="errline" style="font-size:14px">보내지 못했어요 · 다시 눌러 주세요</div>':''}<p class="note">지수의 소식에만 조용히 들어가요</p>${pri('보내기',s==='기본'?'':s,1)}`;
+}
+
+/* ---------------- ⑥ 내 준비 ---------------- */
+function prep(o){
+  const s=o.state||'기본';
+  const chk=(on,hot,pressed,loading)=>`<span class="chk ${on?'on':''} ${hot?'hot':''} ${pressed?'pressed':''}">${loading?'<span class="spin dark" style="margin:0"></span>':(on?'✓':'')}</span>`;
+  const when=A('④',`<div class="wsec">언제 어디에</div><div class="wcard">20일 08:00 · 김포공항 3번 게이트<small>비행기 09:30 출발</small></div>`);
+  if(s==='로딩'&&!o.checking) return A('③',`<div class="wsec">영호 님이 챙길 것</div><div class="hlist">${skel(2)}<div style="height:14px"></div></div>`)+A('④',`<div class="wsec">언제 어디에</div><div class="hlist">${skel(1)}<div style="height:14px"></div></div>`);
+  if(s==='비어있음') return A('③',`<div class="wsec">영호 님이 챙길 것</div>${emptyBox('아직 맡은 준비가 없어요','지수에게 물어보기')}`)+when;
+  return A('③',`<div class="wsec">영호 님이 챙길 것</div><div class="hlist"><div class="wchk ${o.done?'done':''}">${chk(o.done,o.hot,s==='눌렀을 때',o.checking)}<span>상비약</span></div><div class="wchk">${chk(false)}<span>신분증</span></div></div>`)+when;
+}
+
+/* ---------------- ⑦ 할 일·준비물 ---------------- */
+const PROG=mj=>`<div class="prog"><div class="prow"><b>지수</b><div class="bar"><i style="width:60%"></i></div><small>3/5</small></div><div class="prow"><b>영호</b><div class="bar"><i style="width:50%"></i></div><small>1/2</small></div><div class="prow"><b>미숙</b><div class="bar"><i style="width:0"></i></div><small>0/1</small></div><div class="prow"><b>민재</b><div class="bar"><i style="width:0"></i></div><small>${mj?'0/1':'없음'}</small></div></div>`;
+const TODOS=[['21일 일정 정하기','지수',0],['하린 카시트 알아보기','지수',0],['신분증 챙기기','영호',0],['하린 짐 챙기기','미숙',0],['상비약 챙기기','영호',1]];
+function todoScreen(o){
+  const s=o.state||'기본';
+  let body;
+  if(s==='로딩') body=A('②',`<div class="prog">${skel(3)}<div style="height:10px"></div></div>`)+A('③',skel(3,true));
+  else if(s==='비어있음') body=A('②',PROG(0))+A('③',emptyBox('아직 할 일이 없어요','+ 할 일 추가'));
+  else{
+    const rows=(o.mj?[['렌터카 예약 확인','민재',0]]:[]).concat(TODOS).slice(0,5);
+    body=A('②',PROG(o.mj))+A('③',`<div class="secttl">남은 할 일</div>`+list(rows.map(t=>trow(t[0],t[1],t[2]))));
+  }
+  return app({title:'할 일',body,cta:pri('+ 할 일 추가',o.ctaState,o.ctaHot),tab:'할 일',tabHot:o.tabHot,sheet:o.sheet,toast:o.toast,toastBad:o.toastBad,L:{cta:'④',tab:'⑤',sheet:'④'}});
+}
+function addTodoSheet(s){
+  const empty=s==='비어있음';
+  return `<h4>할 일 추가</h4><div class="f0"><label>할 일</label><div class="inp ${empty?'ph':''} ${s==='실패'?'err':''}">${empty?'무엇을 해야 하나요?':'렌터카 예약 확인'}</div>${s==='실패'?'<div class="errline">추가하지 못했어요 · 다시 눌러 주세요</div>':''}</div><div class="f0"><label>담당</label><div class="cchips" style="padding:0">${['지수','영호','미숙','민재','하린'].map(n=>`<span class="cchip ${n==='민재'?'on':''}">${n}</span>`).join('')}</div></div>${pri('추가',s==='기본'?'':s,1)}`;
+}
+
+/* ---------------- ⑨ 가족·역할 ---------------- */
+const MEM=[['지수','나 · 34','계획자'],['영호','아버지','보는 사람'],['미숙','어머니','보는 사람'],['민재','동생','보는 사람'],['하린','6살','보는 사람']];
+
+/* ---------------- 장면 (brief §2 문장 그대로) ---------------- */
+const SCENES=[
+/* ===== 시나리오 0 — 여행 만들고 가족 초대하기 ===== */
+{sc:0,step:1,screen:'①',name:'여행 홈',
+ story:'앱을 처음 엽니다. 여행이 아직 없어서 "첫 여행을 만들어 보세요" 안내와 "새 여행 만들기" 버튼만 보입니다.',
+ revisit:'로그인·온보딩 없이 바로 여행 홈',
+ labels:[['①','제목줄'],['②','안내'],['③','하단 버튼'],['④','탭바']],
+ press:['누름 → 바로 열림','성공: 목적지·기간을 적는 칸이 나와요','실패하면: 없어요 (화면만 열려요)'],
+ states:['기본','눌렀을 때','로딩'],
+ gaze:'위→아래: ① 제목줄은 스쳐 지나고 → ② 가운데 안내 한 줄을 읽고 → ③ 하단 버튼으로 바로 시작합니다 · ④ 탭바는 아직 볼 일이 없어요',
+ render(s){return s==='로딩'?homeLoading():homeFirst({ctaState:s==='눌렀을 때'?'눌렀을 때':'',hot:1});}},
+{sc:0,step:2,screen:'②',name:'여행 만들기',
+ story:'"새 여행 만들기"를 누릅니다. 목적지·기간 칸이 보이고, 아래에 "함께 가는 가족" 칸이 비어 있습니다.',
+ labels:[['①','제목줄'],['②','목적지·기간'],['③','함께 가는 가족'],['④','하단 버튼']],
+ press:['칸을 누름 → 글자를 적을 수 있어요','다 채우면: "만들기"가 켜져요','비어있으면: "만들기"가 흐려요'],
+ states:['기본','눌렀을 때'],
+ bubble:'여기 눌러 적기 →',
+ gaze:'위→아래: ① 제목으로 새 여행임을 알고 → ② 목적지·기간을 위에서부터 채우고 → ③ 같이 갈 가족을 넣고 → ④ 만들기로 끝냅니다',
+ render(s){return makeForm({destHot:1,destFocus:s==='눌렀을 때',ctaState:'비어있음'});}},
+{sc:0,step:3,screen:'②',name:'여행 만들기',
+ story:'"제주", 11월 20일~24일을 고르고 가족 칸에 "아버지 영호, 어머니 미숙, 동생 민재, 하린"을 추가합니다. "만들기"가 켜집니다.',
+ labels:[['①','제목줄'],['②','목적지·기간'],['③','함께 가는 가족'],['④','하단 버튼']],
+ press:['누름 → 잠깐 로딩','성공: "초대 링크가 만들어졌어요" 시트가 올라와요','실패하면: "만들지 못했어요 · 다시 눌러 주세요"','비어있으면: 목적지가 없으면 버튼이 흐려요'],
+ states:['기본','눌렀을 때','로딩','성공','실패','비어있음'],
+ gaze:'위→아래: ② 채운 목적지·기간을 한 번 더 보고 → ③ 가족 네 명이 다 들어갔는지 확인하고 → ④ 켜진 "만들기"를 누릅니다',
+ render(s){
+  if(s==='성공') return makeForm({filled:1,sheet:inviteSheet('',0)});
+  return makeForm({filled:1,state:s,ctaState:s==='기본'?'':(s==='성공'||s==='실패'?'':s),ctaHot:1,toast:s==='실패'?'만들지 못했어요':'',toastBad:1});
+ }},
+{sc:0,step:4,screen:'②',name:'여행 만들기',
+ story:'"만들기"를 누릅니다. 잠깐 로딩 후 "초대 링크가 만들어졌어요" 시트가 올라오고 "카톡으로 보내기 / 링크 복사" 두 버튼이 보입니다.',
+ labels:[['①','제목줄'],['②','목적지·기간'],['③','함께 가는 가족'],['④','하단 버튼'],['⑤','초대 링크 시트']],
+ press:['누름 → 카톡이 열려요','성공: 가족 단톡방에 링크를 보내고 홈으로 돌아와요','실패하면: "카톡을 열지 못했어요 · 링크 복사를 눌러 주세요"'],
+ states:['기본','눌렀을 때','로딩','실패'],
+ gaze:'아래→위: ⑤ 시트 제목 → 링크 한 줄 → 누구에게 가는지 읽고 → 맨 위 파란 "카톡으로 보내기"를 누릅니다',
+ render(s){
+  if(s==='로딩') return makeForm({filled:1,ctaState:'로딩'});
+  return makeForm({filled:1,sheet:inviteSheet(s==='눌렀을 때'?'눌렀을 때':'',1,s==='실패')});
+ }},
+{sc:0,step:5,screen:'①',name:'여행 홈',end:1,
+ story:'"카톡으로 보내기"를 누릅니다. 홈으로 돌아오면 "제주 가족여행 D-52" 카드와 "가족 4명 중 0명이 아직 안 봤어요" 한 줄이 보입니다.',
+ labels:[['①','제목줄'],['②','여행 카드'],['③','오늘 할 일'],['④','탭바']],
+ press:['없어요 — 시나리오가 여기서 끝나요'],
+ states:['기본','로딩','비어있음'],
+ gaze:'위→아래: ② 카드에서 D-52와 여행 이름을 읽고 → 카드 맨 아래 "아직 안 봤어요" 한 줄에서 멈춥니다 → ③ 오늘 할 일은 아직 비어 있어요',
+ render(s){return s==='로딩'?homeLoading():s==='비어있음'?homeFirst():homeTrip({unseen:1});}},
+
+/* ===== 시나리오 1 — 일정 후보 적고 확정하기 ===== */
+{sc:1,step:1,screen:'①',name:'여행 홈',
+ story:'앱을 엽니다. "제주 가족여행 D-52" 카드와 오늘 남은 할 일 2개가 보입니다.',
+ labels:[['①','제목줄'],['②','여행 카드'],['③','오늘 할 일'],['④','탭바']],
+ press:['누름 → 잠깐 로딩','성공: 제주 여행의 날짜별 일정이 열려요','실패하면: "불러오지 못했어요 · 다시 시도"'],
+ states:['기본','눌렀을 때','로딩','비어있음'],
+ gaze:'위→아래: ① 제목에서 여행 목록임을 알고 → ② 큰 카드로 시선이 떨어지고 → ③ 오늘 할 일 두 개를 훑은 뒤 → ④ 탭바는 필요할 때만 봅니다',
+ render(s){return s==='로딩'?homeLoading():s==='비어있음'?homeFirst():homeTrip({todos:1,hot:1,pressed:s==='눌렀을 때'});}},
+{sc:1,step:2,screen:'③',name:'일정 편집',
+ story:'카드를 누릅니다. 날짜 칩 5개(20·21·22·23·24)가 위에, 21일 일정이 시간순으로 보입니다. "확정" 배지가 붙은 항목과 "정하는 중" 항목이 섞여 있습니다.',
+ revisit:'하단 탭 4개(일정·할 일·소식·가족)',
+ labels:[['①','제목줄'],['②','날짜 칩'],['③','일정 목록'],['④','하단 버튼'],['⑤','탭바']],
+ press:['누름 → 바로 열림','성공: 새 항목을 적는 칸이 나와요','실패하면: 없어요 (화면만 열려요)'],
+ states:['기본','눌렀을 때','로딩','실패','비어있음'],
+ gaze:'위→아래: ① 제목에서 여행을 확인하고 → ② 날짜 칩에서 21일을 보고 → ③ "확정"과 "정하는 중"을 훑고 → ④ 하단 버튼으로 새 항목을 적습니다 · ⑤ 탭바로 다른 일로 건너갑니다',
+ render(s){return editScreen({state:s==='눌렀을 때'?'기본':s,day:'21',rows:[srow(R.lunch),srow(R.seopji),srow(R.stay21)],ctaHot:s==='기본'||s==='눌렀을 때',ctaState:s==='눌렀을 때'?'눌렀을 때':''});}},
+{sc:1,step:3,screen:'④',name:'일정 항목 편집',
+ story:'하단 "+ 항목 추가"를 누릅니다. 종류(이동·숙박·활동)·시간·장소·메모 칸이 보이고, 맨 아래 "아직 후보예요" 토글이 켜져 있습니다.',
+ revisit:'가장 자주 하는 행동 = 일정 후보를 적고 고치기',
+ labels:[['①','제목줄'],['②','입력 칸'],['③','후보 토글'],['④','하단 버튼']],
+ press:['누름 → 잠깐 로딩','성공: 목록에 "정하는 중"으로 들어가요','실패하면: "저장하지 못했어요 · 다시 눌러 주세요"','비어있으면: 장소가 없으면 버튼이 흐려요'],
+ states:['기본','눌렀을 때','로딩','성공','실패','비어있음'],
+ gaze:'위→아래: ① 제목으로 무엇을 적는지 알고 → ② 칸을 위에서부터 채우고 → ③ 후보인지 확인하고 → ④ 저장으로 끝냅니다',
+ render(s){return itemForm(s);}},
+{sc:1,step:4,screen:'③',name:'일정 편집',
+ story:'"성산일출봉"을 적고 "저장"을 누릅니다. 목록에 "정하는 중" 배지로 들어갑니다.',
+ labels:[['①','제목줄'],['②','날짜 칩'],['③','일정 목록'],['④','하단 버튼'],['⑤','탭바']],
+ press:['길게 누름 → 항목이 살짝 떠올라요','성공: 위로 끌어 놓으면 순서가 바뀌어요','실패하면: 제자리로 돌아가요'],
+ states:['기본','눌렀을 때','로딩','비어있음'],
+ bubble:'여기 길게 눌러 →',
+ gaze:'위→아래: ② 날짜는 그대로 21일 → ③ 방금 넣은 "성산일출봉"이 목록 어디에 들어갔는지 찾고 → 손으로 끌어 올립니다',
+ render(s){return editScreen({state:s==='눌렀을 때'?'기본':s,day:'21',rows:[srow(R.lunch),srow(R.seopji),srow(R.sunrise,{hot:1,fresh:1,lift:s==='눌렀을 때'}),srow(R.stay21)],toast:s==='기본'?'저장했어요 · "정하는 중"으로 들어갔어요':''});}},
+{sc:1,step:5,screen:'③',name:'일정 편집',
+ story:'항목을 길게 눌러 위로 끌어 순서를 바꿉니다.',
+ labels:[['①','제목줄'],['②','날짜 칩'],['③','일정 목록'],['④','하단 버튼'],['⑤','탭바']],
+ press:['누름 → 잠깐 로딩','성공: 부모님이 링크로 보는 그대로의 화면이 열려요','실패하면: "불러오지 못했어요 · 다시 시도"'],
+ states:['기본','로딩','비어있음'],
+ gaze:'위→아래: ③ 성산일출봉이 섭지코지 위로 올라간 것을 확인하고 → ① 오른쪽 위 "가족 화면"으로 시선을 올립니다',
+ render(s){return editScreen({state:s==='눌렀을 때'?'기본':s,day:'21',rows:[srow(R.lunch),srow(R.sunrise,{fresh:1}),srow(R.seopji),srow(R.stay21)],rightHot:s==='기본',toast:s==='기본'?'순서를 바꿨어요':''});}},
+{sc:1,step:6,screen:'⑤',name:'여행 흐름',
+ story:'오른쪽 위 "가족 화면"을 누릅니다. 방금 넣은 후보는 "21일 오후 · 아직 정하는 중" 한 줄로만 보이고, 확정된 숙소만 크게 보입니다.',
+ labels:[['①','제목줄'],['②','상단 칸 3개'],['③','날짜별 흐름'],['④','하단 버튼']],
+ press:['‹ 누름 → 바로 닫힘','성공: 일정 편집으로 돌아가요','실패하면: 없어요'],
+ states:['기본','로딩','비어있음'],
+ gaze:'위→아래: ① "가족 화면"임을 알고 → ② 부모님이 보는 세 칸 중 "흐름" → ③ 날짜별로 굵은 글씨만 읽어 내려가며 흐린 "아직 정하는 중"을 지나칩니다 → ④ 하단 버튼은 부모님용',
+ render(s){
+  let inner;
+  if(s==='로딩') inner=wskel();
+  else if(s==='비어있음') inner=emptyBox('확정된 일정이 아직 없어요<br><small>가족에게는 "아직 정하는 중"만 보여요</small>');
+  else inner=flowDays(dayflow(0));
+  const body=A('②',`<div class="pvbar">영호·미숙·민재·하린이 링크로 보는 화면이에요</div>${segRow('흐름','','inbody')}`)+A('③',inner);
+  return app({back:1,backHot:1,title:'가족 화면',bodyCls:'wv',body,cta:pri('오늘로 이동'),L:{cta:'④'}});
+ }},
+{sc:1,step:7,screen:'③',name:'일정 편집',hotNext:false,
+ story:'뒤로 가서 성산일출봉 항목의 "확정으로"를 누릅니다. 배지가 "확정"으로 바뀌고 "오늘 저녁 소식에 담겨요" 토스트가 뜹니다.',
+ labels:[['①','제목줄'],['②','날짜 칩'],['③','일정 목록'],['④','하단 버튼'],['⑤','탭바']],
+ press:['누름 → 잠깐 로딩','성공: 배지가 "확정"으로 · 토스트 "오늘 저녁 소식에 담겨요"','실패하면: "바꾸지 못했어요 · 다시 눌러 주세요"'],
+ states:['기본','눌렀을 때','로딩','성공','실패'],
+ gaze:'위→아래: ③ 목록에서 성산일출봉 행을 찾고 → 행 오른쪽 끝 "확정으로"를 누르고 → 아래 토스트로 결과를 확인합니다',
+ render(s){
+  const ok=s==='성공';
+  const sun=ok?{...R.sunrise,ok:1}:R.sunrise;
+  return editScreen({state:'기본',day:'21',rows:[srow(R.lunch),srow(sun,{btnHot:!ok,btnPressed:s==='눌렀을 때',btnLoading:s==='로딩'}),srow(R.seopji),srow(R.stay21)],toast:ok?'오늘 저녁 소식에 담겨요':(s==='실패'?'바꾸지 못했어요 · 다시 눌러 주세요':''),toastBad:s==='실패'});
+ }},
+
+/* ===== 시나리오 2 — 초대 링크로 들어와 흐름 보기 (웹) ===== */
+{sc:2,step:1,screen:'⑤',name:'여행 흐름',
+ story:'카톡으로 받은 링크를 누릅니다. 브라우저가 열리고 "제주 가족여행 · 지수가 초대했어요" 아래 "누구세요?" 이름 버튼 네 개(영호·미숙·민재·하린)가 보입니다.',
+ revisit:'부모님은 앱 설치 없이 카톡 링크 하나로 보는 웹 페이지',
+ labels:[['①','주소창'],['②','상단 칸 3개'],['③','초대 문구'],['④','이름 버튼']],
+ press:['누름 → 잠깐 로딩','성공: 영호 님 이름으로 흐름이 열려요 · 다음부터는 바로 열려요','실패하면: "링크가 만료됐어요 · 지수에게 다시 받아 주세요"'],
+ states:['기본','눌렀을 때','로딩','실패'],
+ gaze:'위→아래: ① 주소창은 스쳐 지나고 → ② 흐린 세 칸은 아직 잠겨 있고 → ③ 누가 보냈는지 읽고 → ④ 내 이름을 찾아 누릅니다',
+ render(s){
+  const N=['영호','미숙','민재','하린'];
+  let names;
+  if(s==='실패') names=emptyBox('링크가 만료됐어요<br><small>지수에게 다시 받아 주세요</small>');
+  else names=`<div class="q">누구세요?</div><div class="names">${N.map((n,i)=>`<button class="name ${i===0&&s!=='로딩'?'hot':''} ${i===0&&(s==='눌렀을 때'||s==='로딩')?'pressed':''}">${i===0&&s==='로딩'?'<span class="spin dark"></span>':''}${n}</button>`).join('')}</div>`;
+  const body=A('③',`<div style="height:12px"></div><div class="inv">제주 가족여행 · 지수가 초대했어요</div><div class="invs">11월 20일(금) ~ 24일(화) · 4박 5일</div>`)+A('④',names);
+  return web({segOff:1,body});
+ }},
+{sc:2,step:2,screen:'⑤',name:'여행 흐름',
+ story:'"영호"를 누릅니다. 날짜별로 큰 글씨의 흐름이 보입니다. "20일 · 김포→제주 비행기 09:30 · 숙소 해비치". 정해지지 않은 날은 "아직 정하는 중"만 보입니다. 위에 흐름·내 준비·소식 세 칸 중 "흐름"이 켜져 있습니다.',
+ labels:[['①','주소창'],['②','상단 칸 3개'],['③','날짜별 흐름'],['④','하단 버튼']],
+ press:['누름 → 바로 열림','성공: 아래에서 시트가 올라와 주소·체크인 시간이 보여요','실패하면: 없어요'],
+ states:['기본','눌렀을 때','로딩','비어있음','실패'],
+ gaze:'위→아래: ② 세 칸 중 "흐름"이 켜진 것을 보고 → ③ 날짜별로 굵은 글씨만 읽어 내려가고 흐린 "아직 정하는 중"은 건너뜁니다 → ④ 하단 버튼은 여행 중에 씁니다',
+ render(s){return webFlow({state:s==='눌렀을 때'?'기본':s,hot:'stay21',pressed:s==='눌렀을 때'?'stay21':''});}},
+{sc:2,step:3,screen:'⑤',name:'여행 흐름',
+ story:'21일 숙소를 누릅니다. 아래에서 시트가 올라와 주소·체크인 시간·"지도로 보기"가 보입니다.',
+ labels:[['①','주소창'],['②','상단 칸 3개'],['③','날짜별 흐름'],['④','하단 버튼'],['⑤','숙소 시트']],
+ press:['누름 → 바로 열림','성공: 짧은 질문 칸이 나와요','실패하면: 없어요'],
+ states:['기본','눌렀을 때','로딩'],
+ gaze:'아래→위: ⑤ 시트가 올라오면 제목 → 주소 → 체크인 → 맨 아래 버튼 두 개 순으로 읽습니다',
+ render(s){return webFlow({sheet:staySheet(s)});}},
+{sc:2,step:4,screen:'⑤',name:'여행 흐름',hotNext:false,
+ story:'시트의 "지수에게 물어보기"를 누릅니다. 짧은 질문 칸이 나오고 보내면 지수의 소식에만 조용히 들어갑니다.',
+ labels:[['①','주소창'],['②','상단 칸 3개'],['③','날짜별 흐름'],['④','하단 버튼'],['⑤','질문 시트']],
+ press:['누름 → 잠깐 로딩','성공: 시트가 닫히고 "지수에게 보냈어요"','실패하면: "보내지 못했어요 · 다시 눌러 주세요"','비어있으면: 글이 없으면 버튼이 흐려요'],
+ states:['기본','눌렀을 때','로딩','성공','실패','비어있음'],
+ gaze:'아래→위: ⑤ 시트 제목 → 질문 칸에 한 줄 적고 → 바로 아래 "보내기"로 끝냅니다 · 보낸 뒤엔 ② 위 "내 준비"로',
+ render(s){
+  if(s==='성공') return webFlow({toast:'지수에게 보냈어요',segHot:'내 준비'});
+  return webFlow({sheet:askSheet(s)});
+ }},
+{sc:2,step:5,screen:'⑥',name:'내 준비',
+ story:'위 "내 준비"를 누릅니다. "영호 님이 챙길 것: 상비약, 신분증" 체크 목록과 "20일 08:00 김포공항 3번 게이트" 안내가 보입니다.',
+ labels:[['①','주소창'],['②','상단 칸 3개'],['③','챙길 것'],['④','언제 어디에']],
+ press:['체크 → 잠깐 로딩','성공: 줄이 그어지고 "지수에게 알렸어요"','실패하면: "알리지 못했어요 · 다시 눌러 주세요"'],
+ states:['기본','눌렀을 때','로딩','비어있음'],
+ bubble:'여기 체크 →',
+ gaze:'위→아래: ② "내 준비"가 켜진 것을 보고 → ③ 내가 챙길 것 두 개를 읽고 → ④ 언제 어디로 가야 하는지 확인합니다',
+ render(s){return web({seg:'내 준비',body:prep({state:s,hot:s!=='로딩'})});}},
+{sc:2,step:6,screen:'⑥',name:'내 준비',end:1,
+ story:'상비약을 체크합니다. 줄이 그어지고 "지수에게 알렸어요"가 뜹니다.',
+ labels:[['①','주소창'],['②','상단 칸 3개'],['③','챙길 것'],['④','언제 어디에']],
+ press:['없어요 — 시나리오가 여기서 끝나요','실패하면: 체크가 풀리고 "알리지 못했어요 · 다시 눌러 주세요"'],
+ states:['기본','로딩','실패'],
+ gaze:'위→아래: ③ 줄 그어진 상비약을 확인하고 → 아래 알림을 읽고 → ④ 공항 안내를 한 번 더 봅니다',
+ render(s){
+  if(s==='로딩') return web({seg:'내 준비',body:prep({state:'로딩',checking:1})});
+  return web({seg:'내 준비',body:prep({done:s==='기본'}),toast:s==='기본'?'지수에게 알렸어요':'알리지 못했어요 · 다시 눌러 주세요',toastBad:s==='실패'});
+ }},
+
+/* ===== 시나리오 3 — 할 일 나누고 변경 소식 받기 ===== */
+{sc:3,step:1,screen:'⑦',name:'할 일·준비물',
+ story:'하단 탭 "할 일"을 누릅니다. 구성원별 진행률(지수 3/5, 영호 1/2, 미숙 0/1)이 보입니다.',
+ labels:[['①','제목줄'],['②','진행률'],['③','할 일 목록'],['④','하단 버튼'],['⑤','탭바']],
+ press:['누름 → 바로 열림','성공: 할 일 추가 시트가 올라와요','실패하면: 없어요'],
+ states:['기본','눌렀을 때','로딩','비어있음'],
+ gaze:'위→아래: ② 사람별 막대로 누가 얼마나 했는지 보고 → ③ 목록에서 남은 것을 찾고 → ④ 하단 버튼으로 새로 적습니다',
+ render(s){return todoScreen({state:s==='눌렀을 때'?'기본':s,ctaHot:s!=='로딩',ctaState:s==='눌렀을 때'?'눌렀을 때':''});}},
+{sc:3,step:2,screen:'⑦',name:'할 일·준비물',hotNext:false,
+ story:'"+ 할 일 추가"를 누르고 "렌터카 예약 확인"을 적은 뒤 담당을 민재로 고릅니다.',
+ labels:[['①','제목줄'],['②','진행률'],['③','할 일 목록'],['④','추가 시트'],['⑤','탭바']],
+ press:['누름 → 잠깐 로딩','성공: 목록 맨 위에 "렌터카 예약 확인 · 민재" · 민재 0/1','실패하면: "추가하지 못했어요 · 다시 눌러 주세요"','비어있으면: 할 일이 없으면 버튼이 흐려요'],
+ states:['기본','눌렀을 때','로딩','성공','실패','비어있음'],
+ gaze:'아래→위: ④ 시트 제목 → 할 일 이름 → 담당 칩에서 민재 → 맨 아래 "추가"로 끝냅니다 · 추가한 뒤엔 ⑤ 탭바 "일정"으로',
+ render(s){
+  if(s==='성공') return todoScreen({mj:1,tabHot:'일정',toast:'추가했어요 · 민재에게 알렸어요'});
+  return todoScreen({sheet:addTodoSheet(s)});
+ }},
+{sc:3,step:3,screen:'③',name:'일정 편집',hotNext:false,
+ story:'일정 탭에서 22일 저녁 식당을 "확정으로" 바꿉니다. 토스트: "오늘 저녁 소식에 담겨요".',
+ labels:[['①','제목줄'],['②','날짜 칩'],['③','일정 목록'],['④','하단 버튼'],['⑤','탭바']],
+ press:['누름 → 잠깐 로딩','성공: 배지가 "확정"으로 · "오늘 저녁 소식에 담겨요" → 저녁 8시에 가족에게 한 번에','실패하면: "바꾸지 못했어요 · 다시 눌러 주세요"'],
+ states:['기본','눌렀을 때','로딩','성공','실패'],
+ gaze:'위→아래: ② 날짜 칩에서 22일이 켜진 것을 보고 → ③ 저녁 식당 행을 찾아 → 행 오른쪽 "확정으로"를 누릅니다',
+ render(s){
+  const ok=s==='성공';
+  const pork=ok?{...R.pork,ok:1}:R.pork;
+  return editScreen({state:'기본',day:'22',rows:[srow(R.kayak),srow(pork,{btnHot:!ok,btnPressed:s==='눌렀을 때',btnLoading:s==='로딩'}),srow(R.stay22)],toast:ok?'오늘 저녁 소식에 담겨요':(s==='실패'?'바꾸지 못했어요 · 다시 눌러 주세요':''),toastBad:s==='실패'});
+ }},
+{sc:3,step:4,screen:'⑧',name:'변경 소식',
+ story:'미숙의 폰. 저녁 8시에 카톡 하나가 옵니다. "제주 여행 오늘 바뀐 것 2가지 · 보기".',
+ labels:[['①','제목줄'],['②','알림 메시지'],['③','보기 버튼']],
+ press:['누름 → 브라우저가 열려요','성공: 웹 페이지 "소식" 칸이 바로 열려요','실패하면: "링크가 만료됐어요 · 지수에게 다시 받아 주세요"'],
+ states:['기본','로딩'],
+ gaze:'위→아래: ① 누가 보냈는지 → ② 메시지 한 줄 "오늘 바뀐 것 2가지" → ③ 바로 아래 "보기"를 누릅니다',
+ render(s){
+  const btn=A('③',`<button class="btn ${s==='로딩'?'':'hot'}">${s==='로딩'?'<span class="spin dark"></span>여는 중…':'보기'}</button>`);
+  const body=A('②',`<div class="chatday">오늘</div><div class="msgfrom">제주 가족여행 알림</div><div class="msgcard"><div class="mt">제주 여행 오늘 바뀐 것 2가지</div><div class="ms">확정된 것만 모아서 보내 드려요</div>${btn}</div><div class="msgtime">오후 8:00</div>`);
+  return app({time:'20:00',back:1,title:'제주 가족여행 알림',body});
+ }},
+{sc:3,step:5,screen:'⑧',name:'변경 소식',
+ story:'링크를 누릅니다. 웹 페이지 "소식" 칸이 열리고 "22일 저녁 · 흑돼지 식당 확정", "렌터카 · 민재가 확인 중" 두 줄과 "확인했어요" 버튼이 보입니다.',
+ labels:[['①','주소창'],['②','상단 칸 3개'],['③','바뀐 것 목록'],['④','하단 버튼']],
+ press:['누름 → 잠깐 로딩','성공: 소식이 접히고 흐름 화면으로 돌아가요','실패하면: "저장하지 못했어요 · 다시 눌러 주세요"'],
+ states:['기본','눌렀을 때','로딩','비어있음','실패'],
+ gaze:'위→아래: ② "소식"이 켜진 것을 보고 → ③ 두 줄을 읽고 → ④ 하단 "확인했어요"로 끝냅니다',
+ render(s){
+  let inner;
+  if(s==='로딩') inner=`<div class="wsec">오늘 바뀐 것</div><div class="hlist">${skel(2)}<div style="height:14px"></div></div>`;
+  else if(s==='비어있음') inner=`<div class="wsec">오늘 바뀐 것</div>${emptyBox('오늘 바뀐 게 없어요','흐름 보기')}`;
+  else if(s==='실패') inner=`<div class="wsec">오늘 바뀐 것</div>${failBox('소식을 불러오지 못했어요')}`;
+  else inner=`<div class="wsec">오늘 바뀐 것 2가지 · 저녁 8시 묶음</div><div class="hlist"><div class="nrow">22일 저녁 · 흑돼지 식당 확정<small>일정에서 보기 ›</small></div><div class="nrow">렌터카 · 민재가 확인 중<small>확정되면 다시 알려 드려요</small></div></div>`;
+  return web({time:'20:01',seg:'소식',body:A('③',inner),cta:s==='비어있음'?'':pri('확인했어요',s==='눌렀을 때'||s==='로딩'?s:'',s!=='실패'),toast:s==='실패'?'저장하지 못했어요 · 다시 눌러 주세요':'',toastBad:1});
+ }},
+{sc:3,step:6,screen:'⑤',name:'여행 흐름',end:1,
+ story:'"확인했어요"를 누릅니다. 소식이 접히고 흐름 화면으로 돌아갑니다.',
+ labels:[['①','주소창'],['②','상단 칸 3개'],['③','날짜별 흐름'],['④','하단 버튼']],
+ press:['없어요 — 시나리오가 여기서 끝나요'],
+ states:['기본','로딩'],
+ gaze:'위→아래: ② "흐름"이 다시 켜지고 → 접힌 소식 한 줄을 지나 → ③ 22일 저녁이 굵은 글씨로 바뀐 것을 봅니다',
+ render(s){return webFlow({time:'20:02',state:s,pill:1,days:dayflow(1).slice(1)});}},
+
+/* ===== 부록 ===== */
+{sc:4,step:1,screen:'⑨',name:'가족·역할',hotNext:false,
+ story:'구성원 목록, 역할 칩(계획자/보는 사람), 초대 링크 다시 보내기, 알림 빈도(하루 1회 저녁 / 확정 즉시).',
+ labels:[['①','제목줄'],['②','구성원·역할'],['③','알림 빈도'],['④','하단 버튼'],['⑤','탭바']],
+ press:['누름 → 잠깐 로딩','성공: 초대 링크가 복사돼요 · 카톡에 붙여 넣으면 돼요','실패하면: "복사하지 못했어요 · 다시 눌러 주세요"'],
+ states:['기본','눌렀을 때','로딩','성공','비어있음'],
+ gaze:'위→아래: ② 누가 계획자이고 누가 보는 사람인지 → ③ 알림이 언제 가는지 → ④ 하단 "구성원 초대"로 끝냅니다',
+ render(s){
+  const notif=`<div class="secttl">알림 빈도</div><div class="list"><div class="row"><span class="radio on"></span><span class="rm"><b>하루 1회 저녁</b><small>확정된 것만 묶어서</small></span></div><div class="row"><span class="radio"></span><span class="rm"><b>확정 즉시</b><small>항공·숙소는 언제나 바로</small></span></div></div>`;
+  let body;
+  if(s==='로딩') body=A('②',`<div class="secttl">구성원</div>${skel(3,true)}`)+A('③',`<div class="secttl">알림 빈도</div>${skel(2)}`);
+  else if(s==='비어있음') body=A('②',`<div class="secttl">구성원</div>${emptyBox('아직 지수 혼자예요','초대 링크 보내기')}`)+A('③',notif);
+  else body=A('②',`<div class="secttl">구성원</div>`+list(MEM.map(([n,who,role])=>`<div class="row"><span class="rm"><b>${n}</b><small>${who}</small></span><span class="bd ${role==='계획자'?'ok':'role'}">${role}</span></div>`))+`<div style="text-align:center;padding:2px 0"><button class="btn gh">초대 링크 다시 보내기</button></div>`)+A('③',notif);
+  return app({title:'가족',body,cta:pri('구성원 초대',s==='눌렀을 때'||s==='로딩'?s:'',s!=='성공'),tab:'가족',toast:s==='성공'?'초대 링크를 복사했어요':'',L:{cta:'④',tab:'⑤'}});
+ }}
+];
+const SCEN=[
+  {t:'시나리오 0',long:'시나리오 0 — 여행 만들고 가족 초대하기 (계획자 지수)'},
+  {t:'시나리오 1',long:'시나리오 1 — 일정 후보 적고 확정하기 (계획자 지수)'},
+  {t:'시나리오 2',long:'시나리오 2 — 초대 링크로 들어와 흐름 보기 (부모 영호, 웹)'},
+  {t:'시나리오 3',long:'시나리오 3 — 할 일 나누고 변경 소식 받기 (지수 → 미숙)'},
+  {t:'부록',long:'부록 — 가족·역할'}
+];
+SCENES.forEach(s=>{s.id=s.sc<4?`${s.sc}-${s.step}`:`부록-${s.step}`;});
+const ALL_STATES=['기본','눌렀을 때','로딩','성공','실패','비어있음'];
+const CIRC='①②③④⑤⑥⑦⑧⑨';
+
+/* ---------------- 상태 ---------------- */
+let cur=0,state='기본',gazeOn=false,db=null,dbReady=false;
+const FB={},DRAFT={};
+let OV=null;
+const LS_KEY='flow-tour-feedback';
+const idOf=i=>'scene-'+(i+1);
+const inScenario=k=>SCENES.map((s,i)=>s.sc===k?i:-1).filter(i=>i>=0);
+
+let toastT;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
+
+/* ---------------- 렌더 ---------------- */
+function show(i){cur=Math.max(0,Math.min(SCENES.length-1,i));state='기본';renderAll();window.scrollTo({top:0,behavior:'smooth'});}
+function renderAll(){renderTabs();renderStrip();renderPhone();renderPanel();}
+
+function renderTabs(){
+  $('#stabs').innerHTML=SCEN.map((s,k)=>`<button class="stab ${SCENES[cur].sc===k?'on':''}" data-k="${k}">${s.t}</button>`).join('');
+  $('#stabs').querySelectorAll('.stab').forEach(b=>b.onclick=()=>show(inScenario(+b.dataset.k)[0]));
+}
+function isDone(){const sc=SCENES[cur];return !!sc.end||(sc.hotNext===false&&state==='성공');}
+function isDirty(i){
+  const d=DRAFT[i],saved=FB[idOf(i)];
+  if(!d||d.reaction!=='confusing')return false;
+  if(!saved)return true;
+  return saved.reaction!==d.reaction||(saved.text||'')!==(d.text||'').trim()||(saved.marks||[]).join()!==d.marks.join()||!!saved.revisit!==!!d.revisit;
+}
+function renderStrip(){
+  const sc=SCENES[cur],ids=inScenario(sc.sc),pos=ids.indexOf(cur);
+  const saved=FB[idOf(cur)],dirty=isDirty(cur),done=isDone();
+  const last=cur===SCENES.length-1,scEnd=last||SCENES[cur+1].sc!==sc.sc;
+  $('#strip').innerHTML=`<div class="s-sc">${SCEN[sc.sc].t} · 장면 ${cur+1}</div>
+   <div class="s-nav"><button id="prev" ${cur===0?'disabled':''}>‹</button><span class="s-num">${pos+1} / ${ids.length}</span><button id="next" class="${done&&!last?'nudge':''}" ${last?'disabled':''}>›</button></div>
+   <div class="dots">${ids.map(i=>{const f=FB[idOf(i)];return `<span class="dot ${i===cur?'cur':''} ${f&&f.reaction==='good'?'good':''} ${f&&f.reaction==='confusing'?'conf':''}"></span>`;}).join('')}</div>
+   <button class="save" id="save" ${dirty?'':'disabled'}>${saved&&!dirty?'저장됨 ✓':'저장'}</button>
+   ${done&&scEnd?`<div class="s-end">${last?'투어 끝 ✓':'시나리오 끝 ✓'}</div>`:''}`;
+  $('#prev').onclick=()=>show(cur-1);$('#next').onclick=()=>show(cur+1);$('#save').onclick=()=>saveScene(cur);
+}
+function renderPhone(){
+  $('#phone').innerHTML=SCENES[cur].render(state);
+  requestAnimationFrame(()=>{placeHot();drawGaze();});
+}
+function placeHot(){
+  const hot=$('#phone .hot'),b=$('#bubble');
+  if(!hot){b.hidden=true;return;}
+  const pr=$('#phonewrap').getBoundingClientRect(),r=hot.getBoundingClientRect();
+  b.hidden=false;b.textContent=(state==='성공'?'':SCENES[cur].bubble)||'여기 클릭 →';
+  b.style.top=(r.top-pr.top+r.height/2)+'px';
+}
+function drawGaze(){
+  const svg=$('#phone .gaze');if(!svg)return;
+  if(!gazeOn){svg.innerHTML='';return;}
+  const ph=$('#phone .phone').getBoundingClientRect();
+  const pts=[...document.querySelectorAll('#phone .area')].map(a=>{const r=a.getBoundingClientRect();return {n:CIRC.indexOf(a.dataset.label),x:r.left-ph.left+17,y:r.top-ph.top+17};}).filter(p=>p.n>=0).sort((a,b)=>a.n-b.n);
+  if(pts.length<2){svg.innerHTML='';return;}
+  svg.setAttribute('viewBox',`0 0 ${ph.width} ${ph.height}`);
+  svg.innerHTML=`<polyline points="${pts.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="#2F6BFF" stroke-width="3" stroke-dasharray="7 6" stroke-linejoin="round"/>`+pts.slice(1).map(p=>`<circle cx="${p.x}" cy="${p.y}" r="6" fill="#2F6BFF"/>`).join('');
+}
+function renderPanel(){
+  const sc=SCENES[cur];
+  const d=DRAFT[cur]||draftFrom(cur);
+  const saved=FB[idOf(cur)];
+  $('#panel').innerHTML=`
+   <h2 class="ttl">장면 ${cur+1} · 화면 ${sc.screen} ${sc.name}</h2>
+   <p class="story">${SCEN[sc.sc].long}</p>
+   <div class="box"><h3>지금 상황</h3><p>${sc.story}</p>${sc.revisit?`<p class="rv">1단계에서 이렇게 답하셨어요: ${sc.revisit}. 실제로 보면 이런 모습이에요.</p>`:''}</div>
+   <div class="box"><h3>화면 구성</h3><ul class="labs">${sc.labels.map(([n,t])=>`<li><span class="nb">${n}</span>${t}</li>`).join('')}</ul></div>
+   <div class="box"><h3>누르면 이렇게 돼요</h3><div class="chips">${sc.press.map((p,i)=>`<span class="chip ${i===0?'first':''} ${/^실패/.test(p)?'bad':''}">${p}</span>`).join('')}</div>
+     <div class="segrow">${ALL_STATES.map(s=>{const ok=sc.states.includes(s);return `<button class="sg ${ok?'':'na'} ${s===state?'on':''}" data-s="${s}" ${ok?'':'disabled'}>${s}</button>`;}).join('')}</div></div>
+   <div class="box"><h3>시선 흐름</h3><p>${sc.gaze}</p><label class="tog"><input type="checkbox" id="gz" ${gazeOn?'checked':''}> 흐름 화살표 보기</label></div>
+   <div class="box"><h3>이 장면, 어때요?</h3>
+     <div class="fbrow"><button class="fb ${d.reaction==='good'?'on':''}" id="fb-good">괜찮아요 👍</button><button class="fb ${d.reaction==='confusing'?'on':''}" id="fb-conf">어색해요 🤔</button></div>
+     <div class="fbmore" id="fbmore" ${d.reaction==='confusing'?'':'hidden'}>
+       <div class="chips" id="marks">${sc.labels.map(([n,t])=>`<button class="mchip ${d.marks.includes(n)?'on':''}" data-n="${n}">${n} ${t}</button>`).join('')}${sc.revisit?`<label class="rvchk"><input type="checkbox" id="rvchk" ${d.revisit?'checked':''}> 1단계 답을 바꾸고 싶어요</label>`:''}</div>
+       <textarea id="fbtext" placeholder="어디가 어색했는지 한 줄만 적어 주세요">${esc(d.text)}</textarea>
+     </div>
+     ${saved?`<div class="saved">저장됨 ✓ · ${saved.reaction==='good'?'괜찮아요':'어색해요'}${(saved.marks||[]).length?' · '+saved.marks.join(''):''}${saved.revisit?' · 1단계 답 다시':''}</div>`:''}
+   </div>`;
+  $('#panel').querySelectorAll('.sg').forEach(b=>b.onclick=()=>setState(b.dataset.s));
+  $('#gz').onchange=e=>{gazeOn=e.target.checked;drawGaze();};
+  $('#fb-good').onclick=()=>{DRAFT[cur]={reaction:'good',marks:[],text:'',revisit:false};saveScene(cur);};
+  $('#fb-conf').onclick=()=>{const dd=draft(cur);dd.reaction='confusing';renderPanel();renderStrip();};
+  $('#panel').querySelectorAll('.mchip').forEach(b=>b.onclick=()=>{const dd=draft(cur),n=b.dataset.n;dd.marks=dd.marks.includes(n)?dd.marks.filter(x=>x!==n):[...dd.marks,n].sort((a,z)=>CIRC.indexOf(a)-CIRC.indexOf(z));b.classList.toggle('on');renderStrip();});
+  const rv=$('#rvchk');if(rv)rv.onchange=e=>{draft(cur).revisit=e.target.checked;renderStrip();};
+  $('#fbtext').oninput=e=>{draft(cur).text=e.target.value;renderStrip();};
+}
+function esc(s){return String(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function draftFrom(i){const f=FB[idOf(i)];return {reaction:f?f.reaction:null,marks:f&&f.marks?[...f.marks]:[],text:f&&f.text?f.text:'',revisit:!!(f&&f.revisit)};}
+function draft(i){if(!DRAFT[i])DRAFT[i]=draftFrom(i);return DRAFT[i];}
+function setState(s){if(!SCENES[cur].states.includes(s))return;state=s;renderPhone();$('#panel').querySelectorAll('.sg').forEach(b=>b.classList.toggle('on',b.dataset.s===s));renderStrip();}
+function advance(){
+  const sc=SCENES[cur];
+  if(sc.hotNext===false&&state!=='성공'){setState('성공');return;}
+  if(cur<SCENES.length-1)show(cur+1);
+}
+
+$('#phone').addEventListener('click',e=>{
+  if(e.target.closest('.hot')){advance();return;}
+  if(e.target.closest('button,.row,.wrow,.card,.dchip,.tab,.seg,.name,.chk,.cchip,.radio,.sw,.tb-l,.tb-r,.pill,.inp,.nrow,.wchk'))toast('이 투어에서는 안 쓰는 버튼이에요');
+});
+document.addEventListener('keydown',e=>{
+  if(/textarea|input/i.test(e.target.tagName))return;
+  if(e.key==='ArrowRight')show(cur+1);else if(e.key==='ArrowLeft')show(cur-1);
+});
+window.addEventListener('resize',()=>{placeHot();drawGaze();});
+
+/* ---------------- 저장 (feedback/scene-<n> · feedback/overall) ---------------- */
+function errMsg(e){const c=e&&e.code;if(c==='not_granted')return'저장 권한이 없어요 — 페이지를 다시 열어 주세요';if(c==='revoked')return'접근이 끊겼어요 — 페이지를 다시 열어 주세요';if(c==='quota_exceeded')return'저장 공간이 가득 찼어요';if(c==='resource_exhausted')return'잠시 뒤 다시 눌러 주세요';if(c==='invalid_argument')return'저장 내용에 문제가 있어요';if(c==='unavailable')return'연결이 안 돼요 — 잠시 뒤 다시 눌러 주세요';return'저장 실패, 다시 눌러 주세요';}
+async function persist(path,doc){
+  if(dbReady&&db){await db.doc(path).set(doc);}
+  else{let all={};try{all=JSON.parse(localStorage.getItem(LS_KEY)||'{}');}catch(_){}all[path]=doc;try{localStorage.setItem(LS_KEY,JSON.stringify(all));}catch(_){throw{code:'unavailable',message:'localStorage 실패'};}}
+}
+function docFor(i,d){
+  const sc=SCENES[i];
+  const marks=d.reaction==='confusing'?[...d.marks]:[];
+  const doc={unit:'scene',n:i+1,scene:sc.id,screen:sc.screen,reaction:d.reaction,marks,markNames:marks.map(n=>(sc.labels.find(l=>l[0]===n)||[n,''])[1]),text:d.reaction==='confusing'?(d.text||'').trim():'',updatedAt:new Date().toISOString()};
+  if(sc.revisit&&d.reaction==='confusing'&&d.revisit)doc.revisit=true;
+  return doc;
+}
+async function saveScene(i){
+  const d=DRAFT[i]||draftFrom(i);if(!d.reaction)return;
+  const doc=docFor(i,d);
+  try{await persist('feedback/'+idOf(i),doc);FB[idOf(i)]=doc;delete DRAFT[i];updateCount();if(i===cur){renderPanel();renderStrip();}toast('저장됨 ✓');}
+  catch(e){console.warn('feedback save failed',e&&e.code,e);toast(errMsg(e));}
+}
+function updateCount(){const n=Object.keys(FB).filter(k=>k.startsWith('scene-')&&FB[k].reaction).length;$('#count').textContent=`의견 남긴 항목 ${n}개`;}
+function overallDoc(reaction,text){return {unit:'overall',n:0,reaction:reaction||null,text:text||'',updatedAt:new Date().toISOString()};}
+$('#allgood').onclick=async()=>{
+  const btn=$('#allgood');btn.disabled=true;
+  try{
+    let k=0;
+    for(let i=0;i<SCENES.length;i++){
+      const f=FB[idOf(i)],dr=DRAFT[i];
+      if((f&&f.reaction==='confusing')||(dr&&dr.reaction==='confusing'))continue;
+      const doc=docFor(i,{reaction:'good',marks:[],text:''});
+      btn.textContent=`저장 중… ${++k}`;await persist('feedback/'+idOf(i),doc);FB[idOf(i)]=doc;delete DRAFT[i];
+    }
+    const ov=overallDoc('good',OV?OV.text:'');await persist('feedback/overall',ov);OV=ov;
+    btn.textContent='전체 저장됨 ✓';updateCount();renderPanel();renderStrip();toast('전체 괜찮아요로 저장했어요 (🤔 표시한 장면은 그대로)');
+  }catch(e){console.warn('allgood failed',e&&e.code,e);toast(errMsg(e));btn.textContent='전체 괜찮아요 👍';}
+  btn.disabled=false;
+};
+function renderOverall(){
+  const t=$('#ovtext').value.trim(),saved=OV?OV.text||'':'';
+  $('#ovsave').disabled=t===saved;
+  $('#ovsaved').textContent=OV&&OV.text&&t===saved?'저장됨 ✓':'';
+}
+$('#ovtext').addEventListener('input',renderOverall);
+$('#ovsave').onclick=async()=>{
+  const btn=$('#ovsave'),ov=overallDoc(OV?OV.reaction:null,$('#ovtext').value.trim());
+  btn.disabled=true;btn.textContent='저장 중…';
+  try{await persist('feedback/overall',ov);OV=ov;toast('저장됨 ✓');}
+  catch(e){console.warn('overall save failed',e&&e.code,e);toast(errMsg(e));}
+  btn.textContent='전체 의견 저장';renderOverall();
+};
+
+/* ---------------- 시작: collection("feedback").get() 1회 복원 ---------------- */
+function applyLoaded(pairs){
+  pairs.forEach(([id,data])=>{if(!id||!data)return;if(/^scene-\d+$/.test(id))FB[id]=data;else if(id==='overall')OV=data;});
+  if(OV&&OV.text)$('#ovtext').value=OV.text;
+  updateCount();renderOverall();
+}
+(async()=>{
+  try{db=window.claude&&typeof window.claude.use==='function'?await window.claude.use("db"):null;}catch(e){db=null;}
+  if(db){dbReady=true;try{const snap=await db.collection('feedback').get();applyLoaded(snap.docs.map(d=>[d.id,d.data()]));}catch(e){console.warn('feedback load failed',e&&e.code,e);toast('저장된 의견을 불러오지 못했어요');}}
+  else{$('#warn').hidden=false;let all={};try{all=JSON.parse(localStorage.getItem(LS_KEY)||'{}');}catch(_){}applyLoaded(Object.entries(all).map(([p,d])=>[p.replace(/^feedback\//,''),d]));}
+  show(0);
+})();
+</script>

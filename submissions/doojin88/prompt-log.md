@@ -1,6 +1,6 @@
-# prompt-log — leo-v2 (하네스 적용본)
+# prompt-log — doojin88
 
-- 하네스: 이 레포 `.claude/skills/oss-design-harness/SKILL.md` (TODO를 채운 버전)
+- 하네스: `trial/03` 브랜치(커밋 9405499) 시점의 `.claude/skills/oss-design-harness/SKILL.md`. 이 브랜치의 현재 SKILL.md(개선판)로 만든 결과물이 아니다.
 - 모델·에이전트: Claude Code / claude-sonnet-5-5
 - 총 개입 횟수: 2 / 5 (PRD 입력 포함)
 
@@ -9,7 +9,7 @@
 
 ## 2회
 > (AI 질문) 어떤 PRD로, 어디에 저장할까요? (하네스 적용 방식 확인)
-> (내 답변 원문) app 작성 → family-trip / submissions/leo-v2 선택
+> (내 답변 원문) app 작성 → family-trip / submissions/leo-v2 선택 (제출 시 폴더 이름만 doojin88으로 옮김)
 
 ## 하네스 적용으로 달라진 점 (v1 대비)
 - 0단계: 갈등·역할·평가 문장을 먼저 뽑아 `brief.md`에 설계 원칙 5개로 고정.

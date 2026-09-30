@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구조 C — 물음표 카드 (로우파이)</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:sans-serif;font-size:14px;line-height:1.45;color:#111;background:#fff;word-break:keep-all;overflow-wrap:anywhere}
+  h1,h2,h3,h4,p,ul,ol{margin:0;padding:0}
+  ul,ol{list-style:none}
+  button{font:inherit;color:#111;background:#fff;border:1px solid #111;padding:2px 8px;cursor:pointer}
+  button:disabled{color:#777;border-color:#bbb;background:#eee;cursor:default}
+  a{color:#111}
+  summary{cursor:pointer}
+
+  .doc{padding:12px;max-width:1500px;margin:0 auto}
+  .doc-h{border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:12px}
+  .doc-h h1{font-size:16px}
+  .doc-h p{color:#444;font-size:13px}
+  .legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:12px;color:#444}
+
+  .screens{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:20px;align-items:start}
+  .screen{min-width:0}
+  .who{font-size:12px;color:#444;border:1px solid #777;border-bottom:0;padding:3px 8px;background:#eee}
+  .frame{border:1px solid #111;min-width:0}
+
+  /* 공통 표지: 확정 / 후보 / 정하는 중 — 글자와 선 모양으로 구분 */
+  .tag{display:inline-block;font-size:12px;line-height:1.3;padding:0 5px;border:1px solid #111;white-space:nowrap;vertical-align:1px}
+  .tag.fix{background:#444;color:#fff;border-color:#444}
+  .tag.cand{border-style:dashed;background:#fff}
+  .tag.wait{border-style:dashed;background:#fff}
+  .tag.new{background:#ddd;border-color:#777}
+  .old{color:#777}
+  .qref{font-size:11px;color:#777;white-space:nowrap}
+  .note{font-size:12px;color:#777}
+
+  /* ───────── 계획자 화면 ───────── */
+  .pl-top{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;padding:8px 10px;border-bottom:1px solid #111;background:#f5f5f5}
+  .pl-top h2{font-size:15px}
+  .pl-body{display:grid;grid-template-columns:minmax(0,1fr) 320px}
+  .sched{min-width:0;padding:10px;border-right:1px solid #111}
+  .qpanel{min-width:0;padding:10px;background:#f5f5f5}
+  .day{margin-bottom:14px}
+  .day-h{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;border-bottom:1px solid #111;padding-bottom:2px;margin-bottom:4px}
+  .day-h h3{font-size:14px}
+  .item{display:flex;flex-wrap:wrap;gap:2px 6px;align-items:baseline;padding:5px 4px;border-bottom:1px solid #ddd}
+  .item .grip{color:#777;cursor:grab}
+  .item .t{width:40px;color:#444;font-size:12px}
+  .item .nm{font-weight:bold}
+  .item .sub{color:#444;font-size:12px;flex-basis:100%;padding-left:20px}
+  .item .act{margin-left:auto;display:flex;gap:4px}
+  .item .act button{font-size:12px}
+  .slot{border:1px dashed #111;margin:6px 0;background:#f5f5f5}
+  .slot-h{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;padding:4px 6px;border-bottom:1px dashed #777;font-size:12px}
+  .slot-h b{font-size:13px}
+  .slot .item{background:#fff;margin:0 6px;border-bottom:1px dashed #bbb}
+  .slot-f{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;padding:4px 6px;font-size:12px;color:#444}
+  .slot-f button{font-size:12px}
+  .slot.done{border-style:solid;background:#fff}
+  .add{font-size:12px;margin-top:4px}
+
+  .qpanel h3{font-size:14px}
+  .qsum{border:1px solid #111;background:#fff;padding:6px 8px;margin:6px 0 10px}
+  .qsum b{font-size:20px}
+  .q{border:1px solid #777;background:#fff;margin-bottom:8px}
+  .q-h{display:flex;flex-wrap:wrap;gap:2px 6px;align-items:baseline;padding:5px 8px;border-bottom:1px solid #ddd}
+  .q-h h4{font-size:14px}
+  .q-b{padding:5px 8px;font-size:12px}
+  .q-b li{padding:3px 0;border-bottom:1px solid #eee}
+  .q-b li:last-child{border-bottom:0}
+  .q-b li.done{color:#777}
+  .q-b li.done .still{display:none}
+  .q-b li .filled{display:none}
+  .q-b li.done .filled{display:inline}
+  .askmark{display:none;border:1px solid #111;padding:0 4px;font-size:11px;white-space:nowrap}
+  li.asked:not(.done) .askmark{display:inline-block}
+  .send{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+  .send button{font-weight:bold;padding:4px 10px}
+  details{margin-top:4px}
+  details ul{margin-top:4px}
+  .todo-g{font-weight:bold;margin-top:6px;border-bottom:1px solid #777}
+
+  /* ───────── 부모 화면 (390 폭, 큰 글자) ───────── */
+  .push{border:1px solid #777;padding:6px 8px;margin-bottom:6px;font-size:12px;color:#444;background:#f5f5f5}
+  .push li{padding:2px 0}
+  .phone{position:relative;font-size:18px;line-height:1.4}
+  .fold{position:absolute;left:0;right:0;top:844px;border-top:1px dashed #777;height:0;pointer-events:none}
+  .fold span{position:absolute;right:0;top:-16px;font-size:10px;color:#777;background:#fff;padding:0 3px}
+  .pa-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:8px 12px;border-bottom:1px solid #111;background:#f5f5f5;font-size:15px}
+  .pa-strip{display:block;padding:6px 12px;border-bottom:1px solid #777;font-size:16px;background:#eee}
+  .card{border-bottom:2px solid #111;padding:10px 12px}
+  .card-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 8px;margin-bottom:4px}
+  .card-h h3{font-size:20px}
+  .card-h .st{font-size:14px;color:#444}
+  .big{font-size:24px;font-weight:bold;line-height:1.25}
+  .mid{font-size:18px}
+  .stay{width:100%;border-collapse:collapse;font-size:17px}
+  .stay td{padding:5px 0;border-top:1px solid #ddd;vertical-align:top}
+  .stay td:first-child{width:62px;color:#444;white-space:nowrap}
+  .rows>li{padding:7px 0;border-top:1px solid #ddd}
+  .rows .d{font-size:15px;color:#444;display:block}
+  .rows .sub{font-size:15px;color:#444;display:block}
+  .phone .tag{font-size:14px}
+  .phone button{font-size:16px;padding:6px 12px;margin-top:3px}
+  .lines>li{padding:2px 0}
+  .lines .k{color:#444;font-size:15px;margin-right:4px}
+  .chk{display:flex;gap:8px;align-items:baseline}
+  .box{display:inline-block;width:20px;height:20px;border:2px solid #111;text-align:center;line-height:16px;font-size:16px;flex:none}
+  .grp{font-size:15px;color:#444;margin-top:8px;border-bottom:1px solid #777}
+  .pa-nav{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(3,1fr);border-top:2px solid #111;background:#fff}
+  .pa-nav a{display:block;text-align:center;padding:14px 4px;font-size:17px;text-decoration:none;border-right:1px solid #777}
+  .pa-nav a:last-child{border-right:0}
+  .pa-nav a.on{background:#ddd;font-weight:bold}
+
+  @media (max-width:1180px){
+    .screens{grid-template-columns:minmax(0,1fr)}
+    .screen.parent{max-width:390px}
+  }
+  @media (max-width:820px){
+    .pl-body{grid-template-columns:minmax(0,1fr)}
+    .sched{border-right:0;order:2}
+    .qpanel{order:1;border-bottom:1px solid #111}
+    .doc{padding:6px}
+  }
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <div class="doc-h">
+    <h1>구조 C — 물음표 카드: 경계는 "질문" 단위</h1>
+    <p>부모 화면은 일정표가 아니라 부모가 물어봤을 질문의 답 카드다. 계획자는 일정표 옆에서 "아직 답이 없는 질문"을 본다. 후보 하나를 확정하면 그 질문의 답이 부모 카드에 채워진다(아래에서 "이걸로 확정", "궁금해요", "소식 보내기"를 눌러 볼 수 있다).</p>
+    <div class="legend">
+      <span><span class="tag fix">확정</span> 예약·결정이 끝남</span>
+      <span><span class="tag cand">후보</span> 계획자 화면에만 나옴</span>
+      <span><span class="tag wait">정하는 중</span> 부모에게는 후보 이름 대신 이것과 정해지는 날짜만</span>
+      <span><span class="tag new">바뀜</span> 새 값 <span class="old">← 이전 값</span></span>
+    </div>
+  </div>
+
+  <div class="screens">
+
+    <!-- ═════════════ 계획자 화면 ═════════════ -->
+    <section class="screen planner">
+      <div class="who">계획자 화면 — 박지현(첫째, 38) · 일정 고치기 · 노트북 폭</div>
+      <div class="frame">
+        <div class="pl-top">
+          <h2>규슈 가족여행 · 11/12(목)~11/17(화) 5박 6일</h2>
+          <span>오늘 2026-09-30(수) · 출발 43일 전 · 6명</span>
+          <span>일정 항목 <b data-count="total">29</b>개: <span class="tag fix">확정</span> <b data-count="fix">17</b> · <span class="tag cand">후보</span> <b data-count="cand">12</b> (후보 자리 <b data-count="slots">6</b>곳)</span>
+        </div>
+
+        <div class="pl-body">
+
+          <!-- 일정표 -->
+          <div class="sched" id="sched">
+
+            <div class="day">
+              <div class="day-h"><h3>1일차 · 11/12(목) · 인천 → 후쿠오카</h3></div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">10:25</span><span class="nm">인천 → 후쿠오카 KE787 (11:50 도착)</span><span class="tag fix">확정</span><span class="qref">→ 언제 떠나?</span><span class="act"><button>고치기</button></span><span class="sub">항공 6명 발권 끝 · 출발 시각 10:25 <span class="old">← 09:10</span></span></div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">12:40</span><span class="nm">후쿠오카공항 → 호텔, 택시 2대</span><span class="tag fix">확정</span><span class="qref">→ 몇 시까지 어디로?</span><span class="act"><button>고치기</button></span><span class="sub">택시 2대 <span class="old">← 지하철(공항선)</span> · 부모님 짐 때문에 바꿈</span></div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">15:00</span><span class="nm">호텔 닛코 후쿠오카 체크인 (2박)</span><span class="tag fix">확정</span><span class="qref">→ 어디서 자?</span><span class="act"><button>고치기</button></span><span class="sub">숙소 · 트윈 3실 결제 끝 · 하카타역 걸어서 3분</span></div>
+              <div class="slot" data-slot="s1" data-label="11/12(목) 저녁 식사">
+                <div class="slot-h"><b>후보 자리 · 저녁 식사</b><span>정할 날 10/10(토)</span><button>날짜 고치기</button></div>
+                <div class="item cand"><span class="grip">≡</span><span class="t">18:30</span><span class="nm">모츠나베 라쿠텐치 하카타역앞점</span><span class="tag cand">후보</span><span class="act"><button class="confirm">이걸로 확정</button><button>고치기</button></span><span class="sub">곱창전골 · 좌식 방 있음 · 아버지 곱창 드시는지 모름</span></div>
+                <div class="item cand"><span class="grip">≡</span><span class="t">18:30</span><span class="nm">하카타 미즈타키 하나미도리 하카타역앞점</span><span class="tag cand">후보</span><span class="act"><button class="confirm">이걸로 확정</button><button>고치기</button></span><span class="sub">닭 백숙 전골 · 서윤이 먹기 좋음 · 6인 예약 필요</span></div>
+                <div class="slot-f"><span class="pv">부모 화면에는: "정하는 중 · 10월 10일까지 정해요"</span><button>+ 후보 더하기</button></div>
+              </div>
+              <button class="add">+ 항목 더하기</button>
+            </div>
+
+            <div class="day">
+              <div class="day-h"><h3>2일차 · 11/13(금) · 후쿠오카</h3></div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">09:30</span><span class="nm">다자이후 텐만구</span><span class="tag fix">확정</span><span class="qref">→ 가서 뭐 해?</span><span class="act"><button>고치기</button></span><span class="sub">니시테쓰 전철 · 날짜 11/13(금) <span class="old">← 11/12(목)</span></span></div>
+              <div class="slot" data-slot="s2" data-label="11/13(금) 점심 식사">
+                <div class="slot-h"><b>후보 자리 · 점심 식사</b><span>정할 날 10/10(토)</span><button>날짜 고치기</button></div>
+                <div class="item cand"><span class="grip">≡</span><span class="t">12:00</span><span class="nm">다자이후 카사노야</span><span class="tag cand">후보</span><span class="act"><button class="confirm">이걸로 확정</button><button>고치기</button></span><span class="sub">우메가에모치·정식 · 참배길 안 · 줄 설 수 있음</span></div>
+                <div class="item cand"><span class="grip">≡</span><span class="t">13:00</span><span class="nm">우동 타이라 (하카타로 돌아와서)</span><span class="tag cand">후보</span><span class="act"><button class="confirm">이걸로 확정</button><button>고치기</button></span><span class="sub">우엉튀김 우동 · 대기 40분쯤 · 부모님 서 있기 힘듦</span></div>
+                <div class="slot-f"><span class="pv">부모 화면에는: "정하는 중 · 10월 10일까지 정해요"</span><button>+ 후보 더하기</button></div>
+              </div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">14:30</span><span class="nm">캐널시티 하카타</span><span class="tag fix">확정</span><span class="qref">→ 가서 뭐 해?</span><span class="act"><button>고치기</button></span><span class="sub">분수 쇼 15:00 · 서윤이 장난감 가게</span></div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">16:30</span><span class="nm">오호리 공원 산책</span><span class="tag fix">확정</span><span class="qref">→ 가서 뭐 해?</span><span class="act"><button>고치기</button></span><span class="sub">호수 한 바퀴 2km · 벤치 많음</span></div>
+              <div class="slot" data-slot="s3" data-label="11/13(금) 저녁 식사">
+                <div class="slot-h"><b>후보 자리 · 저녁 식사</b><span>정할 날 10/17(토)</span><button>날짜 고치기</button></div>
+                <div class="item cand"><span class="grip">≡</span><span class="t">18:30</span><span class="nm">효탄스시 본점 (텐진)</span><span class="tag cand">후보</span><span class="act"><button class="confirm">이걸로 확정</button><button>고치기</button></span><span class="sub">초밥 · 예약 안 받음 · 줄 1시간</span></div>
+                <div class="item cand"><span class="grip">≡</span><span class="t">19:00</span><span class="nm">나카스 야타이 거리</span><span class="tag cand">후보</span><span class="act"><button class="confirm">이걸로 확정</button><button>고치기</button></span><span class="sub">포장마차 · 6명 한자리 어려움 · 비 오면 안 됨</span></div>
+                <div class="slot-f"><span class="pv">부모 화면에는: "정하는 중 · 10월 17일까지 정해요"</span><button>+ 후보 더하기</button></div>
+              </div>
+              <button class="add">+ 항목 더하기</button>
+            </div>
+
+            <div class="day">
+              <div class="day-h"><h3>3일차 · 11/14(토) · 후쿠오카 → 유후인</h3></div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">09:17</span><span class="nm">하카타역 → 유후인역, 유후인노모리 1호 (11:31 도착)</span><span class="tag fix">확정</span><span class="qref">→ 몇 시까지 어디로?</span><span class="act"><button>고치기</button></span><span class="sub">6석 예매 끝 · 출발 09:17 <span class="old">← 10:11</span> · 호텔 로비 08:30</span></div>
+              <div class="slot" data-slot="s4" data-label="11/14(토) 점심 식사">
+                <div class="slot-h"><b>후보 자리 · 점심 식사</b><span>정할 날 10/17(토)</span><button>날짜 고치기</button></div>
+                <div class="item cand"><span class="grip">≡</span><span class="t">12:00</span><span class="nm">유후마부시 신 (역앞 지점)</span><span class="tag cand">후보</span><span class="act"><button class="confirm">이걸로 확정</button><button>고치기</button></span><span class="sub">소고기·장어 솥밥 · 1인 3,000엔쯤</span></div>
+                <div class="item cand"><span class="grip">≡</span><span class="t">12:30</span><span class="nm">이즈미 소바 (긴린코 앞)</span><span class="tag cand">후보</span><span class="act"><button class="confirm">이걸로 확정</button><button>고치기</button></span><span class="sub">수타 메밀국수 · 역에서 걸어서 25분</span></div>
+                <div class="slot-f"><span class="pv">부모 화면에는: "정하는 중 · 10월 17일까지 정해요"</span><button>+ 후보 더하기</button></div>
+              </div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">14:00</span><span class="nm">유노쓰보 거리 산책</span><span class="tag fix">확정</span><span class="qref">→ 가서 뭐 해?</span><span class="act"><button>고치기</button></span><span class="sub">짐은 역 보관함에 · 천천히 1시간</span></div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">15:30</span><span class="nm">유후인 호테이야 체크인 (료칸, 2박)</span><span class="tag fix">확정</span><span class="qref">→ 어디서 자?</span><span class="act"><button>고치기</button></span><span class="sub">숙소 · 별채 2동 · 호테이야 <span class="old">← 유후인 산토칸</span> (계단 적은 곳으로 교체)</span></div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">18:30</span><span class="nm">료칸 가이세키 저녁</span><span class="tag fix">확정</span><span class="qref">→ 가서 뭐 해?</span><span class="act"><button>고치기</button></span><span class="sub">저녁 18:30 <span class="old">← 19:00</span> · 서윤이 졸려서 당김</span></div>
+              <button class="add">+ 항목 더하기</button>
+            </div>
+
+            <div class="day">
+              <div class="day-h"><h3>4일차 · 11/15(일) · 유후인</h3></div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">07:30</span><span class="nm">긴린코 호수 아침 산책</span><span class="tag fix">확정</span><span class="qref">→ 가서 뭐 해?</span><span class="act"><button>고치기</button></span><span class="sub">물안개 보려면 8시 전 · 료칸에서 걸어서 10분</span></div>
+              <div class="slot" data-slot="s5" data-label="11/15(일) 오후 활동">
+                <div class="slot-h"><b>후보 자리 · 오후 활동</b><span>정할 날 10/24(토)</span><button>날짜 고치기</button></div>
+                <div class="item cand"><span class="grip">≡</span><span class="t">13:30</span><span class="nm">유후인 쓰지마차 (관광 마차, 50분)</span><span class="tag cand">후보</span><span class="act"><button class="confirm">이걸로 확정</button><button>고치기</button></span><span class="sub">걷지 않아도 됨 · 당일 전화 예약만 됨</span></div>
+                <div class="item cand"><span class="grip">≡</span><span class="t">14:00</span><span class="nm">유후인 플로럴 빌리지</span><span class="tag cand">후보</span><span class="act"><button class="confirm">이걸로 확정</button><button>고치기</button></span><span class="sub">서윤이용 · 부모님은 료칸에서 쉬셔도 됨</span></div>
+                <div class="slot-f"><span class="pv">부모 화면에는: "정하는 중 · 10월 24일까지 정해요"</span><button>+ 후보 더하기</button></div>
+              </div>
+              <button class="add">+ 항목 더하기</button>
+            </div>
+
+            <div class="day">
+              <div class="day-h"><h3>5일차 · 11/16(월) · 유후인 → 벳푸</h3></div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">10:30</span><span class="nm">유후인역앞 버스센터 → 벳푸 간나와, 가메노이 버스 (11:20 도착)</span><span class="tag fix">확정</span><span class="qref">→ 몇 시까지 어디로?</span><span class="act"><button>고치기</button></span><span class="sub">료칸 현관 10:00 · 예매 없이 탐</span></div>
+              <div class="slot" data-slot="s6" data-label="11/16(월) 점심 식사">
+                <div class="slot-h"><b>후보 자리 · 점심 식사</b><span>정할 날 10/24(토)</span><button>날짜 고치기</button></div>
+                <div class="item cand"><span class="grip">≡</span><span class="t">11:40</span><span class="nm">지옥찜 공방 간나와</span><span class="tag cand">후보</span><span class="act"><button class="confirm">이걸로 확정</button><button>고치기</button></span><span class="sub">온천 증기로 직접 쪄 먹음 · 대기표</span></div>
+                <div class="item cand"><span class="grip">≡</span><span class="t">12:00</span><span class="nm">도요켄 본점 (도리텐 원조)</span><span class="tag cand">후보</span><span class="act"><button class="confirm">이걸로 확정</button><button>고치기</button></span><span class="sub">닭튀김 정식 · 간나와에서 택시 10분</span></div>
+                <div class="slot-f"><span class="pv">부모 화면에는: "정하는 중 · 10월 24일까지 정해요"</span><button>+ 후보 더하기</button></div>
+              </div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">13:30</span><span class="nm">벳푸 지옥 순례 2곳 (우미지옥·가마도지옥)</span><span class="tag fix">확정</span><span class="qref">→ 가서 뭐 해?</span><span class="act"><button>고치기</button></span><span class="sub">2곳 <span class="old">← 7곳 모두</span> · 걷는 양 줄임</span></div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">16:00</span><span class="nm">벳푸 스기노이 호텔 체크인 (1박)</span><span class="tag fix">확정</span><span class="qref">→ 어디서 자?</span><span class="act"><button>고치기</button></span><span class="sub">숙소 · 벳푸 1박 추가 <span class="old">← 유후인 3박</span> · 노천탕 다나유</span></div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">18:00</span><span class="nm">스기노이 호텔 뷔페 저녁</span><span class="tag fix">확정</span><span class="qref">→ 가서 뭐 해?</span><span class="act"><button>고치기</button></span><span class="sub">숙박에 포함 · 시간 예약은 할 일에 있음</span></div>
+              <button class="add">+ 항목 더하기</button>
+            </div>
+
+            <div class="day">
+              <div class="day-h"><h3>6일차 · 11/17(화) · 벳푸 → 후쿠오카공항 → 인천</h3></div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">09:32</span><span class="nm">벳푸 기타하마 → 후쿠오카공항, 고속버스 도요노쿠니호 (11:40 도착)</span><span class="tag fix">확정</span><span class="qref">→ 몇 시까지 어디로?</span><span class="act"><button>고치기</button></span><span class="sub">6석 예매 끝 · 호텔 로비 09:00</span></div>
+              <div class="item fix"><span class="grip">≡</span><span class="t">15:40</span><span class="nm">후쿠오카 → 인천 KE788 (17:10 도착)</span><span class="tag fix">확정</span><span class="qref">→ 언제 떠나?</span><span class="act"><button>고치기</button></span><span class="sub">항공 6명 발권 끝 · 귀국편 15:40 <span class="old">← 18:05</span></span></div>
+              <button class="add">+ 항목 더하기</button>
+            </div>
+
+          </div>
+
+          <!-- 질문 패널 -->
+          <aside class="qpanel" id="qpanel">
+            <h3>부모님이 궁금해할 질문</h3>
+            <div class="qsum">
+              아직 답이 없는 것 <b data-count="open">7</b>개<br>
+              <span class="note">그중 "궁금해요" 받은 것 <b data-count="asked">1</b>개 · 후보를 더하거나 고치는 것은 부모님께 건너가지 않는다.</span>
+            </div>
+
+            <div class="q">
+              <div class="q-h"><h4>언제 떠나?</h4><span class="tag fix">확정</span></div>
+              <div class="q-b">가는 편 11/12 10:25 · 오는 편 11/17 15:40. 답 다 있음.</div>
+            </div>
+
+            <div class="q">
+              <div class="q-h"><h4>어디서 자?</h4><span class="tag fix">확정</span></div>
+              <div class="q-b">5박 모두 답 있음: 호텔 닛코 후쿠오카 2박 · 유후인 호테이야 2박 · 벳푸 스기노이 호텔 1박.</div>
+            </div>
+
+            <div class="q">
+              <div class="q-h"><h4>몇 시까지 어디로 가면 돼?</h4><span class="note">답 없음 <b data-count="open-go">1</b></span></div>
+              <div class="q-b">
+                <ul>
+                  <li data-q="go" data-parent="어머니">
+                    <span class="still">11/12(목) 출발 날 모이는 시각·장소 · 11/1(일)까지 · 일정표에 항목이 없음 <button>답 적기</button><br><span class="note">할 일 "집 → 인천공항 차편 예약"(맡은 사람 없음)이 끝나야 정해짐</span></span>
+                    <span class="filled">11/12(목) 모이는 시각·장소 — 답 있음</span>
+                    <span class="askmark">어머니가 궁금해함</span>
+                  </li>
+                </ul>
+                <span class="note">기차·버스·귀국편 시각 4개는 답 있음.</span>
+              </div>
+            </div>
+
+            <div class="q">
+              <div class="q-h"><h4>가서 뭐 하고 뭘 먹어?</h4><span class="note">답 없음 <b data-count="open-do">6</b></span></div>
+              <div class="q-b">
+                <ul>
+                  <li data-q="s1" class="asked"><span class="still">11/12(목) 저녁 · 후보 2 · 10/10(토)까지</span><span class="filled">11/12(목) 저녁 — 답 채워짐</span> <span class="askmark">어머니가 궁금해함</span></li>
+                  <li data-q="s2"><span class="still">11/13(금) 점심 · 후보 2 · 10/10(토)까지</span><span class="filled">11/13(금) 점심 — 답 채워짐</span> <span class="askmark">어머니가 궁금해함</span></li>
+                  <li data-q="s3"><span class="still">11/13(금) 저녁 · 후보 2 · 10/17(토)까지</span><span class="filled">11/13(금) 저녁 — 답 채워짐</span> <span class="askmark">어머니가 궁금해함</span></li>
+                  <li data-q="s4"><span class="still">11/14(토) 점심 · 후보 2 · 10/17(토)까지</span><span class="filled">11/14(토) 점심 — 답 채워짐</span> <span class="askmark">어머니가 궁금해함</span></li>
+                  <li data-q="s5"><span class="still">11/15(일) 오후 · 후보 2 · 10/24(토)까지</span><span class="filled">11/15(일) 오후 — 답 채워짐</span> <span class="askmark">어머니가 궁금해함</span></li>
+                  <li data-q="s6"><span class="still">11/16(월) 점심 · 후보 2 · 10/24(토)까지</span><span class="filled">11/16(월) 점심 — 답 채워짐</span> <span class="askmark">어머니가 궁금해함</span></li>
+                </ul>
+                <span class="note">"궁금해함"은 여기에만 조용히 뜬다(알림·소리 없음).</span>
+              </div>
+            </div>
+
+            <div class="q">
+              <div class="q-h"><h4>뭘 챙겨?</h4><span class="note">맡은 사람 없음 <b>3</b></span></div>
+              <div class="q-b">
+                할 일·준비물 16건: 끝남 5 · 진행 중 8 · 맡은 사람 없음 3
+                <details>
+                  <summary>16건 모두 보기</summary>
+                  <div class="todo-g">아직 맡은 사람 없음 3건</div>
+                  <ul>
+                    <li>집 → 인천공항 차편 예약 <button>맡기기</button></li>
+                    <li>캐리어 무게 재기 (1인 23kg) <button>맡기기</button></li>
+                    <li>110V 어댑터(돼지코) 3개 <button>맡기기</button></li>
+                  </ul>
+                  <div class="todo-g">진행 중 8건</div>
+                  <ul>
+                    <li>혈압약·상비약 6일치 — 김순자</li>
+                    <li>편한 신발·얇은 패딩 — 김순자</li>
+                    <li>무릎 보호대·접이식 지팡이 — 박영수</li>
+                    <li>엔화 환전 8만 엔 — 박민재</li>
+                    <li>서윤 멀미약·여벌 옷 — 이준호</li>
+                    <li>eSIM 4개·포켓 와이파이 1대 — 이준호</li>
+                    <li>료칸에 새우 알레르기(서윤) 전달 — 박지현</li>
+                    <li>스기노이 호텔 뷔페 시간 예약 — 박지현</li>
+                  </ul>
+                  <div class="todo-g">끝남 5건</div>
+                  <ul>
+                    <li>항공권 6명 발권 — 박지현</li>
+                    <li>호텔 닛코 후쿠오카 2박 결제 — 박지현</li>
+                    <li>부모님 여권 유효기간 확인 — 김순자</li>
+                    <li>유후인노모리 6석 예매 — 박민재</li>
+                    <li>여행자 보험 6명 가입 — 이준호</li>
+                  </ul>
+                </details>
+              </div>
+            </div>
+
+            <div class="q">
+              <div class="q-h"><h4>뭐가 바뀌었어?</h4><span class="note">보낼 소식 <b data-count="pending">3</b>건</span></div>
+              <div class="q-b">
+                <div class="note">확정한 것·확정을 바꾼 것만 쌓인다. 부모님 답 카드는 바로 바뀌지만 알림은 "소식 보내기"를 누를 때 1번만 간다.</div>
+                <div class="todo-g">아직 알리지 않은 것 <span data-count="pending">3</span>건</div>
+                <ul id="pending">
+                  <li>공항 → 호텔: 택시 2대 <span class="old">← 지하철</span></li>
+                  <li>11/14 료칸 저녁: 18:30 <span class="old">← 19:00</span></li>
+                  <li>11/16 지옥 순례: 2곳 <span class="old">← 7곳</span></li>
+                </ul>
+                <div class="send">
+                  <button id="send">소식 보내기 (알림 1번)</button>
+                  <span class="note" id="sendnote">알림 글: "답이 바뀐 질문 <span data-count="pendq">2</span>개"</span>
+                </div>
+                <div class="note" style="margin-top:4px">모이는 시각·장소가 바뀌는 확정 변경은 묶지 말고 바로 보내기를 권함.</div>
+                <details>
+                  <summary>변경 이력 <span data-count="hist">9</span>건 (항공 2 · 숙소 2 · 현지 일정 <span data-count="histlocal">5</span>)</summary>
+                  <div class="todo-g">9/21(월) 소식으로 보냄 · 6건 · 알림 1번</div>
+                  <ul id="sent">
+                    <li>항공: 출발 10:25 <span class="old">← 09:10</span></li>
+                    <li>항공: 귀국편 15:40 <span class="old">← 18:05</span></li>
+                    <li>숙소: 유후인 호테이야 <span class="old">← 유후인 산토칸</span></li>
+                    <li>숙소: 벳푸 스기노이 1박 추가 <span class="old">← 유후인 3박</span></li>
+                    <li>현지: 다자이후 11/13(금) <span class="old">← 11/12(목)</span></li>
+                    <li>현지: 유후인 가는 기차 09:17 <span class="old">← 10:11</span></li>
+                  </ul>
+                  <div class="todo-g">아직 알리지 않음 · 현지 3건</div>
+                  <div class="note">위 "아직 알리지 않은 것"과 같음.</div>
+                </details>
+              </div>
+            </div>
+          </aside>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═════════════ 부모 화면 ═════════════ -->
+    <section class="screen parent">
+      <div class="who">부모 화면 — 김순자(어머니, 65) · 같은 데이터 · 휴대폰 390폭 · 글자 입력 칸 없음</div>
+      <div class="push">
+        <b>이 휴대폰에 온 알림 (8/20 준비 시작 뒤 <span data-count="pushes">1</span>번)</b>
+        <ul id="pushlog">
+          <li>9/21(월) 지현: "답이 바뀐 질문 3개 — 언제 떠나? · 어디서 자? · 가서 뭐 해?" (변경 6건 한 묶음)</li>
+        </ul>
+      </div>
+      <div class="frame phone">
+        <div class="fold"><span>첫 화면 끝 (844px)</span></div>
+
+        <div class="pa-top"><b>우리 가족 규슈 여행</b><span>김순자 님</span></div>
+        <a class="pa-strip" href="#c-chg">새로 바뀐 답 <b data-count="newans">3</b>개 · 아래에서 보기</a>
+
+        <div class="card" id="c-when">
+          <div class="card-h"><h3>언제 떠나?</h3><span class="tag fix">확정</span></div>
+          <p class="big">11월 12일(목) 떠나요</p>
+          <p class="mid">11월 17일(화) 돌아와요 · 5박 6일</p>
+          <p class="mid"><b>43일</b> 남았어요</p>
+        </div>
+
+        <div class="card" id="c-stay">
+          <div class="card-h"><h3>어디에 있고 어디서 자?</h3><span class="tag fix">확정</span></div>
+          <table class="stay">
+            <tr><td>12(목)</td><td>후쿠오카 · <b>호텔 닛코 후쿠오카</b></td></tr>
+            <tr><td>13(금)</td><td>후쿠오카 · 같은 호텔</td></tr>
+            <tr><td>14(토)</td><td>유후인 · <b>료칸 호테이야</b></td></tr>
+            <tr><td>15(일)</td><td>유후인 · 같은 료칸</td></tr>
+            <tr><td>16(월)</td><td>벳푸 · <b>스기노이 호텔</b></td></tr>
+            <tr><td>17(화)</td><td>집으로 돌아와요</td></tr>
+          </table>
+        </div>
+
+        <div class="card" id="c-go">
+          <div class="card-h"><h3>몇 시까지 어디로 가면 돼?</h3><span class="st">정하는 중 <b data-count="open-go">1</b>곳</span></div>
+          <ul class="rows">
+            <li data-slot="go">
+              <span class="d">12(목) 떠나는 날 · 모이는 시각과 장소</span>
+              <span class="ans"><span class="tag wait">정하는 중</span> 11월 1일까지 정해요</span><br>
+              <button class="ask">궁금해요</button>
+            </li>
+            <li><span class="d">12(목) 비행기</span><span class="tag fix">확정</span> <b>10:25</b> 인천공항 2터미널</li>
+            <li><span class="d">12(목) 후쿠오카 공항에서 호텔까지</span><span class="tag fix">확정</span> 택시 2대 <span class="old">← 지하철</span> <span class="tag new">바뀜</span></li>
+            <li><span class="d">14(토) 유후인 가는 기차</span><span class="tag fix">확정</span> <b>08:30</b> 호텔 로비 <span class="sub">기차는 09:17 하카타역</span></li>
+            <li><span class="d">16(월) 벳푸 가는 버스</span><span class="tag fix">확정</span> <b>10:00</b> 료칸 현관 <span class="sub">버스는 10:30 유후인역 앞</span></li>
+            <li><span class="d">17(화) 돌아오는 날</span><span class="tag fix">확정</span> <b>09:00</b> 호텔 로비 <span class="sub">버스 09:32 · 비행기 15:40 · 인천 17:10 도착</span></li>
+          </ul>
+        </div>
+
+        <div class="card" id="c-do">
+          <div class="card-h"><h3>가서 뭐 하고 뭘 먹어?</h3><span class="st">정하는 중 <b data-count="open-do">6</b>곳</span></div>
+          <ul class="rows">
+            <li>
+              <span class="d">12(목) 후쿠오카</span>
+              <ul class="lines">
+                <li data-slot="s1" class="asked"><span class="k">저녁</span><span class="ans"><span class="tag wait">정하는 중</span> 10월 10일까지 정해요</span><br><button class="ask" disabled>궁금하다고 전했어요</button></li>
+              </ul>
+            </li>
+            <li>
+              <span class="d">13(금) 후쿠오카</span>
+              <ul class="lines">
+                <li><span class="k">오전</span><span class="tag fix">확정</span> 다자이후 텐만구</li>
+                <li data-slot="s2"><span class="k">점심</span><span class="ans"><span class="tag wait">정하는 중</span> 10월 10일까지 정해요</span><br><button class="ask">궁금해요</button></li>
+                <li><span class="k">오후</span><span class="tag fix">확정</span> 캐널시티 하카타, 오호리 공원 산책</li>
+                <li data-slot="s3"><span class="k">저녁</span><span class="ans"><span class="tag wait">정하는 중</span> 10월 17일까지 정해요</span><br><button class="ask">궁금해요</button></li>
+              </ul>
+            </li>
+            <li>
+              <span class="d">14(토) 유후인</span>
+              <ul class="lines">
+                <li data-slot="s4"><span class="k">점심</span><span class="ans"><span class="tag wait">정하는 중</span> 10월 17일까지 정해요</span><br><button class="ask">궁금해요</button></li>
+                <li><span class="k">오후</span><span class="tag fix">확정</span> 유노쓰보 거리 산책</li>
+                <li><span class="k">저녁</span><span class="tag fix">확정</span> 료칸 가이세키 18:30 <span class="old">← 19:00</span> <span class="tag new">바뀜</span></li>
+              </ul>
+            </li>
+            <li>
+              <span class="d">15(일) 유후인</span>
+              <ul class="lines">
+                <li><span class="k">아침</span><span class="tag fix">확정</span> 긴린코 호수 산책 07:30</li>
+                <li data-slot="s5"><span class="k">오후</span><span class="ans"><span class="tag wait">정하는 중</span> 10월 24일까지 정해요</span><br><button class="ask">궁금해요</button></li>
+              </ul>
+            </li>
+            <li>
+              <span class="d">16(월) 벳푸</span>
+              <ul class="lines">
+                <li data-slot="s6"><span class="k">점심</span><span class="ans"><span class="tag wait">정하는 중</span> 10월 24일까지 정해요</span><br><button class="ask">궁금해요</button></li>
+                <li><span class="k">오후</span><span class="tag fix">확정</span> 지옥 순례 2곳(우미지옥·가마도지옥) <span class="old">← 7곳</span> <span class="tag new">바뀜</span></li>
+                <li><span class="k">저녁</span><span class="tag fix">확정</span> 스기노이 호텔 뷔페</li>
+              </ul>
+            </li>
+            <li>
+              <span class="d">17(화)</span>
+              <ul class="lines"><li>돌아오는 날이라 이동만 해요</li></ul>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card" id="c-pack">
+          <div class="card-h"><h3>뭘 챙겨?</h3><span class="st">내 것 3개 · 남은 것 2개</span></div>
+          <ul class="rows">
+            <li class="chk"><span class="box"></span><span>혈압약·상비약 6일치</span></li>
+            <li class="chk"><span class="box"></span><span>편한 신발, 얇은 패딩</span></li>
+            <li class="chk"><span class="box">✓</span><span class="old">여권 유효기간 확인 (끝남)</span></li>
+          </ul>
+          <p class="note" style="font-size:14px">네모를 누르면 끝남으로 바뀌어요. 다른 가족의 할 일은 여기에 나오지 않아요.</p>
+        </div>
+
+        <div class="card" id="c-chg">
+          <div class="card-h"><h3>뭐가 바뀌었어?</h3><span class="st">모두 9건</span></div>
+          <div class="grp" id="newhead">새로 바뀐 답 <span data-count="newans">3</span>개 (알림 없이 조용히 바뀜)</div>
+          <ul class="rows" id="newlist">
+            <li><span class="d">몇 시까지 어디로?</span>공항에서 호텔까지 택시 2대 <span class="old">← 지하철</span></li>
+            <li><span class="d">가서 뭐 해? · 14(토)</span>료칸 저녁 18:30 <span class="old">← 19:00</span></li>
+            <li><span class="d">가서 뭐 해? · 16(월)</span>지옥 순례 2곳 <span class="old">← 7곳</span></li>
+          </ul>
+          <div class="grp">9월 21일(월)에 받은 소식 6건</div>
+          <ul class="rows">
+            <li><span class="d">언제 떠나?</span>떠나는 비행기 10:25 <span class="old">← 09:10</span></li>
+            <li><span class="d">언제 떠나?</span>돌아오는 비행기 15:40 <span class="old">← 18:05</span></li>
+            <li><span class="d">어디서 자? · 14~15일</span>료칸 호테이야 <span class="old">← 료칸 산토칸</span></li>
+            <li><span class="d">어디서 자? · 16일</span>벳푸 스기노이 호텔 1박 <span class="old">← 유후인 3박</span></li>
+            <li><span class="d">가서 뭐 해?</span>다자이후 13(금) <span class="old">← 12(목)</span></li>
+            <li><span class="d">몇 시까지 어디로?</span>유후인 가는 기차 09:17 <span class="old">← 10:11</span></li>
+          </ul>
+        </div>
+
+        <nav class="pa-nav">
+          <a class="on" href="#c-when">여행 답</a>
+          <a href="#c-pack">챙길 것</a>
+          <a href="#c-chg">바뀐 것</a>
+        </nav>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  var $ = function(s, r){ return (r || document).querySelector(s); };
+  var $$ = function(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var newAnswers = 3, pushes = 1, histLocal = 5, hist = 9;
+
+  function set(name, v){ $$('[data-count="' + name + '"]').forEach(function(e){ e.textContent = v; }); }
+
+  function recalc(){
+    var fix = $$('#sched .item.fix').length, cand = $$('#sched .item.cand').length;
+    set('fix', fix); set('cand', cand); set('total', fix + cand);
+    set('slots', $$('#sched .slot:not(.done)').length);
+    var openDo = $$('#qpanel li[data-q^="s"]:not(.done)').length;
+    var openGo = $$('#qpanel li[data-q="go"]:not(.done)').length;
+    set('open-do', openDo); set('open-go', openGo); set('open', openDo + openGo);
+    set('asked', $$('#qpanel li.asked:not(.done)').length);
+    var pend = $$('#pending li');
+    set('pending', pend.length);
+    var qs = {};
+    pend.forEach(function(li){ qs[li.getAttribute('data-pq') || (li.textContent.indexOf('공항') === 0 ? 'go' : 'do')] = 1; });
+    set('pendq', Object.keys(qs).length);
+    set('newans', newAnswers); set('pushes', pushes);
+    set('hist', hist); set('histlocal', histLocal);
+    $('#send').disabled = pend.length === 0;
+  }
+
+  // 계획자: 후보 하나를 확정 → 부모의 그 질문 답이 채워진다(알림 없음)
+  $$('.confirm').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var item = btn.closest('.item'), slot = btn.closest('.slot');
+      var id = slot.getAttribute('data-slot'), label = slot.getAttribute('data-label');
+      var name = $('.nm', item).textContent;
+      $$('.item.cand', slot).forEach(function(o){ if (o !== item) o.remove(); });
+      item.classList.remove('cand'); item.classList.add('fix');
+      var tag = $('.tag', item); tag.className = 'tag fix'; tag.textContent = '확정';
+      btn.remove();
+      slot.classList.add('done');
+      $('.slot-h', slot).innerHTML = '<b>확정됨</b><span>부모 화면의 답이 채워짐 · 알림은 아직 안 감</span>';
+      $('.slot-f', slot).innerHTML = '<span>고르지 않은 후보는 지움 · 부모 화면에는: "' + name + '"</span>';
+      var q = $('#qpanel li[data-q="' + id + '"]'); if (q) q.classList.add('done');
+      var p = $('.phone li[data-slot="' + id + '"]');
+      if (p){
+        $('.ans', p).innerHTML = '<span class="tag fix">확정</span> ' + name + ' <span class="tag new">새로 정해짐</span>';
+        var b = $('.ask', p); if (b){ var br = b.previousElementSibling; if (br && br.tagName === 'BR') br.remove(); b.remove(); }
+      }
+      var li = document.createElement('li'); li.setAttribute('data-pq', 'do');
+      li.textContent = label + ': 정해짐 — ' + name; $('#pending').appendChild(li);
+      var pl = document.createElement('li');
+      pl.innerHTML = '<span class="d">가서 뭐 해? · ' + label.split(' ')[0] + '</span>' + label.split(' ').slice(1).join(' ') + '이 정해졌어요: ' + name;
+      $('#newlist').appendChild(pl);
+      newAnswers++; hist++; histLocal++;
+      $('#newhead').innerHTML = '새로 바뀐 답 <span data-count="newans"></span>개 (알림 없이 조용히 바뀜)';
+      recalc();
+    });
+  });
+
+  // 부모: 글을 쓰지 않고 한 번 누름 → 계획자 패널에 조용한 표시만
+  $$('.ask').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.closest('[data-slot]').getAttribute('data-slot');
+      btn.disabled = true; btn.textContent = '궁금하다고 전했어요';
+      var q = $('#qpanel li[data-q="' + id + '"]'); if (q) q.classList.add('asked');
+      recalc();
+    });
+  });
+
+  // 계획자: 소식 보내기 → 쌓인 변경이 한 묶음, 알림 1번
+  $('#send').addEventListener('click', function(){
+    var n = $$('#pending li').length; if (!n) return;
+    var nq = $('[data-count="pendq"]').textContent;
+    $('#pending').innerHTML = '';
+    pushes++;
+    var li = document.createElement('li');
+    li.textContent = '9/30(수) 지현: "답이 바뀐 질문 ' + nq + '개" (변경 ' + n + '건 한 묶음)';
+    $('#pushlog').appendChild(li);
+    $('#newhead').textContent = '9월 30일(수)에 받은 소식 ' + n + '건';
+    $('#sendnote').textContent = '보냄 · 알림 1번 · 변경 ' + n + '건';
+    recalc();
+  });
+
+  recalc();
+})();
+</script>
+</body>
+</html>

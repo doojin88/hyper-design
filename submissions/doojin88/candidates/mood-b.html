@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>무드 B — 안내판 · 계획자 일정 화면</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* 색 — 밤색 도는 남청 판(순검정·순회색 없음), 글자는 따뜻한 백열등 흰색 */
+    --c-bg: #0d1820;          /* 판 뒤 벽 */
+    --c-surface: #16252f;     /* 안내판 면 */
+    --c-surface-2: #1f3340;   /* 날짜 머리줄 */
+    --c-line: #34505f;        /* 줄 구분 */
+    --c-line-2: #6f8898;      /* 누를 수 있는 것의 테두리, 미정 줄의 점선 */
+    --c-text: #f3eee2;
+    --c-text-dim: #a9b8c1;
+    --c-accent: #ffc233;      /* 안내판 호박색 — 시각·1차 행동 */
+    --c-ok: #7fe3a6;          /* 확정 */
+    --c-pending: #9fc8ea;     /* 후보(미정) */
+    --c-change: #ff9c7d;      /* 바뀜 */
+
+    /* 글자 크기 5단계 */
+    --fs-1: 13px;
+    --fs-2: 15px;
+    --fs-3: 17px;
+    --fs-4: 22px;
+    --fs-5: 30px;
+
+    /* 간격 (4의 배수) */
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 12px;
+    --sp-4: 16px;
+    --sp-5: 24px;
+    --sp-6: 32px;
+    --tap: 44px;
+    --icon: 20px;
+
+    /* 모서리 2종, 깊이는 선만 */
+    --r-sm: 2px;
+    --r-lg: 6px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    font-size: var(--fs-2); line-height: 1.45;
+    color: var(--c-text); background: var(--c-bg);
+    word-break: keep-all; overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+  }
+  h1, h2, h3, p, ul { margin: 0; padding: 0; }
+  ul { list-style: none; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+  svg.i { width: var(--icon); height: var(--icon); flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* 버튼: 채워진 것은 1개(소식 보내기), 나머지는 테두리만 */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2);
+    min-height: var(--tap); padding: 0 var(--sp-4);
+    background: transparent; border: 1px solid var(--c-line-2); border-radius: var(--r-sm);
+    font-size: var(--fs-2); font-weight: 700; color: var(--c-text);
+  }
+  .btn.primary { background: var(--c-accent); border-color: var(--c-accent); color: var(--c-bg); font-weight: 900; font-size: var(--fs-3); }
+
+  /* 상태 표지: 글자가 있다 */
+  .tag {
+    display: inline-flex; align-items: center; gap: var(--sp-1);
+    padding: 0 var(--sp-2); min-height: var(--sp-5);
+    font-size: var(--fs-1); font-weight: 900; line-height: 1; letter-spacing: 0.04em;
+    border-radius: var(--r-sm); white-space: nowrap;
+  }
+  .tag.ok { background: var(--c-ok); color: var(--c-bg); border: 1px solid var(--c-ok); }
+  .tag.cand { background: transparent; color: var(--c-pending); border: 1px dashed var(--c-pending); font-weight: 700; }
+  .tag.chg { background: transparent; color: var(--c-change); border: 1px solid var(--c-change); }
+
+  .page { max-width: 1280px; margin: 0 auto; padding: var(--sp-5) var(--sp-5) var(--sp-6); display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: var(--sp-6); align-items: start; }
+  .label { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-2); font-size: var(--fs-1); font-weight: 700; color: var(--c-text-dim); letter-spacing: 0.04em; }
+  .label b { color: var(--c-accent); font-weight: 900; }
+
+  /* ───── 안내판 (계획자) ───── */
+  .board { background: var(--c-surface); border: 2px solid var(--c-line); border-radius: var(--r-lg); overflow: hidden; }
+  .b-head { padding: var(--sp-5) var(--sp-5) var(--sp-4); border-bottom: 2px solid var(--c-accent); }
+  .b-head h1 { font-size: var(--fs-5); font-weight: 900; line-height: 1.2; }
+  .b-head p { margin-top: var(--sp-1); color: var(--c-text-dim); }
+  .legend { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); align-items: center; margin-top: var(--sp-3); font-size: var(--fs-2); color: var(--c-text-dim); }
+  .legend span { display: inline-flex; align-items: center; gap: var(--sp-2); }
+
+  /* 가족에게 보낼 소식 */
+  .news { padding: var(--sp-4) var(--sp-5) var(--sp-5); border-bottom: 2px solid var(--c-line); }
+  .news h2 { font-size: var(--fs-4); font-weight: 900; }
+  .news h2 em { font-style: normal; color: var(--c-accent); }
+  .news-list { margin-top: var(--sp-3); border-top: 1px solid var(--c-line); }
+  .news-list li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--sp-1) var(--sp-3); padding: var(--sp-3) 0; border-bottom: 1px solid var(--c-line); align-items: center; }
+  .news-list .t { font-size: var(--fs-3); font-weight: 700; }
+  .news-list .t .to { color: var(--c-accent); font-weight: 900; }
+  .news-list .from { color: var(--c-change); font-weight: 400; }
+  .news-list small, .sub { grid-column: 2; font-size: var(--fs-2); color: var(--c-text-dim); font-weight: 400; }
+  .news .foot { display: flex; flex-wrap: wrap; gap: var(--sp-3) var(--sp-4); align-items: center; margin-top: var(--sp-4); }
+  .news .foot p { flex: 1 1 220px; color: var(--c-text-dim); }
+
+  /* 날짜 머리줄 */
+  .day-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-1) var(--sp-3); padding: var(--sp-3) var(--sp-5); background: var(--c-surface-2); border-bottom: 1px solid var(--c-line); border-top: 1px solid var(--c-line); }
+  .day-h .d { font-size: var(--fs-4); font-weight: 900; color: var(--c-accent); }
+  .day-h .c { font-size: var(--fs-3); font-weight: 700; }
+  .day-h .s { font-size: var(--fs-2); color: var(--c-text-dim); }
+
+  /* 확정 줄 = 판에 올라간 줄 */
+  .row { display: grid; grid-template-columns: 7ch minmax(0, 1fr); gap: var(--sp-1) var(--sp-4); padding: var(--sp-3) var(--sp-5); border-bottom: 1px solid var(--c-line); border-left: 4px solid var(--c-ok); align-items: start; }
+  .row .tm { font-size: var(--fs-4); font-weight: 900; line-height: 1.2; color: var(--c-accent); }
+  .row .tm s { display: block; font-size: var(--fs-1); font-weight: 700; text-decoration: none; color: var(--c-change); line-height: 1.3; }
+  .row .tt { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); font-size: var(--fs-3); font-weight: 900; }
+  .row .tt svg { color: var(--c-text-dim); }
+  .row .bd small { display: block; margin-top: var(--sp-1); font-size: var(--fs-2); color: var(--c-text-dim); font-weight: 400; }
+
+  /* 후보 자리 = 아직 판에 오르지 않은 빈 줄 */
+  .slot { margin: var(--sp-3) var(--sp-5); border: 1px dashed var(--c-line-2); border-radius: var(--r-sm); background: transparent; }
+  .slot-h { display: grid; grid-template-columns: 7ch minmax(0, 1fr); gap: var(--sp-1) var(--sp-4); padding: var(--sp-3) var(--sp-4) var(--sp-2); }
+  .slot-h .tm { font-size: var(--fs-4); font-weight: 400; color: var(--c-text-dim); line-height: 1.2; }
+  .slot-h .tt { font-size: var(--fs-3); font-weight: 700; display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; }
+  .slot-h small { grid-column: 2; font-size: var(--fs-2); color: var(--c-text-dim); }
+  .cand { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-2) var(--sp-3); padding: var(--sp-3) var(--sp-4); border-top: 1px dashed var(--c-line); align-items: center; }
+  .cand .nm { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); font-size: var(--fs-3); font-weight: 400; }
+  .cand small { display: block; margin-top: var(--sp-1); font-size: var(--fs-2); color: var(--c-text-dim); }
+  .lens { padding: var(--sp-2) var(--sp-4); border-top: 1px dashed var(--c-line); font-size: var(--fs-1); color: var(--c-text-dim); }
+  .lens b { color: var(--c-text); font-weight: 700; }
+
+  /* 나머지 날짜 요약 */
+  .rest li { display: grid; grid-template-columns: 7ch minmax(0, 1fr); gap: var(--sp-1) var(--sp-4); padding: var(--sp-3) var(--sp-5); border-bottom: 1px solid var(--c-line); }
+  .rest li:last-child { border-bottom: 0; }
+  .rest .d { font-size: var(--fs-3); font-weight: 900; color: var(--c-accent); }
+  .rest .w { font-size: var(--fs-3); font-weight: 700; }
+  .rest small { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3); align-items: center; font-size: var(--fs-2); color: var(--c-text-dim); font-weight: 400; }
+  .rest .quiet-ask { color: var(--c-text); }
+
+  /* ───── 어머니 휴대폰 ───── */
+  .phone { background: var(--c-surface); border: 2px solid var(--c-line-2); border-radius: var(--r-lg); overflow: hidden; }
+  .ph-head { padding: var(--sp-4); border-bottom: 2px solid var(--c-accent); }
+  .ph-head .trip { font-size: var(--fs-2); color: var(--c-text-dim); }
+  .ph-head .big { font-size: var(--fs-4); font-weight: 900; line-height: 1.25; margin-top: var(--sp-1); }
+  .ph-head .big b { color: var(--c-accent); font-weight: 900; }
+  .ph-head .dates { margin-top: var(--sp-2); font-size: var(--fs-3); font-weight: 700; display: grid; gap: var(--sp-1); }
+  .ph-head .dates span { color: var(--c-text-dim); font-weight: 400; font-size: var(--fs-2); margin-right: var(--sp-2); }
+  .p-day { padding: var(--sp-3) var(--sp-4); border-bottom: 1px solid var(--c-line); border-left: 4px solid var(--c-ok); }
+  .p-day .l1 { display: grid; grid-template-columns: 5ch minmax(0, 1fr); gap: var(--sp-3); align-items: baseline; font-size: var(--fs-3); font-weight: 900; }
+  .p-day .l1 .dd { color: var(--c-accent); }
+  .p-day .l2 { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-1) var(--sp-2); margin: var(--sp-1) 0 0 calc(5ch + var(--sp-3)); font-size: var(--fs-2); color: var(--c-text-dim); }
+  .p-open { margin: var(--sp-2) var(--sp-4) var(--sp-3); padding: var(--sp-2) var(--sp-3); border: 1px dashed var(--c-line-2); border-radius: var(--r-sm); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-2); align-items: center; }
+  .p-open p { font-size: var(--fs-2); color: var(--c-text); }
+  .p-open p b { font-weight: 700; }
+  .p-nav { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 2px solid var(--c-line); }
+  .p-nav span { min-height: var(--tap); display: flex; align-items: center; justify-content: center; font-size: var(--fs-3); font-weight: 700; color: var(--c-text-dim); border-left: 1px solid var(--c-line); }
+  .p-nav span:first-child { border-left: 0; color: var(--c-accent); font-weight: 900; }
+  .p-note { margin-top: var(--sp-3); font-size: var(--fs-1); color: var(--c-text-dim); }
+
+  @media (max-width: 900px) {
+    .page { grid-template-columns: minmax(0, 1fr); padding: var(--sp-4) var(--sp-3) var(--sp-5); gap: var(--sp-5); }
+    .b-head, .news { padding-left: var(--sp-4); padding-right: var(--sp-4); }
+    .day-h, .row, .rest li { padding-left: var(--sp-4); padding-right: var(--sp-4); }
+    .slot { margin-left: var(--sp-3); margin-right: var(--sp-3); }
+    .row, .slot-h, .rest li { grid-template-columns: 6ch minmax(0, 1fr); gap: var(--sp-1) var(--sp-3); }
+    .cand { grid-template-columns: minmax(0, 1fr); }
+    .cand .btn { justify-self: start; }
+    .news .foot .btn { width: 100%; }
+    .b-head h1 { font-size: var(--fs-4); }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-move" viewBox="0 0 24 24"><path d="M3 12h16"/><path d="M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-bed" viewBox="0 0 24 24"><path d="M3 18V6"/><path d="M3 14h18v4"/><path d="M21 14v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="11" r="1.5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6-5.6-6-10.5a6 6 0 0 1 12 0C18 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2"/></symbol>
+  <symbol id="i-fork" viewBox="0 0 24 24"><path d="M7 3v8"/><path d="M4 3v5a3 3 0 0 0 6 0V3"/><path d="M7 11v10"/><path d="M17 21V3c-2.5 1.5-3.5 4-3.5 8h3.5"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4z"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M9 11V5a1.5 1.5 0 0 1 3 0v5"/><path d="M12 10V4a1.5 1.5 0 0 1 3 0v6"/><path d="M15 10V6a1.5 1.5 0 0 1 3 0v8c0 4-2.5 7-6.5 7-3 0-4.5-1.5-6-4l-2-3.5a1.5 1.5 0 0 1 2.5-1.5L9 15"/></symbol>
+</svg>
+
+<main class="page">
+
+  <!-- ══════════ 계획자 ══════════ -->
+  <section aria-labelledby="planner-title">
+    <div class="label"><b>계획자 화면</b> 박지현 · 일정을 고치는 화면</div>
+    <div class="board">
+
+      <header class="b-head">
+        <h1 id="planner-title">규슈 가족여행 일정</h1>
+        <p>11/12(목) ~ 11/17(화) · 5박 6일 · 후쿠오카 2박 → 유후인 2박 → 벳푸 1박 · 가족 6명</p>
+        <div class="legend" aria-label="표지 설명">
+          <span><span class="tag ok">확정</span> 판에 올라간 줄 17개</span>
+          <span><span class="tag cand">후보</span> 아직 판에 없는 줄 12개 (자리 6곳)</span>
+        </div>
+      </header>
+
+      <div class="news">
+        <h2>가족에게 보낼 소식 <em>3건</em></h2>
+        <ul class="news-list">
+          <li>
+            <span class="tag chg">바뀜</span>
+            <span class="t">가는 비행기 출발 <span class="to">10:25</span> <span class="from">← 09:10</span></span>
+            <small>항공사 시간표 변경</small>
+          </li>
+          <li>
+            <span class="tag chg">바뀜</span>
+            <span class="t">인천공항 집합 <span class="to">07:40</span> <span class="from">← 06:30</span></span>
+            <small>비행기가 늦춰져서</small>
+          </li>
+          <li>
+            <span class="tag chg">바뀜</span>
+            <span class="t">유후인 가는 길 <span class="to">특급 유후인노모리 1호 09:17</span> <span class="from">← 고속버스</span></span>
+            <small>지정석 6장 예매 끝</small>
+          </li>
+        </ul>
+        <div class="foot">
+          <button class="btn primary" type="button"><svg class="i" aria-hidden="true"><use href="#i-send"/></svg>소식 보내기</button>
+          <p>한 묶음으로 알림 1번 · 받는 사람 5명. 후보를 더하고 고친 14번은 여기에 세지 않아요.</p>
+        </div>
+      </div>
+
+      <!-- 11/12 -->
+      <div class="day-h"><span class="d">11/12(목)</span><span class="c">인천 → 후쿠오카</span><span class="s">숙박 호텔 닛코 후쿠오카</span></div>
+      <ul>
+        <li class="row">
+          <div class="tm">07:40<s>← 06:30</s></div>
+          <div class="bd"><div class="tt"><svg class="i" aria-hidden="true"><use href="#i-move"/></svg><span class="tag ok">확정</span>인천공항 1터미널 집합</div><small>3층 H카운터 앞</small></div>
+        </li>
+        <li class="row">
+          <div class="tm">10:25<s>← 09:10</s></div>
+          <div class="bd"><div class="tt"><svg class="i" aria-hidden="true"><use href="#i-move"/></svg><span class="tag ok">확정</span>인천 → 후쿠오카 비행기</div><small>대한항공 KE787 · 11:50 도착</small></div>
+        </li>
+        <li class="row">
+          <div class="tm">13:00</div>
+          <div class="bd"><div class="tt"><svg class="i" aria-hidden="true"><use href="#i-move"/></svg><span class="tag ok">확정</span>공항에서 호텔까지 택시 2대</div><small>후쿠오카공항 국제선 1층</small></div>
+        </li>
+        <li class="row">
+          <div class="tm">15:00</div>
+          <div class="bd"><div class="tt"><svg class="i" aria-hidden="true"><use href="#i-bed"/></svg><span class="tag ok">확정</span>호텔 닛코 후쿠오카 체크인</div><small>하카타역 걸어서 3분 · 2박</small></div>
+        </li>
+        <li class="slot">
+          <div class="slot-h">
+            <div class="tm">18:30</div>
+            <div class="tt"><svg class="i" aria-hidden="true"><use href="#i-fork"/></svg>첫날 저녁 식사 <span class="tag cand">후보 2</span></div>
+            <small>아직 정하지 않았어요 · 10월 10일(토)까지 정하기</small>
+          </div>
+          <div class="cand">
+            <div><div class="nm"><span class="tag cand">후보</span>모츠나베 오오야마 본점</div><small>호텔에서 걸어서 8분 · 좌식 아님</small></div>
+            <button class="btn" type="button">확정으로</button>
+          </div>
+          <div class="cand">
+            <div><div class="nm"><span class="tag cand">후보</span>우동 타이라</div><small>줄이 길 수 있음 · 예약 불가</small></div>
+            <button class="btn" type="button">확정으로</button>
+          </div>
+          <div class="lens">어머니 화면에는 <b>“첫날 저녁 식사 · 정하는 중 · 10월 10일까지 정해요”</b> 한 줄만 나가요</div>
+        </li>
+      </ul>
+
+      <!-- 11/13 -->
+      <div class="day-h"><span class="d">11/13(금)</span><span class="c">후쿠오카</span><span class="s">숙박 호텔 닛코 후쿠오카</span></div>
+      <ul>
+        <li class="row">
+          <div class="tm">09:30</div>
+          <div class="bd"><div class="tt"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg><span class="tag ok">확정</span>다자이후 텐만구</div><small>전철로 40분 · 평지 위주 · 모임 08:40 호텔 1층 로비</small></div>
+        </li>
+        <li class="row">
+          <div class="tm">13:30</div>
+          <div class="bd"><div class="tt"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg><span class="tag ok">확정</span>규슈 국립박물관</div><small>에스컬레이터로 이동</small></div>
+        </li>
+        <li class="slot">
+          <div class="slot-h">
+            <div class="tm">16:00</div>
+            <div class="tt"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>둘째 날 오후 <span class="tag cand">후보 3</span></div>
+            <small>아직 정하지 않았어요 · 10월 17일(토)까지 정하기</small>
+          </div>
+          <div class="cand">
+            <div><div class="nm"><span class="tag cand">후보</span>오호리 공원 산책</div><small>호수 한 바퀴 2km</small></div>
+            <button class="btn" type="button">확정으로</button>
+          </div>
+          <div class="cand">
+            <div><div class="nm"><span class="tag cand">후보</span>캐널시티 하카타</div><small>실내 · 비 오면 여기</small></div>
+            <button class="btn" type="button">확정으로</button>
+          </div>
+          <div class="cand">
+            <div><div class="nm"><span class="tag cand">후보</span>후쿠오카 타워 전망대</div><small>택시로 20분</small></div>
+            <button class="btn" type="button">확정으로</button>
+          </div>
+          <div class="lens">어머니 화면에는 <b>“정하는 중 · 10월 17일까지 정해요”</b></div>
+        </li>
+        <li class="slot">
+          <div class="slot-h">
+            <div class="tm">19:00</div>
+            <div class="tt"><svg class="i" aria-hidden="true"><use href="#i-fork"/></svg>둘째 날 저녁 식사 <span class="tag cand">후보 2</span></div>
+            <small>아직 정하지 않았어요 · 10월 17일(토)까지 정하기</small>
+          </div>
+          <div class="cand">
+            <div><div class="nm"><span class="tag cand">후보</span>나카스 포장마차 거리</div><small>자리가 좁음 · 서윤이는 어려울 수도</small></div>
+            <button class="btn" type="button">확정으로</button>
+          </div>
+          <div class="cand">
+            <div><div class="nm"><span class="tag cand">후보</span>야키니쿠 타규</div><small>6명 방 예약 가능</small></div>
+            <button class="btn" type="button">확정으로</button>
+          </div>
+          <div class="lens">어머니 화면에는 <b>“정하는 중 · 10월 17일까지 정해요”</b></div>
+        </li>
+      </ul>
+
+      <!-- 나머지 날짜 -->
+      <div class="day-h"><span class="d">11/14 ~ 11/17</span><span class="c">나머지 4일</span><span class="s">확정 11 · 후보 5</span></div>
+      <ul class="rest">
+        <li>
+          <div class="d">11/14(토)</div>
+          <div><div class="w">후쿠오카 → 유후인</div><small><span class="tag ok">확정</span> 4줄 · 숙박 료칸 산스이칸</small></div>
+        </li>
+        <li>
+          <div class="d">11/15(일)</div>
+          <div><div class="w">유후인</div><small><span class="tag ok">확정</span> 1줄 <span class="tag cand">후보</span> 4개, 자리 2곳 · <span class="quiet-ask">아버지가 “궁금해요”를 눌렀어요 (오후 자리)</span></small></div>
+        </li>
+        <li>
+          <div class="d">11/16(월)</div>
+          <div><div class="w">유후인 → 벳푸</div><small><span class="tag ok">확정</span> 3줄 <span class="tag cand">후보</span> 1개 · 숙박 스기노이 호텔</small></div>
+        </li>
+        <li>
+          <div class="d">11/17(화)</div>
+          <div><div class="w">벳푸 → 인천</div><small><span class="tag ok">확정</span> 3줄 · 후쿠오카 → 인천 14:40 <span class="tag chg">바뀜</span> ← 19:50 (이미 보냄)</small></div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══════════ 어머니 휴대폰 ══════════ -->
+  <aside aria-labelledby="phone-title">
+    <div class="label" id="phone-title"><b>어머니 휴대폰에는 이렇게 보여요</b></div>
+    <div class="phone">
+      <header class="ph-head">
+        <div class="trip">규슈 가족여행 · 여섯 식구</div>
+        <div class="big">출발까지 <b>43일</b></div>
+        <div class="dates">
+          <div><span>가는 날</span>11월 12일(목)</div>
+          <div><span>오는 날</span>11월 17일(화) · 5박 6일</div>
+        </div>
+      </header>
+
+      <div>
+        <div class="p-day">
+          <div class="l1"><span class="dd">12일</span><span>후쿠오카</span></div>
+          <div class="l2"><span class="tag ok">확정</span>잠 호텔 닛코 후쿠오카</div>
+        </div>
+        <div class="p-open">
+          <p><b>저녁</b> · 정하는 중 · <b>10월 10일까지 정해요</b></p>
+          <button class="btn" type="button"><svg class="i" aria-hidden="true"><use href="#i-hand"/></svg>궁금해요</button>
+        </div>
+
+        <div class="p-day">
+          <div class="l1"><span class="dd">13일</span><span>후쿠오카</span></div>
+          <div class="l2"><span class="tag ok">확정</span>잠 호텔 닛코 후쿠오카</div>
+        </div>
+        <div class="p-open">
+          <p><b>오후·저녁</b> · 정하는 중 · <b>10월 17일까지 정해요</b></p>
+          <button class="btn" type="button"><svg class="i" aria-hidden="true"><use href="#i-hand"/></svg>궁금해요</button>
+        </div>
+
+        <div class="p-day">
+          <div class="l1"><span class="dd">14일</span><span>후쿠오카 → 유후인</span></div>
+          <div class="l2"><span class="tag ok">확정</span>잠 료칸 산스이칸</div>
+        </div>
+
+        <div class="p-day">
+          <div class="l1"><span class="dd">15일</span><span>유후인</span></div>
+          <div class="l2"><span class="tag ok">확정</span>잠 료칸 산스이칸</div>
+        </div>
+        <div class="p-open">
+          <p><b>오전·오후</b> · 정하는 중 · <b>10월 24일까지 정해요</b></p>
+          <button class="btn" type="button"><svg class="i" aria-hidden="true"><use href="#i-hand"/></svg>궁금해요</button>
+        </div>
+
+        <div class="p-day">
+          <div class="l1"><span class="dd">16일</span><span>유후인 → 벳푸</span></div>
+          <div class="l2"><span class="tag ok">확정</span>잠 스기노이 호텔</div>
+        </div>
+        <div class="p-open">
+          <p><b>저녁</b> · 정하는 중 · <b>10월 31일까지 정해요</b></p>
+          <button class="btn" type="button"><svg class="i" aria-hidden="true"><use href="#i-hand"/></svg>궁금해요</button>
+        </div>
+
+        <div class="p-day">
+          <div class="l1"><span class="dd">17일</span><span>벳푸 → 인천</span></div>
+          <div class="l2"><span class="tag ok">확정</span>집으로 · 인천 오후 4:10 도착</div>
+        </div>
+      </div>
+
+      <nav class="p-nav" aria-label="어머니 화면 메뉴"><span>일정</span><span>챙길 것</span><span>소식</span></nav>
+    </div>
+    <p class="p-note">후보 이름은 이 화면에 나가지 않아요. 글자 입력 칸도 없고, “궁금해요”는 한 번 누르면 계획자 화면에 조용한 표시로만 남아요.</p>
+  </aside>
+
+</main>
+</body>
+</html>

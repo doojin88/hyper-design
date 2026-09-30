@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>구조 A — 한 장의 일정, 두 개의 렌즈</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    font-size: 14px; line-height: 1.45; color: #111; background: #fff;
+    word-break: keep-all; overflow-wrap: anywhere;
+  }
+  button, input { font: inherit; color: inherit; }
+  button {
+    background: #fff; border: 1px solid #444; padding: 4px 8px; cursor: pointer; border-radius: 0;
+  }
+  button.strong { background: #111; color: #fff; border-color: #111; }
+  input[type=text], input[type=date] { border: 1px solid #444; padding: 4px 6px; background: #fff; min-width: 0; border-radius: 0; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  small { color: #555; font-size: 12px; }
+
+  .sheet { padding: 12px 16px 4px; border-bottom: 1px solid #bbb; }
+  .sheet h1 { font-size: 16px; margin: 0 0 2px; }
+  .sheet p { margin: 0 0 8px; color: #444; }
+
+  .wrap { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; padding: 16px; }
+  .col { min-width: 0; }
+  .col.planner { flex: 1 1 480px; max-width: 780px; }
+  .col.parent { flex: 0 1 390px; }
+  .who { font-size: 12px; color: #444; border: 1px solid #bbb; border-bottom: 0; padding: 4px 8px; background: #f2f2f2; }
+  .who b { color: #111; }
+  .frame { border: 2px solid #111; min-width: 0; }
+  .memo { margin: 8px 0 0; padding: 6px 8px; border: 1px dashed #777; color: #444; font-size: 12px; }
+  .memo li { margin: 2px 0; padding-left: 10px; text-indent: -10px; }
+
+  .tag { display: inline-block; font-size: 11px; padding: 0 5px; line-height: 17px; vertical-align: 1px; white-space: nowrap; }
+  .tag.c { background: #111; color: #fff; border: 1px solid #111; }
+  .tag.s { background: #fff; color: #111; border: 1px dashed #111; }
+  .tag.n { background: #ddd; color: #111; border: 1px solid #777; }
+  .kind { color: #555; font-size: 12px; }
+
+  /* planner */
+  .p-head { padding: 10px 12px; border-bottom: 1px solid #111; }
+  .p-head h2 { font-size: 17px; margin: 0; }
+  .p-head .meta { color: #444; }
+  .p-stat { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 8px 12px; border-bottom: 1px solid #bbb; background: #f2f2f2; }
+  .news { padding: 10px 12px; border-bottom: 2px solid #111; }
+  .news h3 { font-size: 14px; margin: 0 0 4px; }
+  .news li { padding: 4px 0; border-top: 1px solid #ddd; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+  .news li .tx { flex: 1 1 200px; min-width: 0; }
+  .news .quiet { color: #555; margin: 6px 0; }
+  .news .act { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
+  .day { border-bottom: 1px solid #111; }
+  .day > h3 { margin: 0; padding: 6px 12px; font-size: 14px; background: #ddd; border-bottom: 1px solid #777; }
+  .day > h3 span { font-weight: normal; color: #444; }
+  .row { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: flex-start; padding: 7px 12px; border-top: 1px solid #ddd; }
+  .row:first-child { border-top: 0; }
+  .mv { display: flex; gap: 2px; flex: 0 0 auto; }
+  .mv button { padding: 0 5px; border-color: #bbb; color: #444; }
+  .tm { flex: 0 0 42px; font-variant-numeric: tabular-nums; }
+  .bd { flex: 1 1 170px; min-width: 0; }
+  .bd small { display: block; }
+  .btns { display: flex; flex-wrap: wrap; gap: 4px; flex: 0 0 auto; }
+  .form { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 6px; padding: 6px; border: 1px solid #444; background: #f2f2f2; }
+  .form input[type=text] { flex: 1 1 140px; }
+  .form input.t { flex: 0 1 70px; }
+  .slot { margin: 8px 12px; border: 1px dashed #111; }
+  .slot-h { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; padding: 6px 8px; border-bottom: 1px dashed #777; }
+  .slot-h .ttl { flex: 1 1 120px; min-width: 0; }
+  .slot-h label { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+  .slot .row { padding: 6px 8px; }
+  .slot .add { display: flex; gap: 6px; padding: 6px 8px; border-top: 1px solid #ddd; }
+  .slot .add input { flex: 1 1 100px; }
+  .lens { padding: 5px 8px; border-top: 1px dashed #777; background: #f2f2f2; font-size: 12px; color: #444; }
+  .ask { padding: 5px 8px; border-top: 1px dashed #777; font-size: 12px; color: #444; }
+
+  /* parent */
+  .parent .frame { font-size: 17px; line-height: 1.4; }
+  .parent small { font-size: 14px; }
+  .parent .tag { font-size: 13px; line-height: 20px; padding: 0 6px; }
+  .m-head { padding: 12px 14px 10px; border-bottom: 1px solid #111; }
+  .m-head .trip { font-size: 15px; color: #444; }
+  .m-head .big { font-size: 32px; font-weight: bold; line-height: 1.15; }
+  .m-head .dates { margin-top: 4px; }
+  .flow li { display: flex; gap: 10px; padding: 6px 14px; border-bottom: 1px solid #ddd; align-items: baseline; }
+  .flow .d { flex: 0 0 62px; font-weight: bold; }
+  .flow .w { flex: 1 1 0; min-width: 0; }
+  .flow .w small { display: block; color: #444; }
+  .m-news { margin: 12px 14px; border: 2px solid #111; padding: 10px 12px; }
+  .m-news h3 { margin: 0 0 4px; font-size: 18px; }
+  .m-news li { padding: 6px 0; border-top: 1px solid #ddd; }
+  .m-news .q { color: #444; font-size: 14px; margin: 6px 0 0; }
+  .m-day > h3 { margin: 0; padding: 8px 14px; font-size: 17px; background: #ddd; border-top: 1px solid #111; border-bottom: 1px solid #777; }
+  .m-day > h3 span { font-weight: normal; color: #444; font-size: 15px; }
+  .m-row { padding: 9px 14px; border-top: 1px solid #ddd; }
+  .m-row:first-child { border-top: 0; }
+  .m-row .t { color: #444; font-size: 15px; }
+  .m-row .n { font-weight: bold; }
+  .m-row small { display: block; color: #444; }
+  .m-row.open { border: 1px dashed #111; margin: 8px 14px; padding: 9px 10px; background: #f2f2f2; }
+  .m-row.open .n { font-weight: normal; }
+  .m-row.open button { margin-top: 6px; padding: 8px 14px; font-size: 16px; min-height: 44px; }
+  .m-nav { display: flex; border-top: 2px solid #111; background: #fff; position: sticky; bottom: 0; }
+  .m-nav span { flex: 1 1 0; text-align: center; padding: 12px 4px; border-left: 1px solid #bbb; font-size: 16px; }
+  .m-nav span:first-child { border-left: 0; font-weight: bold; background: #ddd; }
+
+  @media (max-width: 700px) {
+    .sheet { padding: 8px 8px 2px; }
+    .wrap { flex-direction: column; padding: 8px; gap: 20px; }
+    .col.planner, .col.parent { flex: 0 0 auto; width: 100%; max-width: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <h1>구조 A — 한 장의 일정, 두 개의 렌즈</h1>
+  <p>일정표는 하나. 항목마다 확정/후보 상태가 있고, 부모 화면은 같은 일정표를 자동으로 걸러 보여준다. 왼쪽에서 고치면 오른쪽이 바로 따라 바뀐다.</p>
+</div>
+
+<div class="wrap">
+  <section class="col planner">
+    <div class="who"><b>계획자 화면</b> · 박지현(첫째, 38) · 일정을 고치는 화면</div>
+    <div class="frame" id="planner"></div>
+    <ul class="memo">
+      <li>· 공개 단추가 없다. "확정으로"를 누르는 것이 곧 부모에게 보이게 하는 행동이다.</li>
+      <li>· 후보를 더하고 고치고 지워도 "보낼 소식" 건수는 그대로다. 확정 항목이 생기거나 바뀔 때만 1건씩 쌓인다.</li>
+      <li>· 알림은 "소식 보내기"를 누를 때 한 묶음으로 1번. 모이는 시각이 바뀐 것만 바로 보내기를 권한다.</li>
+    </ul>
+  </section>
+
+  <section class="col parent">
+    <div class="who"><b>부모 화면</b> · 김순자(어머니, 65) · 같은 일정표를 걸러 본 화면</div>
+    <div class="frame" id="parent"></div>
+    <ul class="memo">
+      <li>· 후보 이름은 한 글자도 나오지 않는다. 후보가 모인 자리는 "정하는 중 · 언제까지 정해요" 한 칸이다.</li>
+      <li>· 일정표는 늘 지금 상태다. 알림이 오기 전에 열어도 바뀐 확정 항목은 이전 값과 함께 보인다.</li>
+      <li>· 글자 입력 칸 없음. 묻고 싶으면 "궁금해요" 한 번. 계획자 쪽에는 조용한 한 줄로만 남는다.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(function () {
+  var DOW = ['일', '월', '화', '수', '목', '금', '토'];
+
+  var S = {
+    me: '어머니',
+    edits: 14,
+    editing: { d: 0, i: 3, c: 1 },
+    days: [
+      { md: '11/12', day: 12, dow: '목', city: '후쿠오카', sleep: '호텔 닛코 후쿠오카', items: [
+        { t: 'c', time: '10:25', kind: '이동', title: '인천 → 후쿠오카 · 대한항공 KE787', note: '11:50 도착 · 모임 08:00 인천공항 2터미널 H카운터 앞', chg: { oldTime: '09:10' } },
+        { t: 'c', time: '12:40', kind: '이동', title: '후쿠오카공항 → 호텔 · 택시 2대', note: '약 20분' },
+        { t: 'c', time: '15:00', kind: '숙박', title: '호텔 닛코 후쿠오카 체크인 (2박)', note: '하카타역에서 걸어서 3분' },
+        { t: 's', time: '18:30', label: '저녁 식사', due: '2026-10-10', asks: ['아버지'], cands: [
+          { name: '하카타 모츠나베 오오야마 본점', memo: '의자 자리 예약 가능' },
+          { name: '간소 하카타 멘타이쥬', memo: '줄이 길다, 서윤이 매울 수도' },
+          { name: '우동 다이라', memo: '저녁에 일찍 닫는지 확인' }
+        ] }
+      ] },
+      { md: '11/13', day: 13, dow: '금', city: '후쿠오카', sleep: '호텔 닛코 후쿠오카', items: [
+        { t: 'c', time: '10:00', kind: '활동', title: '다자이후 텐만구 참배', note: '니시테쓰 전철 약 35분', chg: { oldTime: '14:00' } },
+        { t: 'c', time: '13:30', kind: '활동', title: '오호리 공원 산책', note: '평지, 벤치 많음' },
+        { t: 's', time: '15:30', label: '오후 일정', due: '2026-10-17', asks: [], cands: [
+          { name: '캐널시티 하카타', memo: '분수 쇼, 서윤이 좋아할 듯' },
+          { name: '후쿠오카시 동식물원', memo: '걷는 양이 많음' }
+        ] },
+        { t: 's', time: '18:30', label: '저녁 식사', due: '2026-10-17', asks: [], cands: [
+          { name: '효탄스시 본점', memo: '6명 자리 가능한지 전화' },
+          { name: '나카스 야타이 거리', memo: '서서 먹는 곳이 많음, 아버지 무릎' }
+        ] }
+      ] },
+      { md: '11/14', day: 14, dow: '토', city: '후쿠오카 → 유후인', sleep: '유후인 료칸 호테이야', items: [
+        { t: 'c', time: '08:40', kind: '이동', title: '호텔 → 하카타역 · 걸어서 3분', note: '큰 짐은 전날 료칸으로 택배' },
+        { t: 'c', time: '09:17', kind: '이동', title: '하카타 → 유후인 · 특급 유후인노모리 1호', note: '11:31 도착 · 지정석 6석' },
+        { t: 'c', time: '15:00', kind: '숙박', title: '유후인 료칸 호테이야 체크인 (2박)', note: '별채 2동, 가족탕 · 9/6 소식으로 보냄(← 유후인 산스이칸)' },
+        { t: 'c', time: '18:00', kind: '식사', title: '료칸 가이세키 저녁', note: '숙박에 포함' }
+      ] },
+      { md: '11/15', day: 15, dow: '일', city: '유후인', sleep: '유후인 료칸 호테이야', items: [
+        { t: 'c', time: '07:30', kind: '활동', title: '긴린코 호수 아침 산책', note: '숙소에서 걸어서 10분', chg: { isNew: true } },
+        { t: 's', time: '12:00', label: '점심 식사', due: '2026-10-24', asks: [], cands: [
+          { name: '유후마부시 신 긴린코 본점', memo: '솥밥, 대기 40분쯤' },
+          { name: '이나카안', memo: '소바, 좌식만 있음' }
+        ] },
+        { t: 'c', time: '13:30', kind: '활동', title: '유노쓰보 거리 구경', note: '9/6 소식으로 보냄(← 10:00)' },
+        { t: 's', time: '15:30', label: '오후 일정', due: '2026-10-24', asks: [], cands: [
+          { name: '유후인 플로럴 빌리지', memo: '서윤이용, 30분이면 충분' },
+          { name: '코미코 아트 뮤지엄 유후인', memo: '조용함, 예약제' }
+        ] },
+        { t: 'c', time: '18:00', kind: '식사', title: '료칸 저녁 (둘째 날)', note: '숙박에 포함' }
+      ] },
+      { md: '11/16', day: 16, dow: '월', city: '유후인 → 벳푸', sleep: '벳푸 스기노이 호텔', items: [
+        { t: 'c', time: '10:30', kind: '이동', title: '유후인 → 벳푸 · 가메노이 버스 유후린', note: '약 50분' },
+        { t: 'c', time: '13:00', kind: '활동', title: '벳푸 지옥 온천 순례 (우미지고쿠·가마도지고쿠)', note: '9/20 소식으로 보냄(← 15:00)' },
+        { t: 'c', time: '15:30', kind: '숙박', title: '벳푸 스기노이 호텔 체크인 (1박)', note: '9/20 소식으로 보냄(1박 추가)' },
+        { t: 's', time: '18:30', label: '저녁 식사', due: '2026-10-31', asks: [], cands: [
+          { name: '도요쓰네 본점', memo: '도리텐·텐동, 벳푸역 앞' }
+        ] }
+      ] },
+      { md: '11/17', day: 17, dow: '화', city: '벳푸 → 후쿠오카 → 인천', sleep: null, items: [
+        { t: 'c', time: '11:12', kind: '이동', title: '벳푸 → 하카타 · 특급 소닉 22호', note: '약 2시간' },
+        { t: 'c', time: '18:10', kind: '이동', title: '후쿠오카 → 인천 · 대한항공 KE790', note: '19:35 도착 · 9/6 소식으로 보냄(← 15:40)' }
+      ] }
+    ],
+    pending: [
+      { label: '11/12(목) 가는 비행기 출발', toTime: '10:25', fromTime: '09:10', urgent: true, extra: '모이는 시각도 08:00으로 (← 06:45)' },
+      { label: '11/13(금) 다자이후 텐만구 참배', toTime: '10:00', fromTime: '14:00' },
+      { label: '11/15(일) 아침', toText: '긴린코 호수 아침 산책', isNew: true }
+    ],
+    sent: [
+      { date: '9/20(일)', dateP: '9월 20일(일)', n: 2, fresh: false },
+      { date: '9/6(일)', dateP: '9월 6일(일)', n: 4, fresh: false }
+    ]
+  };
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function pTime(t) {
+    var m = /^(\d{1,2}):(\d{2})$/.exec(t || '');
+    if (!m) return t || '';
+    var h = +m[1], mm = m[2];
+    var ap = h < 12 ? '오전' : (h < 18 ? '오후' : '저녁');
+    var h12 = h % 12 === 0 ? 12 : h % 12;
+    return ap + ' ' + h12 + (mm === '00' ? '시' : ':' + mm);
+  }
+  function due(iso, parent) {
+    var dt = new Date(iso + 'T00:00:00');
+    if (isNaN(dt)) return iso;
+    var m = dt.getMonth() + 1, d = dt.getDate(), w = DOW[dt.getDay()];
+    return parent ? (m + '월 ' + d + '일') : (m + '/' + d + '(' + w + ')');
+  }
+  function newsLine(n, parent) {
+    if (n.isNew) return esc(n.label) + ' 정해짐: <b>' + esc(n.toText) + '</b>';
+    if (n.fromTime) {
+      return esc(n.label) + ' <b>' + esc(parent ? pTime(n.toTime) : n.toTime) + '</b> ← ' +
+        esc(parent ? pTime(n.fromTime) : n.fromTime);
+    }
+    return esc(n.label) + ' <b>' + esc(n.toText) + '</b> ← ' + esc(n.fromText);
+  }
+  function counts() {
+    var c = 0, k = 0, s = 0;
+    S.days.forEach(function (d) {
+      d.items.forEach(function (it) {
+        if (it.t === 'c') c++; else { s++; k += it.cands.length; }
+      });
+    });
+    return { conf: c, cand: k, slots: s, all: c + k };
+  }
+  function at(d, i, c) { return ' data-d="' + d + '" data-i="' + i + '"' + (c == null ? '' : ' data-c="' + c + '"'); }
+  function isEd(d, i, c) {
+    var e = S.editing;
+    return e && e.d === d && e.i === i && (e.c == null ? c == null : e.c === c);
+  }
+
+  /* ---------- 계획자 ---------- */
+  function renderPlanner() {
+    var n = counts(), h = '';
+    var sentTotal = S.sent.reduce(function (a, b) { return a + b.n; }, 0);
+
+    h += '<div class="p-head"><h2>규슈 가족여행 일정</h2>' +
+      '<div class="meta">2026-11-12(목) ~ 11-17(화) · 5박 6일 · 후쿠오카 2박 → 유후인 2박 → 벳푸 1박 · 가족 6명</div>' +
+      '<div class="meta">오늘 9/30(수) · 출발 43일 전 · 준비 시작 8/20(목)</div></div>';
+
+    h += '<div class="p-stat"><span>일정 항목 <b>' + n.all + '</b>개</span>' +
+      '<span><span class="tag c">확정</span> <b>' + n.conf + '</b>개</span>' +
+      '<span><span class="tag s">후보</span> <b>' + n.cand + '</b>개 (자리 ' + n.slots + '곳)</span></div>';
+
+    h += '<div class="news"><h3>가족에게 보낼 소식 ' + S.pending.length + '건</h3>';
+    if (S.pending.length) {
+      h += '<ul>';
+      S.pending.forEach(function (p, k) {
+        h += '<li><span class="tx">' + newsLine(p, false) +
+          (p.extra ? ' <small>' + esc(p.extra) + '</small>' : '') + '</span>';
+        if (p.urgent) {
+          h += '<small>모이는 시각이 바뀜 · 바로 보내기를 권해요</small>' +
+            '<button data-act="sendone" data-k="' + k + '">이것만 바로 보내기</button>';
+        }
+        h += '</li>';
+      });
+      h += '</ul>';
+    } else {
+      h += '<div class="quiet">보낼 소식이 없습니다.</div>';
+    }
+    h += '<div class="quiet">지난 소식 뒤 후보를 더하고 고친 것 <b>' + S.edits + '번</b> — 소식에 들어가지 않습니다.</div>';
+    h += '<div class="act"><button class="strong" data-act="send"' + (S.pending.length ? '' : ' disabled') +
+      '>소식 보내기 (한 묶음 · 알림 1번)</button>' +
+      '<small>받는 사람 5명: 박영수·김순자·이준호·박민재 (서윤 몫은 이준호)</small></div>';
+    h += '<div class="quiet">보낸 소식: ' + S.sent.map(function (b) { return b.date + ' ' + b.n + '건'; }).join(' · ') +
+      ' · 변경 이력 모두 ' + (sentTotal + S.pending.length) + '건</div></div>';
+
+    S.days.forEach(function (day, d) {
+      h += '<div class="day"><h3>' + day.md + '(' + day.dow + ') ' + esc(day.city) +
+        ' <span>· ' + (day.sleep ? '숙박 ' + esc(day.sleep) : '귀국') + '</span></h3><ul>';
+      day.items.forEach(function (it, i) {
+        var mv = '<span class="mv"><button data-act="up"' + at(d, i) + ' aria-label="위로">↑</button>' +
+          '<button data-act="dn"' + at(d, i) + ' aria-label="아래로">↓</button></span>';
+        if (it.t === 'c') {
+          h += '<li class="row">' + mv + '<span class="tm">' + esc(it.time) + '</span><span class="bd">' +
+            '<span class="tag c">확정</span> <span class="kind">' + esc(it.kind) + '</span> <b>' + esc(it.title) + '</b>' +
+            (it.note ? '<small>' + esc(it.note) + '</small>' : '');
+          if (it.chg && !it.chg.sent) {
+            h += '<small>' + (it.chg.isNew ? '새로 확정' : '바뀜 ← ' + esc(it.chg.oldTime || it.chg.oldTitle)) +
+              ' · 부모 일정표에는 이미 반영, 알림은 아직 안 감</small>';
+          }
+          h += '</span><span class="btns"><button data-act="edit"' + at(d, i) + '>고치기</button></span>';
+          if (isEd(d, i)) {
+            h += '<div class="form"><input class="t" type="text" data-f="time" value="' + esc(it.time) + '" aria-label="시각">' +
+              '<input type="text" data-f="title" value="' + esc(it.title) + '" aria-label="내용">' +
+              '<button class="strong" data-act="save"' + at(d, i) + '>저장</button>' +
+              '<button data-act="cancel">취소</button>' +
+              '<small>확정 항목을 고치면 보낼 소식에 1건 쌓입니다.</small></div>';
+          }
+          h += '</li>';
+        } else {
+          h += '<li class="slot"><div class="slot-h">' + mv + '<span class="tm">' + esc(it.time) + '</span>' +
+            '<span class="ttl"><b>' + esc(it.label) + '</b> · 후보 ' + it.cands.length + '개</span>' +
+            '<label><input type="date" data-act="due"' + at(d, i) + ' value="' + esc(it.due) + '"> 까지 정하기</label></div><ul>';
+          it.cands.forEach(function (c, ci) {
+            h += '<li class="row"><span class="bd"><span class="tag s">후보</span> <b>' + esc(c.name) + '</b>' +
+              (c.memo ? '<small>' + esc(c.memo) + '</small>' : '') + '</span><span class="btns">' +
+              '<button data-act="edit"' + at(d, i, ci) + '>고치기</button>' +
+              '<button data-act="del"' + at(d, i, ci) + '>지우기</button>' +
+              '<button class="strong" data-act="confirm"' + at(d, i, ci) + '>확정으로</button></span>';
+            if (isEd(d, i, ci)) {
+              h += '<div class="form"><input type="text" data-f="name" value="' + esc(c.name) + '" aria-label="후보 이름">' +
+                '<input type="text" data-f="memo" value="' + esc(c.memo) + '" aria-label="메모">' +
+                '<button class="strong" data-act="save"' + at(d, i, ci) + '>저장</button>' +
+                '<button data-act="cancel">취소</button>' +
+                '<small>후보는 몇 번을 고쳐도 가족에게 가지 않습니다.</small></div>';
+            }
+            h += '</li>';
+          });
+          h += '</ul><div class="add"><input type="text" placeholder="후보 이름" aria-label="새 후보 이름">' +
+            '<button data-act="add"' + at(d, i) + '>후보 더하기</button></div>' +
+            '<div class="lens">부모 화면에는 이렇게: "' + esc(it.label) + ' — 정하는 중 · ' + due(it.due, true) + '까지 정해요"</div>';
+          if (it.asks.length) {
+            h += '<div class="ask">' + esc(it.asks.join('·')) + '가 "궁금해요"를 눌렀어요 · 답장은 필요 없고, 확정하면 소식에 담깁니다</div>';
+          }
+          h += '</li>';
+        }
+      });
+      h += '</ul></div>';
+    });
+    document.getElementById('planner').innerHTML = h;
+  }
+
+  /* ---------- 부모 ---------- */
+  function renderParent() {
+    var h = '';
+    h += '<div class="m-head"><div class="trip">규슈 가족여행 · 여섯 식구</div>' +
+      '<div class="big">출발까지 43일</div>' +
+      '<div class="dates">가는 날 <b>11월 12일(목)</b><br>오는 날 <b>11월 17일(화)</b> · 5박 6일</div></div>';
+
+    h += '<ul class="flow">';
+    S.days.forEach(function (day) {
+      var open = day.items.filter(function (it) { return it.t === 's'; }).length;
+      h += '<li><span class="d">' + day.day + '일(' + day.dow + ')</span><span class="w"><b>' + esc(day.city) + '</b>' +
+        '<small>' + (day.sleep ? '잠: ' + esc(day.sleep) : '집으로 · 인천 저녁 7:35 도착') +
+        (open ? ' · 정하는 중 ' + open + '곳' : '') + '</small></span></li>';
+    });
+    h += '</ul>';
+
+    var last = S.sent[0];
+    h += '<div class="m-news">';
+    if (last && last.fresh) {
+      h += '<h3>새 소식 · ' + esc(last.dateP) + ' · ' + last.items.length + '가지</h3><ul>';
+      last.items.forEach(function (p) { h += '<li>' + newsLine(p, true) + (p.extra ? '<br><small>' + esc(p.extra) + '</small>' : '') + '</li>'; });
+      h += '</ul>';
+    }
+    if (S.pending.length) {
+      h += '<h3>지난 소식 뒤에 바뀐 것 ' + S.pending.length + '가지</h3><ul>';
+      S.pending.forEach(function (p) { h += '<li>' + newsLine(p, true) + (p.extra ? '<br><small>' + esc(p.extra) + '</small>' : '') + '</li>'; });
+      h += '</ul>';
+    } else if (!(last && last.fresh)) {
+      h += '<h3>바뀐 것 없음</h3>';
+    }
+    h += '<p class="q">일정표에는 늘 지금 정해진 대로 나와 있어요. 알림은 지현이가 묶어서 한 번만 보내요.</p></div>';
+
+    S.days.forEach(function (day, d) {
+      h += '<div class="m-day"><h3>11월 ' + day.day + '일(' + day.dow + ') <span>' + esc(day.city) + '</span></h3><div>';
+      day.items.forEach(function (it, i) {
+        if (it.t === 'c') {
+          h += '<div class="m-row"><div class="t">' + esc(pTime(it.time)) + ' <span class="tag c">확정</span>';
+          if (it.chg) h += ' <span class="tag n">' + (it.chg.isNew ? '새로 정해짐' : '바뀜') + '</span>';
+          h += '</div><div class="n">' + esc(it.title) + '</div>';
+          if (it.chg && it.chg.oldTime) h += '<small><b>' + esc(pTime(it.time)) + '</b> ← ' + esc(pTime(it.chg.oldTime)) + '</small>';
+          if (it.chg && it.chg.oldTitle) h += '<small>← ' + esc(it.chg.oldTitle) + '</small>';
+          h += '</div>';
+        } else {
+          var asked = it.asks.indexOf(S.me) >= 0;
+          h += '<div class="m-row open"><div class="t">' + esc(pTime(it.time)) + '쯤 · ' + esc(it.label) + '</div>' +
+            '<div class="n">정하는 중 · <b>' + due(it.due, true) + '까지 정해요</b></div>' +
+            (asked ? '<small>궁금하다고 전했어요. 정해지면 소식으로 와요.</small>'
+                   : '<button data-act="ask"' + at(d, i) + '>궁금해요</button>') + '</div>';
+        }
+      });
+      h += '</div></div>';
+    });
+
+    h += '<div class="m-nav"><span>일정</span><span>챙길 것</span><span>소식</span></div>';
+    document.getElementById('parent').innerHTML = h;
+  }
+
+  function render() { renderPlanner(); renderParent(); }
+
+  /* ---------- 동작 ---------- */
+  function dayLabel(d) { return S.days[d].md + '(' + S.days[d].dow + ')'; }
+
+  function act(a, el) {
+    var d = el.dataset.d == null ? null : +el.dataset.d;
+    var i = el.dataset.i == null ? null : +el.dataset.i;
+    var c = el.dataset.c == null ? null : +el.dataset.c;
+    var items = d == null ? null : S.days[d].items;
+    var it = items && i != null ? items[i] : null;
+
+    if (a === 'up' || a === 'dn') {
+      var j = a === 'up' ? i - 1 : i + 1;
+      if (j < 0 || j >= items.length) return;
+      items[i] = items[j]; items[j] = it;
+      S.edits++; S.editing = null;
+    } else if (a === 'edit') {
+      S.editing = isEd(d, i, c) ? null : { d: d, i: i, c: c };
+    } else if (a === 'cancel') {
+      S.editing = null;
+    } else if (a === 'save') {
+      var form = el.closest('.form');
+      var val = function (f) { var x = form.querySelector('[data-f="' + f + '"]'); return x ? x.value.trim() : ''; };
+      if (c != null) {
+        var cand = it.cands[c];
+        if (val('name')) cand.name = val('name');
+        cand.memo = val('memo');
+        S.edits++;
+      } else {
+        var nt = val('time'), nn = val('title');
+        if (nt && nt !== it.time) {
+          S.pending.push({ label: dayLabel(d) + ' ' + it.title, toTime: nt, fromTime: it.time });
+          it.chg = { oldTime: it.time }; it.time = nt;
+        }
+        if (nn && nn !== it.title) {
+          S.pending.push({ label: dayLabel(d) + ' ' + it.kind, toText: nn, fromText: it.title });
+          it.chg = { oldTitle: it.title }; it.title = nn;
+        }
+      }
+      S.editing = null;
+    } else if (a === 'del') {
+      it.cands.splice(c, 1); S.edits++; S.editing = null;
+    } else if (a === 'add') {
+      var inp = el.parentNode.querySelector('input');
+      var name = inp ? inp.value.trim() : '';
+      if (!name) { if (inp) inp.focus(); return; }
+      it.cands.push({ name: name, memo: '' }); S.edits++;
+    } else if (a === 'confirm') {
+      var ch = it.cands[c];
+      items[i] = { t: 'c', time: it.time, kind: it.label.indexOf('식사') >= 0 ? '식사' : '활동', title: ch.name, note: ch.memo, chg: { isNew: true } };
+      S.pending.push({ label: dayLabel(d) + ' ' + it.label, toText: ch.name, isNew: true });
+      S.editing = null;
+    } else if (a === 'send' || a === 'sendone') {
+      var go;
+      if (a === 'sendone') { go = S.pending.splice(+el.dataset.k, 1); }
+      else { go = S.pending; S.pending = []; S.edits = 0; }
+      if (!go.length) return;
+      if (S.sent[0] && S.sent[0].fresh) { S.sent[0].items = S.sent[0].items.concat(go); S.sent[0].n = S.sent[0].items.length; }
+      else S.sent.unshift({ date: '9/30(수)', dateP: '9월 30일(수)', n: go.length, items: go, fresh: true });
+      S.days.forEach(function (day) { day.items.forEach(function (x) {
+        if (x.chg && a === 'send') x.chg.sent = true;
+      }); });
+      if (a === 'sendone') S.days[0].items.forEach(function (x) { if (x.chg && x.chg.oldTime === '09:10') x.chg.sent = true; });
+    } else if (a === 'ask') {
+      if (it.asks.indexOf(S.me) < 0) it.asks.push(S.me);
+    } else {
+      return;
+    }
+    render();
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('button[data-act]');
+    if (el && !el.disabled) act(el.dataset.act, el);
+  });
+  document.addEventListener('change', function (e) {
+    var el = e.target;
+    if (el.dataset && el.dataset.act === 'due' && el.value) {
+      S.days[+el.dataset.d].items[+el.dataset.i].due = el.value;
+      S.edits++;
+      render();
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

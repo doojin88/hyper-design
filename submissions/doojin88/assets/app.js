@@ -68,6 +68,8 @@
     var t = { fixed: '확정', cand: '후보', wait: '정하는 중', warn: '마감 임박', changed: '바뀜', done: '끝남' }[k];
     return '<span class="mark mark--' + k + '">' + t + '</span>';
   }
+  function was(v) { return '전에는 <span class="was">' + esc(v) + '</span>';
+  }
   function who(db, id) { return db.members.filter(function (m) { return m.id === id; })[0]; }
   function call(db, id) { var m = who(db, id); return m.role === 'parent' ? m.rel : m.name.slice(1); }
   function avatar(db, id) { return '<span class="avatar" aria-hidden="true">' + esc(call(db, id).slice(0, 1)) + '</span>'; }
@@ -107,7 +109,7 @@
     return sd(t.due) + '까지';
   }
   function urgent(db, t) { return !t.done && diff(db.today, t.due) <= 1; }
-  function changeLine(c) { return c.from === '정하는 중' ? '새로 정해졌어요' : '전에는 ' + esc(c.from) + (c.why ? ' · ' + esc(c.why) : ''); }
+  function changeLine(c) { return c.from === '정하는 중' ? '새로 정해졌어요' : was(c.from) + (c.why ? ' · ' + esc(c.why) : ''); }
 
   /* ---------- 상태를 바꾸는 행동 ---------- */
   function addChange(db, o) {
@@ -200,7 +202,7 @@
     return '<li class="row">' +
       '<span class="time">' + esc(it.time) + '</span>' +
       '<div class="row-main"><p class="row-title"><span class="kind">' + ic(it.kind) + '<span class="sr">' + KIND[it.kind] + '</span></span>' + esc(it.title) + ' ' + mark('fixed') + '</p>' +
-      '<p class="row-sub">' + esc(it.place) + (it.was ? ' · <span class="was">전에는 ' + esc(it.was) + '</span>' : '') + '</p></div>' +
+      '<p class="row-sub">' + esc(it.place) + (it.was ? ' · ' + was(it.was) : '') + '</p></div>' +
       '<div class="row-acts">' + mv + '<button class="icon-btn" data-act="edit" data-id="' + it.id + '" aria-label="' + esc(it.title) + ' 고치기">' + ic('edit') + '</button></div></li>';
   }
   function moveBtns(db, n, idx, total) {
@@ -236,7 +238,9 @@
       '<label class="field field--grow"><span>무엇을</span><input class="input" name="title" value="' + esc(it.title) + '" required></label>' +
       '<label class="field field--grow"><span>장소·메모</span><input class="input" name="place" value="' + esc(it.place) + '"></label>' +
       '<p class="hint">' + (fixed ? '확정 항목을 고치면 "가족에게 보낼 소식"에 담겨요. 바로 알림이 가지는 않아요.' : '후보를 고친 것은 가족에게 가지 않아요. 마음 편히 고치세요.') + '</p>' +
-      '<div class="form-acts">' + (it.locked ? '' : '<button type="button" class="btn btn--quiet btn--sm" data-act="del" data-id="' + it.id + '">지우기</button>') +
+      '<div class="form-acts">' + (it.locked ? '' : '<button type="button" class="btn btn--quiet btn--sm" data-act="move" data-day="' + n + '" data-idx="' + idx + '" data-dir="-1">' + ic('up') + '위로</button>' +
+        '<button type="button" class="btn btn--quiet btn--sm" data-act="move" data-day="' + n + '" data-idx="' + idx + '" data-dir="1">' + ic('down') + '아래로</button>' +
+        '<button type="button" class="btn btn--quiet btn--sm" data-act="del" data-id="' + it.id + '">지우기</button>') +
       '<button type="button" class="btn btn--quiet btn--sm" data-act="cancel">취소</button><button class="btn btn--line btn--sm">저장</button></div></form></li>';
   }
   function addForm(n) {
@@ -300,7 +304,7 @@
     } else {
       h += '<section class="card card--bundle"><h2 class="h2">이번에 보낼 것 ' + p.length + '건</h2>' +
         '<ul class="rows">' + p.map(function (c) {
-          return '<li class="row"><span class="kind kind--lg">' + ic(c.kind) + '</span><div class="row-main"><p class="row-title">' + esc(c.text) + ' <b class="to">' + esc(c.to) + '</b>' + (c.meet ? ' ' + mark('changed') : '') + '</p>' +
+          return '<li class="row"><span class="kind kind--lg">' + ic(c.kind) + '</span><div class="row-main"><p class="row-title">' + esc(c.text) + ' <b class="to">' + esc(c.to) + '</b>' + (c.meet ? ' ' + mark('changed').replace('바뀜', '모이는 시각 바뀜') : '') + '</p>' +
             '<p class="row-sub">' + changeLine(c) + ' · ' + sd(c.at) + '에 고침</p></div></li>';
         }).join('') + '</ul>' +
         '<form class="form form--send" data-form="send"><label class="field field--grow"><span>소식 제목</span><input class="input" name="title" value="' + esc(defaultTitle(db)) + '" required></label>' +
@@ -328,9 +332,9 @@
     if (opt.assign) right = '<label class="sr" for="as-' + t.id + '">맡길 사람</label><select class="input input--sm" id="as-' + t.id + '" data-change="assign" data-id="' + t.id + '"><option value="">맡길 사람 고르기</option>' +
       db.members.filter(function (m) { return m.role !== 'child'; }).map(function (m) { return '<option value="' + m.id + '">' + call(db, m.id) + '</option>'; }).join('') + '</select>';
     if (opt.take) right = '<button class="btn btn--line btn--sm" data-act="take" data-id="' + t.id + '">내가 맡기</button>';
-    var box = opt.assign || opt.take ? '<span class="box box--none" aria-hidden="true"></span>'
+    var box = opt.assign || opt.take ? ''
       : '<button class="box' + (t.done ? ' is-on' : '') + '" role="checkbox" aria-checked="' + (t.done ? 'true' : 'false') + '" data-act="toggle" data-id="' + t.id + '" aria-label="' + esc(t.title) + (t.done ? ' 끝냄 취소' : ' 끝냄 표시') + '">' + ic('check') + '</button>';
-    return '<li class="row' + (t.done ? ' is-done' : '') + '">' + box + '<div class="row-main"><p class="row-title">' + esc(t.title) + (urgent(db, t) ? ' ' + mark('warn') : '') + '</p><p class="row-sub">' + sub + '</p></div>' + (right ? '<div class="row-acts">' + right + '</div>' : '') + '</li>';
+    return '<li class="row' + (t.done ? ' is-done' : '') + (box ? '' : ' row--nolead') + (opt.assign ? ' row--stack' : '') + '">' + box + '<div class="row-main"><p class="row-title">' + esc(t.title) + (urgent(db, t) ? ' ' + mark('warn') : '') + '</p><p class="row-sub">' + sub + '</p></div>' + (right ? '<div class="row-acts">' + right + '</div>' : '') + '</li>';
   }
   function plannerTasks(db) {
     var done = db.tasks.filter(function (t) { return t.done; }), none = db.tasks.filter(function (t) { return !t.who && !t.done; });
@@ -359,7 +363,13 @@
       return '<li class="row">' + avatar(db, a.who) + '<div class="row-main"><p class="row-title">' + call(db, a.who) + ' · ' + esc(s.label) + '</p><p class="row-sub">' + sd(a.at) + '에 누름 · ' + md(s.by) + '까지 정하기로 한 자리</p></div>' +
         '<div class="row-acts"><a class="btn ' + (i === 0 ? 'btn--fill' : 'btn--line') + ' btn--sm" href="#/planner/plan">정하러 가기</a></div></li>';
     }).join('') + '</ul>';
-    h += '</section></div><aside class="col-rail"><section class="sec"><h2 class="h2">소식을 어디까지 봤는지</h2>';
+    h += '</section>';
+    if (db.slots.length) h += '<section class="sec"><h2 class="h2">가족에게 약속한 정하는 날</h2><p class="hint">부모님 화면의 "정하는 중" 자리에 이 날짜가 적혀 있어요. 가까운 순서예요.</p><ul class="rows rows--card">' +
+      db.slots.slice().sort(function (a, b) { return a.by < b.by ? -1 : a.by > b.by ? 1 : 0; }).map(function (sl) {
+        var left = diff(db.today, sl.by);
+        return '<li class="row"><span class="time">' + sd(sl.by) + '</span><div class="row-main"><p class="row-title">' + esc(sl.label) + ' ' + mark('wait') + '</p><p class="row-sub">후보 ' + db.items.filter(function (i) { return i.slot === sl.id; }).length + '개 · ' + (left >= 0 ? left + '일 남음' : '약속한 날이 지났어요') + '</p></div></li>';
+      }).join('') + '</ul></section>';
+    h += '</div><aside class="col-rail"><section class="sec"><h2 class="h2">소식을 어디까지 봤는지</h2>';
     if (!last) h += '<p class="hint">아직 보낸 소식이 없어요.</p>';
     else h += '<ul class="rows rows--card">' + db.members.filter(function (m) { return m.role !== 'planner' && m.role !== 'child'; }).map(function (m) {
       var seen = last.seen.indexOf(m.id) >= 0, mine = db.tasks.filter(function (t) { return t.who === m.id; });
@@ -376,7 +386,7 @@
     if (left <= 1) {
       var m = meetOf(db, 1), fl = db.items.filter(function (i) { return i.day === 1 && i.locked && i.kind === 'move'; })[0];
       h += '<p class="sub">내일 떠나요 · ' + md(db.trip.start) + '</p><h1 class="h0">' + ktime(m.time) + '</h1><p class="lead">' + esc(m.place) + '에서 만나요</p>' +
-        '<p class="sub">비행기는 ' + ktime(fl.time) + ' · 돌아오는 날 ' + md(db.trip.end) + '</p>';
+        '<p class="sub">비행기는 ' + ktime(fl.time) + '에 떠요</p>';
     } else {
       h += '<p class="sub">' + esc(db.trip.name) + ' · 여섯 식구</p><h1 class="h0">출발까지 ' + left + '일</h1><p class="lead">' + md(db.trip.start) + '에 가서 ' + md(db.trip.end) + '에 와요</p>';
     }
@@ -386,7 +396,7 @@
     h += '<ul class="flow">' + db.days.map(function (d) {
       var waits = units(db, d.n).filter(function (u) { return u.type === 'slot'; }).length, dt = D(d.date);
       return '<li><a class="flow-row" href="#/parent/day?d=' + d.n + '"><span class="flow-date">' + dt.getDate() + '일<small>' + WD[dt.getDay()] + '요일</small></span>' +
-        '<span class="row-main"><span class="row-title">' + esc(d.area) + '</span><span class="row-sub">' + (d.sleep ? '잠 · ' + esc(d.sleep) : '저녁에 집에 도착해요') + (waits ? ' · 정하는 중 ' + waits + '곳' : '') + '</span></span>' + ic('next') + '</a></li>';
+        '<span class="row-main"><span class="row-title">' + esc(d.area) + '</span><span class="row-sub">' + (d.sleep ? '잠 · ' + esc(d.nap || d.sleep) : '저녁에 집에 도착해요') + (waits ? ' · 정하는 중 ' + waits + '곳' : '') + '</span></span>' + ic('next') + '</a></li>';
     }).join('') + '</ul>';
     if (!news.length) h += mine.length ? '<a class="btn btn--fill btn--big" href="#/parent/pack">' + ic('bag') + '챙길 것 ' + mine.length + '가지 보기</a>' : '<p class="hint hint--center">챙길 것을 모두 챙기셨어요.</p>';
     return h;
@@ -400,9 +410,9 @@
       '<p class="lead">' + (d.sleep ? esc(d.sleep) + '에서 자요' : '저녁에 집에 도착해요') + '</p>' +
       (m ? '<p class="meet">' + ktime(m.time) + '에 ' + esc(m.place) + '에서 모여요</p>' : '') + '</header>';
     h += '<ul class="rows">' + u.map(function (x) {
-      if (x.type === 'slot') return '<li class="row row--wait"><span class="time">' + ktime(x.time).split(' ')[0] + '</span><div class="row-main"><p class="row-title">' + esc(x.slot.label) + ' ' + mark('wait') + '</p><p class="row-sub">' + md(x.slot.by) + '까지 정해요</p></div></li>';
+      if (x.type === 'slot') return '<li class="row row--wait"><span class="time">' + esc(x.slot.when || ktime(x.time).split(' ')[0]) + '</span><div class="row-main"><p class="row-title">' + esc(x.slot.what || '일정') + ' ' + mark('wait') + '</p><p class="row-sub">' + md(x.slot.by) + '까지 정해요</p></div></li>';
       var it = x.item;
-      return '<li class="row"><span class="time">' + ktime(it.time) + '</span><div class="row-main"><p class="row-title">' + esc(it.title) + '</p><p class="row-sub">' + esc(it.place) + (it.was ? ' · <span class="was">전에는 ' + esc(it.was) + '</span>' : '') + '</p></div></li>';
+      return '<li class="row"><span class="time">' + ktime(it.time) + '</span><div class="row-main"><p class="row-title">' + esc(it.title) + '</p><p class="row-sub">' + esc(it.place) + (it.was ? ' · ' + was(it.was) : '') + '</p></div></li>';
     }).join('') + '</ul>';
     if (waits.length) {
       h += asked ? '<button class="btn btn--line btn--big" disabled>' + ic('check') + '지현이에게 전했어요</button><p class="hint hint--center">정해지면 소식으로 알려 드려요.</p>'
@@ -432,7 +442,7 @@
     var list = db.news.filter(function (n) { return skip.indexOf(n) < 0; }).reverse();
     if (!list.length) return '';
     return '<section class="sec"><h2 class="h3">지난 소식</h2><ul class="rows">' + list.map(function (n) {
-      return '<li class="row"><div class="row-main"><p class="row-title">' + esc(n.title) + '</p><p class="row-sub">' + md(n.at) + ' · ' + changesOf(db, n.n).length + '가지</p></div></li>';
+      return '<li class="row row--nolead"><div class="row-main"><p class="row-title">' + esc(n.title) + '</p><p class="row-sub">' + md(n.at) + ' · ' + changesOf(db, n.n).length + '가지</p></div></li>';
     }).join('') + '</ul></section>';
   }
   function parentNews(db) {
@@ -454,11 +464,11 @@
     var left = dleft(db), m = meetOf(db, 1), mine = db.tasks.filter(function (t) { return t.who === ME.member && !t.done; });
     var soon = mine.slice().sort(function (a, b) { return a.due < b.due ? -1 : 1; })[0];
     var h = '<header class="hero"><p class="sub">' + (left <= 1 ? '내일 가야 할 곳' : '다음에 가야 할 곳 · 출발까지 ' + left + '일') + '</p><h1 class="h0">' + esc(m.time) + '</h1>' +
-      '<p class="lead">' + md(db.trip.start) + ' · ' + esc(m.place) + '</p>' + (m.was ? '<p class="sub"><span class="was">전에는 ' + esc(m.was) + '</span> · 비행기 시각이 바뀌어서</p>' : '') + '</header>';
+      '<p class="lead">' + md(db.trip.start) + ' · ' + esc(m.place) + '</p>' + (m.was ? '<p class="sub">' + was(m.was) + ' · 비행기 시각이 바뀌어서</p>' : '') + '</header>';
     h += mine.length ? '<a class="btn btn--fill btn--big" href="#/member/tasks">' + ic('list') + '내 할 일 ' + mine.length + '건 · 가까운 마감 ' + sd(soon.due) + '</a>' : '<p class="hint hint--center">맡은 일을 모두 끝냈어요.</p>';
     h += '<section class="sec"><h2 class="h3">날마다 모이는 시각과 장소</h2><ul class="rows">' + db.days.map(function (d) {
       var mt = meetOf(db, d.n), u = units(db, d.n), waits = u.filter(function (x) { return x.type === 'slot'; });
-      var fixed = u.filter(function (x) { return x.type === 'item' && !x.item.meet; }).slice(0, 2).map(function (x) { return x.item.time + ' ' + x.item.title; });
+      var fixed = [d.sleep ? '잠 ' + (d.nap || d.sleep) : '저녁에 집 도착', '확정 ' + u.filter(function (x) { return x.type === 'item'; }).length + '개'];
       if (waits.length) fixed.push('정하는 중 ' + waits.length + '곳');
       return '<li class="row"><span class="time">' + (mt ? esc(mt.time) : '미정') + '</span><div class="row-main"><p class="row-title">' + sd(d.date) + ' ' + (mt ? esc(mt.place) : '모이는 시각 정하는 중') + '</p><p class="row-sub">' + esc(fixed.join(' · ')) + '</p></div></li>';
     }).join('') + '</ul></section>';
@@ -607,7 +617,7 @@
     if (act === 'add-open') { UI.add = +el.getAttribute('data-day'); UI.edit = UI.cand = null; return done(); }
     if (act === 'cand-open') { UI.cand = el.getAttribute('data-slot'); UI.edit = UI.add = null; return done(); }
     if (act === 'confirm') { var t = itemOf(V, id).title; confirmItem(V, id); return done('"' + esc(t) + '" 확정. 보낼 소식에 담았어요. 알림은 아직 가지 않았어요.'); }
-    if (act === 'move') { var ok = swapTime(V, +el.getAttribute('data-day'), +el.getAttribute('data-idx'), +el.getAttribute('data-dir')); return done(ok ? '순서를 바꾸고 시각을 맞바꿨어요.' : ''); }
+    if (act === 'move') { var ok = swapTime(V, +el.getAttribute('data-day'), +el.getAttribute('data-idx'), +el.getAttribute('data-dir')); if (ok) UI.edit = null; return done(ok ? '순서를 바꾸고 시각을 맞바꿨어요.' : '예약이 끝난 항목과는 순서를 바꿀 수 없어요.'); }
     if (act === 'del') {
       var it = itemOf(V, id); V.items = V.items.filter(function (i) { return i.id !== id; });
       if (it.status === 'cand') { V.draftEdits++; if (!V.items.some(function (i) { return i.slot === it.slot; })) V.slots = V.slots.filter(function (s) { return s.id !== it.slot; }); }
@@ -649,7 +659,7 @@
     if (kind === 'add') {
       var n = +f.getAttribute('data-day'), st = val('status'), item = { id: uid('i'), day: n, kind: val('kind'), time: val('time'), title: val('title'), place: '', status: st };
       if (st === 'cand') {
-        var slot = { id: uid('s'), day: n, label: ORD[n - 1] + ' 날 ' + val('time') + ' 무렵', by: V.slots.length ? V.slots[V.slots.length - 1].by : '2026-10-31' };
+        var slot = { id: uid('s'), day: n, label: ORD[n - 1] + ' 날 ' + val('time') + ' 무렵', when: ktime(val('time')).split(' ')[0], what: '일정', by: V.slots.length ? V.slots[V.slots.length - 1].by : '2026-10-31' };
         V.slots.push(slot); item.slot = slot.id; V.draftEdits++;
       } else addChange(V, { kind: item.kind, text: ORD[n - 1] + ' 날에 더함', to: item.time + ' ' + item.title, from: '정하는 중' });
       V.items.push(item); sortItems(V); UI.add = null;
